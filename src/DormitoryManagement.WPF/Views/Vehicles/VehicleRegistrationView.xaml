@@ -18,7 +18,7 @@
                       HorizontalScrollBarVisibility="Disabled">
             <Grid HorizontalAlignment="Center"
                   MaxWidth="1440"
-                  Margin="24">
+                  Margin="32">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -27,7 +27,7 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0"
-                            Margin="0,0,0,16">
+                            Margin="0,0,0,24">
                     <TextBlock Text="{Binding RegistrationTitle}"
                                Style="{StaticResource VehicleRegistrationPageTitleTextStyle}" />
                     <TextBlock Text="Chọn thời hạn, nhập biển số xe máy, và quét mã QR để hoàn tất thanh toán gửi xe tháng này."
@@ -40,7 +40,7 @@
                                      Title="Không thể đăng ký giữ xe"
                                      Message="{Binding ErrorMessage}"
                                      Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}"
-                                     Margin="0,0,0,16" />
+                                     Margin="0,0,0,24" />
 
                 <Border Grid.Row="1"
                         Background="#FFF3E8"
@@ -48,7 +48,7 @@
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="12"
-                        Margin="0,0,0,16"
+                        Margin="0,0,0,24"
                         Visibility="{Binding HasSuccessMessage, Converter={StaticResource BoolToVisibility}}">
                     <TextBlock Text="{Binding SuccessMessage}"
                                Foreground="{StaticResource VehicleRegistrationPrimaryBrush}"
@@ -59,7 +59,7 @@
                 </Border>
 
                 <Grid Grid.Row="2"
-                      Margin="0,0,0,16">
+                      Margin="0,0,0,24">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="24" />
@@ -73,13 +73,13 @@
                                        Style="{StaticResource VehicleRegistrationSectionTitleTextStyle}" />
                             <Border Background="{StaticResource VehicleRegistrationSurfaceHighBrush}"
                                     Height="1"
-                                    Margin="0,12,0,18" />
+                                    Margin="0,16,0,24" />
 
                             <StackPanel>
                                 <TextBlock Text="{Binding LicensePlateLabel}"
                                            Style="{StaticResource VehicleRegistrationFieldLabelTextStyle}" />
-                                <ui:TextBox Width="220"
-                                            Height="44"
+                                <ui:TextBox Width="{StaticResource VehicleRegistrationInputWidth}"
+                                            Height="{StaticResource VehicleRegistrationInputHeight}"
                                             HorizontalAlignment="Left"
                                             VerticalContentAlignment="Center"
                                             Text="{Binding LicensePlate, UpdateSourceTrigger=PropertyChanged}"
@@ -121,7 +121,7 @@
                                     BorderBrush="{StaticResource VehicleRegistrationSurfaceContainerBrush}"
                                     BorderThickness="1"
                                     CornerRadius="8"
-                                    Padding="16"
+                                    Padding="20"
                                     Margin="0,12,0,0">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -142,7 +142,7 @@
                                     Command="{Binding SubmitCommand}"
                                     Style="{StaticResource VehicleRegistrationPrimaryButtonStyle}"
                                     MinWidth="128"
-                                    Height="40"
+                                    Height="{StaticResource VehicleRegistrationPrimaryButtonHeight}"
                                     HorizontalAlignment="Left"
                                     Margin="0,20,0,0" />
                         </StackPanel>
@@ -169,16 +169,16 @@
                                            TextAlignment="Center"
                                            Margin="0,8,0,0" />
 
-                                <Border Width="180"
-                                        Height="180"
+                                <Border Width="{StaticResource VehicleRegistrationQrFrameSize}"
+                                        Height="{StaticResource VehicleRegistrationQrFrameSize}"
                                         Background="{StaticResource VehicleRegistrationCanvasBrush}"
                                         BorderBrush="{StaticResource VehicleRegistrationOutlineVariantBrush}"
                                         BorderThickness="1"
                                         CornerRadius="12"
                                         Margin="0,20,0,0">
                                     <Grid>
-                                        <Border Width="148"
-                                                Height="148"
+                                        <Border Width="{StaticResource VehicleRegistrationQrCodeSize}"
+                                                Height="{StaticResource VehicleRegistrationQrCodeSize}"
                                                 Background="#EEF3FF"
                                                 CornerRadius="8"
                                                 HorizontalAlignment="Center"
@@ -251,7 +251,7 @@
                         Style="{StaticResource VehicleRegistrationCardStyle}"
                         Grid.IsSharedSizeScope="True">
                     <StackPanel>
-                        <Grid Margin="0,0,0,16">
+                        <Grid Margin="0,0,0,24">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
@@ -326,21 +326,21 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Text="{Binding RegisteredAtText}"
                                                            Style="{StaticResource VehicleRegistrationTableCellTextStyle}"
-                                                           Margin="8,12" />
+                                                           Margin="8,16" />
                                                 <TextBlock Grid.Column="1"
                                                            Text="{Binding LicensePlateText}"
                                                            Style="{StaticResource VehicleRegistrationTablePlateTextStyle}"
-                                                           Margin="8,12" />
+                                                           Margin="8,16" />
                                                 <TextBlock Grid.Column="2"
                                                            Text="{Binding DurationText}"
                                                            Style="{StaticResource VehicleRegistrationTableCellTextStyle}"
                                                            Foreground="{StaticResource VehicleRegistrationTextSecondaryBrush}"
-                                                           Margin="8,12" />
+                                                           Margin="8,16" />
                                                 <TextBlock Grid.Column="3"
                                                            Text="{Binding TotalAmountText}"
                                                            Style="{StaticResource VehicleRegistrationTableCellTextStyle}"
                                                            FontWeight="SemiBold"
-                                                           Margin="8,12" />
+                                                           Margin="8,16" />
                                                 <Border Grid.Column="4"
                                                         x:Name="StatusBadgeBorder"
                                                         CornerRadius="999"
@@ -460,6 +460,7 @@
                                  Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
     </Grid>
 </UserControl>
+
 
 
 

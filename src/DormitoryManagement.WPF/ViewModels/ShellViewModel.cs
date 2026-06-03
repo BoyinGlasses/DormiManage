@@ -12,6 +12,7 @@ using DormitoryManagement.WPF.ViewModels.Auth;
 using DormitoryManagement.WPF.ViewModels.Billing;
 using DormitoryManagement.WPF.ViewModels.Dashboard;
 using DormitoryManagement.WPF.ViewModels.Forum;
+using DormitoryManagement.WPF.ViewModels.Profile;
 using DormitoryManagement.WPF.ViewModels.Registrations;
 using DormitoryManagement.WPF.ViewModels.Rooms;
 using DormitoryManagement.WPF.ViewModels.Settings;
@@ -36,6 +37,7 @@ public sealed class ShellViewModel : ViewModelBase
     private readonly AsyncRelayCommand _loadNotificationsCommand;
     private readonly AsyncRelayCommand _toggleNotificationsCommand;
     private readonly AsyncRelayCommand _markNotificationsReadCommand;
+    private readonly RelayCommand _openProfileCommand;
     private string _currentPageTitle = "Đăng nhập";
     private string? _currentMenuKey;
     private int _unreadNotificationCount;
@@ -65,11 +67,13 @@ public sealed class ShellViewModel : ViewModelBase
         _loadNotificationsCommand = new AsyncRelayCommand(LoadNotificationsAsync, () => IsAuthenticated);
         _toggleNotificationsCommand = new AsyncRelayCommand(ToggleNotificationsAsync, () => IsAuthenticated);
         _markNotificationsReadCommand = new AsyncRelayCommand(MarkNotificationsReadAsync, () => IsAuthenticated && Notifications.Count > 0);
+        _openProfileCommand = new RelayCommand(OpenProfile, () => IsAuthenticated);
         NavigateCommand = _navigateCommand;
         LogoutCommand = _logoutCommand;
         LoadNotificationsCommand = _loadNotificationsCommand;
         ToggleNotificationsCommand = _toggleNotificationsCommand;
         MarkNotificationsReadCommand = _markNotificationsReadCommand;
+        OpenProfileCommand = _openProfileCommand;
 
         RebuildMenu();
         Navigate<LoginViewModel>("Đăng nhập");
@@ -92,6 +96,7 @@ public sealed class ShellViewModel : ViewModelBase
     public ICommand LoadNotificationsCommand { get; }
     public ICommand ToggleNotificationsCommand { get; }
     public ICommand MarkNotificationsReadCommand { get; }
+    public ICommand OpenProfileCommand { get; }
     public int UnreadNotificationCount
     {
         get => _unreadNotificationCount;
@@ -110,8 +115,9 @@ public sealed class ShellViewModel : ViewModelBase
     public bool HasNotifications => Notifications.Count > 0;
     public bool IsForumHomeChrome => CurrentViewModel is ForumHomeViewModel or ForumPostDetailViewModel;
     public bool IsStudentDashboardChrome => CurrentViewModel is StudentDashboardViewModel;
-    public bool IsVehicleRegistrationChrome => CurrentViewModel is VehicleRegistrationViewModel;
-    public bool IsDefaultTopBarChrome => IsTopBarVisible && !IsStudentDashboardChrome && !IsVehicleRegistrationChrome;
+    public bool IsVehicleRegistrationChrome => false;
+    public bool IsDefaultTopBarChrome => false;
+    public bool IsSharedTopBarChrome => IsTopBarVisible;
     public bool IsTopBarVisible => !IsForumHomeChrome;
     public bool IsNotificationPanelOpen
     {
@@ -223,6 +229,17 @@ public sealed class ShellViewModel : ViewModelBase
             _ => false
         };
 
+    private void OpenProfile()
+    {
+        if (!IsAuthenticated)
+        {
+            return;
+        }
+
+        CurrentPageTitle = "Profile";
+        _navigationService.NavigateTo<ProfileViewModel>();
+    }
+
     private async Task LogoutAsync()
     {
         if (!string.IsNullOrWhiteSpace(_currentUser.Email))
@@ -257,17 +274,9 @@ public sealed class ShellViewModel : ViewModelBase
             return;
         }
 
-        if (HasAnyRole(RoleNames.Manager, RoleNames.BuildingManager))
+        if (HasAnyRole(RoleNames.Manager))
         {
             AddManagementMenu(includeSettings: false);
-            return;
-        }
-
-        if (HasAnyRole(RoleNames.Staff))
-        {
-            MenuItems.Add(new ShellMenuItem("Support Tickets", "Tickets", "\uE90F"));
-            MenuItems.Add(new ShellMenuItem("Forum", "Topics", "\uE8F2"));
-            ActivateMenu(_currentMenuKey ?? "Tickets");
             return;
         }
 
@@ -324,6 +333,7 @@ public sealed class ShellViewModel : ViewModelBase
             OnPropertyChanged(nameof(IsStudentDashboardChrome));
             OnPropertyChanged(nameof(IsVehicleRegistrationChrome));
             OnPropertyChanged(nameof(IsDefaultTopBarChrome));
+            OnPropertyChanged(nameof(IsSharedTopBarChrome));
             OnPropertyChanged(nameof(IsTopBarVisible));
             CurrentPageTitle = CurrentViewModel switch
             {
@@ -342,6 +352,7 @@ public sealed class ShellViewModel : ViewModelBase
                 SupportTicketDetailViewModel => "Ticket detail",
                 ForumHomeViewModel => "Forum",
                 ForumPostDetailViewModel => "Forum",
+                ProfileViewModel => "Profile",
                 UserManagementViewModel => "Settings",
                 FeeTypeViewModel => "Fee types",
                 VehicleRegistrationViewModel => "Vehicle registration",
@@ -364,6 +375,7 @@ public sealed class ShellViewModel : ViewModelBase
                 SupportTicketDetailViewModel => "Tickets",
                 ForumHomeViewModel => "Topics",
                 ForumPostDetailViewModel => "Topics",
+                ProfileViewModel => _currentMenuKey,
                 UserManagementViewModel => "Users",
                 FeeTypeViewModel => "FeeTypes",
                 VehicleRegistrationViewModel => "Vehicles",
@@ -387,6 +399,7 @@ public sealed class ShellViewModel : ViewModelBase
         _loadNotificationsCommand.RaiseCanExecuteChanged();
         _toggleNotificationsCommand.RaiseCanExecuteChanged();
         _markNotificationsReadCommand.RaiseCanExecuteChanged();
+        _openProfileCommand.RaiseCanExecuteChanged();
         if (IsAuthenticated)
         {
             _ = LoadNotificationsAsync();
@@ -421,6 +434,7 @@ public sealed class ShellViewModel : ViewModelBase
 
         OnPropertyChanged(nameof(HasNotifications));
         _markNotificationsReadCommand.RaiseCanExecuteChanged();
+        _openProfileCommand.RaiseCanExecuteChanged();
     }
 
     private async Task ToggleNotificationsAsync()
@@ -465,6 +479,11 @@ public sealed class ShellNotificationItem
     public bool IsRead { get; }
     public DateTime CreatedAt { get; }
 }
+
+
+
+
+
 
 
 

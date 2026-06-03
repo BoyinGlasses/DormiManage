@@ -84,8 +84,8 @@ Use this file as a compact bootstrap for a fresh agent session. Keep `AGENTS.md`
 - Do not add REST controllers, JWT flows, API rate limiting, or web API assumptions unless explicitly requested.
 - Passwords must remain PBKDF2-SHA256 hashes; never persist plain text.
 - Students access only their own data.
-- Building Managers are scoped to assigned buildings.
-- Staff update assigned tickets only.
+- Managers with an assigned building are scoped to that building.
+- Managers update assigned tickets and related management workflows.
 - Admins administer the system.
 - Never commit `appsettings.Development.json` or personal connection strings.
 
@@ -125,3 +125,4 @@ dotnet ef database update --project DormitoryManagement.Infrastructure --startup
 - DI composition: `src/DormitoryManagement.WPF/Bootstrapper/DependencyInjection.cs`
 - EF context: `src/DormitoryManagement.Infrastructure/Data/DormitoryDbContext.cs`
 - Seed/demo logins: `src/DormitoryManagement.Infrastructure/Data/SeedData.cs`
+

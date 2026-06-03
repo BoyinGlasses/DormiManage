@@ -7,7 +7,6 @@ public sealed class PermissionServiceTests
 {
     [Theory]
     [InlineData(RoleNames.Manager)]
-    [InlineData(RoleNames.BuildingManager)]
     public async Task HasPermissionAsync_allows_managers_to_read_students(string roleName)
     {
         var service = new PermissionService(new TestCurrentUser(roleName));
@@ -23,3 +22,4 @@ public sealed class PermissionServiceTests
         Assert.False(await service.HasPermissionAsync("Forum.Legacy"));
     }
 }
+

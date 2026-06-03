@@ -31,14 +31,12 @@ public sealed class DbInitializer
 
         var adminRole = await EnsureRoleAsync(RoleNames.Admin, ct);
         var managerRole = await EnsureRoleAsync(RoleNames.Manager, ct);
-        var buildingManagerRole = await EnsureRoleAsync(RoleNames.BuildingManager, ct);
-        var staffRole = await EnsureRoleAsync(RoleNames.Staff, ct);
         var studentRole = await EnsureRoleAsync(RoleNames.Student, ct);
 
         await EnsureDemoUserAsync("admin", "admin@ktx.local", "System Admin", adminRole.Id, ct, "admin@dorm.local", "admin@example.local");
         var managerUser = await EnsureDemoUserAsync("manager", "manager@ktx.local", "Dormitory Manager", managerRole.Id, ct, "manager@dorm.local");
-        var buildingManagerUser = await EnsureDemoUserAsync("building.manager", "building.manager@ktx.local", "Building Manager", buildingManagerRole.Id, ct, "building.manager@dorm.local");
-        var staffUser = await EnsureDemoUserAsync("staff", "staff@ktx.local", "Support Staff", staffRole.Id, ct, "staff@dorm.local");
+        var buildingManagerUser = await EnsureDemoUserAsync("building.manager", "building.manager@ktx.local", "Building Manager", managerRole.Id, ct, "building.manager@dorm.local");
+        var staffUser = await EnsureDemoUserAsync("staff", "staff@ktx.local", "Support Manager", managerRole.Id, ct, "staff@dorm.local");
         var studentUser = await EnsureDemoUserAsync("student01", "student01@ktx.local", "Nguyen Van An", studentRole.Id, ct, "student001", "student001@dorm.local");
         await EnsureDemoUserAsync("student02", "student02@ktx.local", "Tran Thi Binh", studentRole.Id, ct);
         await EnsureDemoUserAsync("student03", "student03@ktx.local", "Le Minh Chau", studentRole.Id, ct);
@@ -155,7 +153,7 @@ public sealed class DbInitializer
         var buildingA = await _dbContext.Buildings.FirstOrDefaultAsync(x => x.Code == "A", ct);
         await EnsureManagerAsync("MGR001", managerUser, "Dormitory Manager", false, null, ct);
         await EnsureManagerAsync("BM001", buildingManagerUser, "Building Manager", true, buildingA?.Id, ct);
-        await EnsureManagerAsync("STF001", staffUser, "Support Staff", false, null, ct);
+        await EnsureManagerAsync("STF001", staffUser, "Support Manager", false, null, ct);
     }
 
     private async Task EnsureManagerAsync(
@@ -765,6 +763,8 @@ public sealed class DbInitializer
         DateTime DueDate);
 
 }
+
+
 
 
 

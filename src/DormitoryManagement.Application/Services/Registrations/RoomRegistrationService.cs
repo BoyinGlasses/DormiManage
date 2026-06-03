@@ -431,11 +431,11 @@ public sealed class RoomRegistrationService : IRoomRegistrationService
 
     private void EnsureCanManageRoom(Room room)
     {
-        if (_currentUser.IsInRole(RoleNames.BuildingManager)
+        if (_currentUser.IsInRole(RoleNames.Manager)
             && _currentUser.CurrentUser?.BuildingId is { } buildingId
             && room.BuildingId != buildingId)
         {
-            throw new InvalidOperationException("Building managers can manage only assigned building rooms.");
+            throw new InvalidOperationException("Managers can manage only assigned building rooms.");
         }
     }
 
@@ -469,6 +469,6 @@ public sealed class RoomRegistrationService : IRoomRegistrationService
 
         await _notifications.NotifyRoleAsync(RoleNames.Admin, title, message, ct);
         await _notifications.NotifyRoleAsync(RoleNames.Manager, title, message, ct);
-        await _notifications.NotifyRoleAsync(RoleNames.BuildingManager, title, message, ct);
     }
 }
+

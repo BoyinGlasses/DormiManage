@@ -70,10 +70,10 @@ public sealed class PaymentExtensionService : IPaymentExtensionService
             .Where(extension => extension.Status == PaymentExtensionStatus.Pending)
             .OrderBy(extension => extension.CreatedAt)
             .ToList();
-        if (_currentUser.IsInRole(RoleNames.BuildingManager))
+        if (_currentUser.IsInRole(RoleNames.Manager) && _currentUser.CurrentUser?.BuildingId is { })
         {
             var buildingId = _currentUser.CurrentUser?.BuildingId
-                ?? throw new InvalidOperationException("Building manager is not assigned to a building.");
+                ?? throw new InvalidOperationException("Manager is not assigned to a building.");
             var roomIds = _unitOfWork.Repository<Room>().Query()
                 .Where(room => room.BuildingId == buildingId)
                 .Select(room => room.Id)
@@ -187,18 +187,18 @@ public sealed class PaymentExtensionService : IPaymentExtensionService
 
     private void EnsureCanManageInvoice(Invoice invoice)
     {
-        if (!_currentUser.IsInRole(RoleNames.BuildingManager))
+        if (!(_currentUser.IsInRole(RoleNames.Manager) && _currentUser.CurrentUser?.BuildingId is { }))
         {
             return;
         }
 
         var buildingId = _currentUser.CurrentUser?.BuildingId
-            ?? throw new InvalidOperationException("Building manager is not assigned to a building.");
+            ?? throw new InvalidOperationException("Manager is not assigned to a building.");
         var room = _unitOfWork.Repository<Room>().GetByIdAsync(invoice.RoomId).GetAwaiter().GetResult()
             ?? throw new InvalidOperationException("Room was not found.");
         if (room.BuildingId != buildingId)
         {
-            throw new InvalidOperationException("Building managers can review only assigned building invoices.");
+            throw new InvalidOperationException("Managers can review only assigned building invoices.");
         }
     }
 
@@ -245,3 +245,4 @@ public sealed class PaymentExtensionService : IPaymentExtensionService
         return plusFive <= day15 ? plusFive : day15;
     }
 }
+

@@ -52,7 +52,7 @@ public sealed class StudentServiceTests
     }
 
     [Fact]
-    public async Task GetStudentsAsync_scopes_building_manager_to_assigned_building()
+    public async Task GetStudentsAsync_scopes_building_scoped_manager_to_assigned_building()
     {
         var unitOfWork = new InMemoryUnitOfWork();
         var buildingAId = Guid.NewGuid();
@@ -76,7 +76,7 @@ public sealed class StudentServiceTests
             new InMemoryStudentRepository(unitOfWork),
             new AllowAllPermissionService(),
             unitOfWork,
-            new TestCurrentUser(RoleNames.BuildingManager, buildingId: buildingAId));
+            new TestCurrentUser(RoleNames.Manager, buildingId: buildingAId));
 
         var result = await service.GetStudentsAsync();
 
@@ -84,3 +84,4 @@ public sealed class StudentServiceTests
         Assert.Equal("SV001", student.StudentCode);
     }
 }
+

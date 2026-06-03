@@ -17,7 +17,6 @@
                 <ComboBox Width="160" Margin="0,0,10,0">
                     <ComboBoxItem Content="Admin" />
                     <ComboBoxItem Content="Manager" />
-                    <ComboBoxItem Content="Staff" />
                     <ComboBoxItem Content="Student" />
                 </ComboBox>
                 <Button Content="Refresh" Command="{Binding LoadCommand}" />
@@ -40,3 +39,4 @@
         </DataGrid>
     </Grid>
 </UserControl>
+

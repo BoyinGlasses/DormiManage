@@ -25,8 +25,6 @@ internal static class SeedData
     {
         public static readonly Guid Admin = Guid.Parse("10000000-0000-0000-0000-000000000001");
         public static readonly Guid Manager = Guid.Parse("10000000-0000-0000-0000-000000000002");
-        public static readonly Guid BuildingManager = Guid.Parse("10000000-0000-0000-0000-000000000003");
-        public static readonly Guid Staff = Guid.Parse("10000000-0000-0000-0000-000000000004");
         public static readonly Guid Student = Guid.Parse("10000000-0000-0000-0000-000000000005");
     }
 
@@ -123,8 +121,6 @@ internal static class SeedData
         modelBuilder.Entity<Role>().HasData(
             new Role { Id = Roles.Admin, Name = RoleNames.Admin, Description = "System administrator", IsSystemRole = true, CreatedAt = SeededAt },
             new Role { Id = Roles.Manager, Name = RoleNames.Manager, Description = "Dormitory manager", IsSystemRole = true, CreatedAt = SeededAt },
-            new Role { Id = Roles.BuildingManager, Name = RoleNames.BuildingManager, Description = "Building manager", IsSystemRole = true, CreatedAt = SeededAt },
-            new Role { Id = Roles.Staff, Name = RoleNames.Staff, Description = "Operational staff", IsSystemRole = true, CreatedAt = SeededAt },
             new Role { Id = Roles.Student, Name = RoleNames.Student, Description = "Student resident", IsSystemRole = true, CreatedAt = SeededAt });
     }
 
@@ -133,8 +129,8 @@ internal static class SeedData
         modelBuilder.Entity<User>().HasData(
             User(Users.Admin, "admin", "admin@ktx.local", "System Admin", AdminPasswordHash, Roles.Admin),
             User(Users.Manager, "manager", "manager@ktx.local", "Dormitory Manager", ManagerPasswordHash, Roles.Manager),
-            User(Users.BuildingManager, "building.manager", "building.manager@ktx.local", "Building Manager", BuildingManagerPasswordHash, Roles.BuildingManager),
-            User(Users.Staff, "staff", "staff@ktx.local", "Support Staff", StaffPasswordHash, Roles.Staff),
+            User(Users.BuildingManager, "building.manager", "building.manager@ktx.local", "Building Manager", BuildingManagerPasswordHash, Roles.Manager),
+            User(Users.Staff, "staff", "staff@ktx.local", "Support Manager", StaffPasswordHash, Roles.Manager),
             User(Users.StudentOne, "student01", "student01@ktx.local", "Nguyen Van An", StudentOnePasswordHash, Roles.Student),
             User(Users.StudentTwo, "student02", "student02@ktx.local", "Tran Thi Binh", StudentTwoPasswordHash, Roles.Student),
             User(Users.StudentThree, "student03", "student03@ktx.local", "Le Minh Chau", StudentThreePasswordHash, Roles.Student));
@@ -164,7 +160,7 @@ internal static class SeedData
         modelBuilder.Entity<Manager>().HasData(
             new Manager { Id = Managers.Manager, StaffCode = "MGR001", FullName = "Dormitory Manager", UserId = Users.Manager, IsBuildingManager = false, CreatedAt = SeededAt, IsDeleted = false },
             new Manager { Id = Managers.BuildingManager, StaffCode = "BM001", FullName = "Building Manager", UserId = Users.BuildingManager, BuildingId = Buildings.A, IsBuildingManager = true, CreatedAt = SeededAt, IsDeleted = false },
-            new Manager { Id = Managers.Staff, StaffCode = "STF001", FullName = "Support Staff", UserId = Users.Staff, IsBuildingManager = false, CreatedAt = SeededAt, IsDeleted = false });
+            new Manager { Id = Managers.Staff, StaffCode = "STF001", FullName = "Support Manager", UserId = Users.Staff, IsBuildingManager = false, CreatedAt = SeededAt, IsDeleted = false });
 
         modelBuilder.Entity<Floor>().HasData(
             new Floor { Id = Floors.A1, BuildingId = Buildings.A, FloorNumber = 1, Name = "A - Floor 1", CreatedAt = SeededAt, IsDeleted = false },
@@ -323,3 +319,5 @@ internal static class SeedData
     }
 
 }
+
+

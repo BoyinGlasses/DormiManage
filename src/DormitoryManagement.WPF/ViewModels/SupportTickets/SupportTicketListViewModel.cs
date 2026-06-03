@@ -60,9 +60,7 @@ public sealed class SupportTicketListViewModel : ViewModelBase
     public ICommand ApplyFiltersCommand { get; }
     public ICommand ClearFiltersCommand { get; }
     public bool IsStaffUser => _currentUser.IsInRole(RoleNames.Admin)
-        || _currentUser.IsInRole(RoleNames.Manager)
-        || _currentUser.IsInRole(RoleNames.BuildingManager)
-        || _currentUser.IsInRole(RoleNames.Staff);
+        || _currentUser.IsInRole(RoleNames.Manager);
     public bool HasTickets => Tickets.Count > 0;
     public bool IsTicketsEmpty => _hasLoaded && !IsBusy && Tickets.Count == 0;
 
@@ -279,3 +277,4 @@ public sealed class SupportTicketListViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsStaffUser));
     }
 }
+

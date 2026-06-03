@@ -48,6 +48,6 @@ dotnet ef database update --project DormitoryManagement.Infrastructure --startup
 | --- | --- |
 | Admin | `admin@ktx.local` or `admin` |
 | Manager | `manager@ktx.local` or `manager` |
-| BuildingManager | `building.manager@ktx.local` or `building.manager` |
-| Staff | `staff@ktx.local` or `staff` |
+| Manager | `building.manager@ktx.local` or `building.manager` |
+| Manager | `staff@ktx.local` or `staff` |
 | Student | `student01@ktx.local`, `student01`, or student code `SV001` |

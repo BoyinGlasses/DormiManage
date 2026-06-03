@@ -9,6 +9,7 @@ using DormitoryManagement.WPF.ViewModels;
 using DormitoryManagement.WPF.ViewModels.Billing;
 using DormitoryManagement.WPF.ViewModels.Dashboard;
 using DormitoryManagement.WPF.ViewModels.Forum;
+using DormitoryManagement.WPF.ViewModels.Profile;
 using DormitoryManagement.WPF.ViewModels.Vehicles;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -41,8 +42,6 @@ public sealed class ShellViewModelTests
     [Theory]
     [InlineData(RoleNames.Admin, true)]
     [InlineData(RoleNames.Manager, true)]
-    [InlineData(RoleNames.BuildingManager, true)]
-    [InlineData(RoleNames.Staff, false)]
     public void Non_student_payment_menu_behavior_is_unchanged(string roleName, bool expectedPaymentsMenu)
     {
         var shell = new ShellViewModel(
@@ -73,12 +72,13 @@ public sealed class ShellViewModelTests
         navigationStore.CurrentViewModel = new StudentDashboardViewModel(new ThrowingScopeFactory(), StudentUser(), new RecordingNavigationService());
 
         Assert.True(shell.IsStudentDashboardChrome);
+        Assert.False(shell.IsVehicleRegistrationChrome);
         Assert.True(shell.IsTopBarVisible);
         Assert.Equal("Dashboard", shell.CurrentPageTitle);
     }
 
     [Fact]
-    public void Vehicle_registration_route_enables_vehicle_registration_chrome_mode()
+    public void Vehicle_registration_route_uses_shared_dashboard_top_bar_chrome()
     {
         var navigationStore = new NavigationStore();
         var shell = new ShellViewModel(
@@ -92,8 +92,10 @@ public sealed class ShellViewModelTests
 
         navigationStore.CurrentViewModel = new VehicleRegistrationViewModel(new StubVehicleService());
 
-        Assert.True(shell.IsVehicleRegistrationChrome);
+        Assert.False(shell.IsVehicleRegistrationChrome);
         Assert.False(shell.IsStudentDashboardChrome);
+        Assert.False(shell.IsDefaultTopBarChrome);
+        Assert.True(shell.IsSharedTopBarChrome);
         Assert.True(shell.IsTopBarVisible);
         Assert.Equal("Vehicle registration", shell.CurrentPageTitle);
         Assert.Contains(shell.MenuItems, item => item.Key == "Vehicles" && item.IsActive);
@@ -120,8 +122,71 @@ public sealed class ShellViewModelTests
         Assert.Equal("Forum", shell.CurrentPageTitle);
     }
 
+    [Fact]
+    public void Vehicle_registration_route_never_falls_back_to_default_or_vehicle_specific_top_bar_chrome()
+    {
+        var navigationStore = new NavigationStore();
+        var shell = new ShellViewModel(
+            navigationStore,
+            new RecordingNavigationService(),
+            StudentUser(),
+            new StubSessionService(),
+            new StubRememberedLoginService(),
+            new ThrowingScopeFactory(),
+            new SessionState());
+
+        navigationStore.CurrentViewModel = new VehicleRegistrationViewModel(new StubVehicleService());
+
+        Assert.False(shell.IsDefaultTopBarChrome);
+        Assert.False(shell.IsVehicleRegistrationChrome);
+        Assert.True(shell.IsSharedTopBarChrome);
+        Assert.True(shell.IsTopBarVisible);
+    }
+
+    [Fact]
+    public void Vehicle_registration_chrome_state_clears_when_returning_to_student_dashboard()
+    {
+        var navigationStore = new NavigationStore();
+        var shell = new ShellViewModel(
+            navigationStore,
+            new RecordingNavigationService(),
+            StudentUser(),
+            new StubSessionService(),
+            new StubRememberedLoginService(),
+            new ThrowingScopeFactory(),
+            new SessionState());
+
+        navigationStore.CurrentViewModel = new VehicleRegistrationViewModel(new StubVehicleService());
+        navigationStore.CurrentViewModel = new StudentDashboardViewModel(new ThrowingScopeFactory(), StudentUser(), new RecordingNavigationService());
+
+        Assert.False(shell.IsVehicleRegistrationChrome);
+        Assert.True(shell.IsStudentDashboardChrome);
+        Assert.False(shell.IsDefaultTopBarChrome);
+        Assert.True(shell.IsSharedTopBarChrome);
+    }
+
+
+    [Fact]
+    public void Open_profile_command_navigates_to_profile_without_clearing_active_menu()
+    {
+        var navigation = new RecordingNavigationService();
+        var shell = new ShellViewModel(
+            new NavigationStore(),
+            navigation,
+            StudentUser(),
+            new StubSessionService(),
+            new StubRememberedLoginService(),
+            new ThrowingScopeFactory(),
+            new SessionState());
+
+        shell.NavigateCommand.Execute("Vehicles");
+        shell.OpenProfileCommand.Execute(null);
+
+        Assert.Equal(typeof(ProfileViewModel), navigation.LastViewModelType);
+        Assert.Equal("Profile", shell.CurrentPageTitle);
+        Assert.Contains(shell.MenuItems, item => item.Key == "Vehicles" && item.IsActive);
+    }
     private static ICurrentUserService StudentUser() => new StubCurrentUser(RoleNames.Student, Guid.NewGuid());
-    private static ICurrentUserService UnauthenticatedUser() => new StubAnonymousCurrentUser();
     private static ICurrentUserService User(string roleName) => new StubCurrentUser(roleName, Guid.NewGuid());
 
     private sealed class RecordingNavigationService : INavigationService
@@ -168,18 +233,6 @@ public sealed class ShellViewModelTests
         public Task CancelVehicleAsync(Guid registrationId, CancellationToken ct = default) => Task.CompletedTask;
     }
 
-
-    private sealed class StubAnonymousCurrentUser : ICurrentUserService
-    {
-        public CurrentUserDto? CurrentUser => null;
-        public Guid? UserId => null;
-        public string? UserName => null;
-        public string? Email => null;
-        public string? FullName => null;
-        public IReadOnlyCollection<string> Roles => Array.Empty<string>();
-        public bool IsAuthenticated => false;
-        public bool IsInRole(string roleName) => false;
-    }
     private sealed class StubCurrentUser : ICurrentUserService
     {
         public StubCurrentUser(string roleName, Guid studentId)
@@ -205,4 +258,9 @@ public sealed class ShellViewModelTests
         public bool IsInRole(string roleName) => Roles.Contains(roleName, StringComparer.OrdinalIgnoreCase);
     }
 }
+
+
+
+
+
 

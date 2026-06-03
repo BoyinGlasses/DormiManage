@@ -937,7 +937,7 @@ namespace DormitoryManagement.Infrastructure.Migrations
                         {
                             Id = new Guid("30000000-0000-0000-0000-000000000003"),
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            FullName = "Support Staff",
+                            FullName = "Support Manager",
                             IsBuildingManager = false,
                             IsDeleted = false,
                             StaffCode = "STF001",
@@ -1324,22 +1324,6 @@ namespace DormitoryManagement.Infrastructure.Migrations
                             Description = "Dormitory manager",
                             IsSystemRole = true,
                             Name = "Manager"
-                        },
-                        new
-                        {
-                            Id = new Guid("10000000-0000-0000-0000-000000000003"),
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Building manager",
-                            IsSystemRole = true,
-                            Name = "BuildingManager"
-                        },
-                        new
-                        {
-                            Id = new Guid("10000000-0000-0000-0000-000000000004"),
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Operational staff",
-                            IsSystemRole = true,
-                            Name = "Staff"
                         },
                         new
                         {
@@ -2060,7 +2044,7 @@ namespace DormitoryManagement.Infrastructure.Migrations
                             FullName = "Building Manager",
                             IsDeleted = false,
                             PasswordHash = "PBKDF2-SHA256$100000$shzcddxynvdmqHIpBAS/wQ==$CPeXdT7up4frQzlyddcXP9sNR7rml8supu2XIy/WdeM=",
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000003"),
+                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
                             Status = "Active",
                             Username = "building.manager"
                         },
@@ -2070,10 +2054,10 @@ namespace DormitoryManagement.Infrastructure.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "staff@ktx.local",
                             FailedLoginCount = 0,
-                            FullName = "Support Staff",
+                            FullName = "Support Manager",
                             IsDeleted = false,
                             PasswordHash = "PBKDF2-SHA256$100000$x6lroz/EWVMoSbusCwB7ZQ==$CZwfTn5eHRl8Ph4KsM9Fm3H712ujYp647a+6LaR1NW8=",
-                            RoleId = new Guid("10000000-0000-0000-0000-000000000004"),
+                            RoleId = new Guid("10000000-0000-0000-0000-000000000002"),
                             Status = "Active",
                             Username = "staff"
                         },

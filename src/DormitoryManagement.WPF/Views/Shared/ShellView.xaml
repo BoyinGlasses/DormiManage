@@ -11,6 +11,7 @@
              xmlns:vehicles="clr-namespace:DormitoryManagement.WPF.Views.Vehicles"
              xmlns:tickets="clr-namespace:DormitoryManagement.WPF.Views.SupportTickets"
              xmlns:forum="clr-namespace:DormitoryManagement.WPF.Views.Forum"
+             xmlns:profile="clr-namespace:DormitoryManagement.WPF.Views.Profile"
              xmlns:settings="clr-namespace:DormitoryManagement.WPF.Views.Settings"
              xmlns:shared="clr-namespace:DormitoryManagement.WPF.Views.Shared"
              xmlns:vmAudit="clr-namespace:DormitoryManagement.WPF.ViewModels.Audit"
@@ -23,6 +24,7 @@
              xmlns:vmVehicles="clr-namespace:DormitoryManagement.WPF.ViewModels.Vehicles"
              xmlns:vmTickets="clr-namespace:DormitoryManagement.WPF.ViewModels.SupportTickets"
              xmlns:vmForum="clr-namespace:DormitoryManagement.WPF.ViewModels.Forum"
+             xmlns:vmProfile="clr-namespace:DormitoryManagement.WPF.ViewModels.Profile"
              xmlns:vmSettings="clr-namespace:DormitoryManagement.WPF.ViewModels.Settings"
              TextElement.Foreground="{StaticResource TextPrimaryBrush}">
     <UserControl.Resources>
@@ -46,6 +48,7 @@
         <DataTemplate DataType="{x:Type vmTickets:SupportTicketDetailViewModel}"><tickets:SupportTicketDetailView /></DataTemplate>
         <DataTemplate DataType="{x:Type vmForum:ForumHomeViewModel}"><forum:ForumHomeView /></DataTemplate>
         <DataTemplate DataType="{x:Type vmForum:ForumPostDetailViewModel}"><forum:ForumPostDetailView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vmProfile:ProfileViewModel}"><profile:ProfileView /></DataTemplate>
         <DataTemplate DataType="{x:Type vmSettings:UserManagementViewModel}"><settings:UserManagementView /></DataTemplate>
         <DataTemplate DataType="{x:Type vmSettings:FeeTypeViewModel}"><settings:FeeTypeView /></DataTemplate>
     </UserControl.Resources>
@@ -212,6 +215,8 @@
         </Grid>
     </Grid>
 </UserControl>
+
+
 
 
 
