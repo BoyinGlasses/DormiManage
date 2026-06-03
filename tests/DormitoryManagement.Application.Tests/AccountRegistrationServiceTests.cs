@@ -262,6 +262,20 @@ public sealed class AccountRegistrationServiceTests
         }
     }
 
+    [Fact]
+    public async Task StartStudentAccountRegistrationAsync_preserves_profile_fields_in_pending_registration()
+    {
+        var fixture = AccountRegistrationFixture.Create();
+        var request = ValidRequest();
+
+        var result = await fixture.Service.StartStudentAccountRegistrationAsync(request);
+
+        Assert.True(result.Succeeded, result.ErrorMessage);
+        var pending = Assert.Single(fixture.PendingRegistrations.Items);
+        Assert.Equal("0900000000", pending.PhoneNumber);
+        Assert.Equal("Male", pending.Gender);
+        Assert.Equal(new DateTime(2004, 1, 1), pending.DateOfBirth);
+    }
     private static RegisterAccountRequest ValidRequest() =>
         new()
         {
@@ -364,3 +378,4 @@ public sealed class AccountRegistrationServiceTests
         public bool IsInRole(string roleName) => Roles.Contains(roleName, StringComparer.OrdinalIgnoreCase);
     }
 }
+

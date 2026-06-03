@@ -14,9 +14,11 @@ using DormitoryManagement.Application.DTOs.Auth;
 using DormitoryManagement.Application.DTOs.Dashboard;
 using DormitoryManagement.Application.DTOs.Registrations;
 using DormitoryManagement.Application.DTOs.Rooms;
+using DormitoryManagement.Application.DTOs.Vehicles;
 using DormitoryManagement.Application.Services.Dashboard;
 using DormitoryManagement.Application.Services.Registrations;
 using DormitoryManagement.Application.Services.Rooms;
+using DormitoryManagement.Application.Services.Vehicles;
 using DormitoryManagement.Domain.Enums;
 using DormitoryManagement.WPF.Common;
 using DormitoryManagement.WPF.Navigation;
@@ -26,7 +28,9 @@ using DormitoryManagement.WPF.Views.Auth;
 using DormitoryManagement.Application.Services.Auth;
 using DormitoryManagement.WPF.ViewModels.Dashboard;
 using DormitoryManagement.WPF.ViewModels.Registrations;
+using DormitoryManagement.WPF.ViewModels.Vehicles;
 using DormitoryManagement.WPF.Views.Dashboard;
+using DormitoryManagement.WPF.Views.Vehicles;
 using Microsoft.Extensions.DependencyInjection;
 using DormitoryManagement.WPF.ViewModels.Forum;
 using DormitoryManagement.WPF.Views.Forum;
@@ -1888,6 +1892,148 @@ public sealed class WpfResourceTests
         Assert.Contains("Create Activity", xaml, StringComparison.Ordinal);
         Assert.Contains("Cancel", xaml, StringComparison.Ordinal);
     }
+    [Fact]
+    public void Compiled_resources_include_vehicle_registration_view_and_tokens()
+    {
+        var keys = GetCompiledResourceKeys();
+
+        Assert.Contains("views/vehicles/vehicleregistrationview.baml", keys);
+        Assert.Contains("resources/vehicleregistration.baml", keys);
+    }
+
+    [Fact]
+    public void Vehicle_registration_resources_define_recovery_typography_and_geometry_tokens()
+    {
+        var document = LoadVehicleRegistrationResourceDocument();
+
+        AssertResourceValue(document, "Double", "VehicleRegistrationPagePadding", "32");
+        AssertResourceValue(document, "Double", "VehicleRegistrationSectionGap", "24");
+        AssertResourceValue(document, "Double", "VehicleRegistrationCardPaddingDesktop", "32");
+        AssertResourceValue(document, "Double", "VehicleRegistrationQrFrameSize", "192");
+        AssertResourceValue(document, "Double", "VehicleRegistrationQrCodeSize", "160");
+
+        AssertStyleSetter(document, "VehicleRegistrationPageTitleTextStyle", "FontSize", "32");
+        AssertStyleSetter(document, "VehicleRegistrationPageTitleTextStyle", "LineHeight", "40");
+        AssertStyleSetter(document, "VehicleRegistrationSectionTitleTextStyle", "FontSize", "24");
+        AssertStyleSetter(document, "VehicleRegistrationSectionTitleTextStyle", "LineHeight", "32");
+        AssertStyleSetter(document, "VehicleRegistrationFieldLabelTextStyle", "FontSize", "14");
+        AssertStyleSetter(document, "VehicleRegistrationFieldLabelTextStyle", "LineHeight", "20");
+        AssertStyleSetter(document, "VehicleRegistrationPriceTextStyle", "FontSize", "24");
+    }
+
+    [Fact]
+    public void Shared_topbar_xaml_uses_dashboard_chrome_for_all_non_forum_routes_and_avatar_opens_profile()
+    {
+        var document = LoadTopBarDocument();
+        var sharedChromeBorder = document.Root!
+            .Descendants(WpfNamespace + "Border")
+            .First(element => string.Equals(element.Attribute("Visibility")?.Value, "{Binding IsSharedTopBarChrome, Converter={StaticResource BoolToVisibility}}", StringComparison.Ordinal));
+        var xaml = sharedChromeBorder.ToString(SaveOptions.DisableFormatting);
+
+        Assert.Contains("DormManagement", xaml);
+        Assert.Contains("CurrentPageTitle", xaml);
+        Assert.Contains("OpenProfileCommand", xaml);
+        Assert.DoesNotContain("Lumina Community", xaml, StringComparison.Ordinal);
+        Assert.DoesNotContain("Content=\"Dashboard\"", xaml, StringComparison.Ordinal);
+        Assert.DoesNotContain("Content=\"My Room\"", xaml, StringComparison.Ordinal);
+        Assert.DoesNotContain("Content=\"Invoices\"", xaml, StringComparison.Ordinal);
+        Assert.DoesNotContain("Content=\"Vehicles\"", xaml, StringComparison.Ordinal);
+        Assert.DoesNotContain("Content=\"Forum\"", xaml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Vehicle_registration_view_can_render_offscreen_and_capture_recovery_artifact()
+    {
+        RunOnStaThread(() =>
+        {
+            EnsureApplicationResources();
+            var viewModel = new VehicleRegistrationViewModel(new VehicleRegistrationStubVehicleService());
+            var view = new VehicleRegistrationView
+            {
+                DataContext = viewModel,
+                Width = 1440,
+                Height = 1080
+            };
+            var window = new Window
+            {
+                Width = 1440,
+                Height = 1080,
+                Content = view,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = -10000,
+                Top = -10000,
+                ShowInTaskbar = false,
+                Background = Brushes.White
+            };
+
+            try
+            {
+                window.Show();
+                WaitForLayout();
+                WaitUntil(() => viewModel.HistoryReviewRows.Count == 3);
+
+                var repoRoot = FindRepositoryRoot();
+                var artifactPath = Path.Combine(repoRoot, ".ai", "artifacts", "vehicle-registration-wpf-recovery.png");
+                SaveFrameworkElementAsPng(view, artifactPath);
+
+                Assert.True(File.Exists(artifactPath));
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
+
+
+    [Fact]
+    public void Vehicle_registration_view_reflows_without_horizontal_overflow_at_narrower_desktop_width()
+    {
+        RunOnStaThread(() =>
+        {
+            EnsureApplicationResources();
+            var viewModel = new VehicleRegistrationViewModel(new VehicleRegistrationStubVehicleService());
+            var view = new VehicleRegistrationView
+            {
+                DataContext = viewModel,
+                Width = 1024,
+                Height = 900
+            };
+            var window = new Window
+            {
+                Width = 1024,
+                Height = 900,
+                Content = view,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = -10000,
+                Top = -10000,
+                ShowInTaskbar = false,
+                Background = Brushes.White
+            };
+
+            try
+            {
+                window.Show();
+                WaitForLayout();
+                WaitUntil(() => viewModel.HistoryReviewRows.Count == 3);
+
+                var scrollViewer = FindDescendants<ScrollViewer>(view).Where(candidate => candidate.IsVisible && candidate.ActualHeight > 0).OrderByDescending(candidate => candidate.ActualWidth * candidate.ActualHeight).First();
+                Assert.True(scrollViewer.ScrollableWidth <= 0.5, $"Expected no horizontal overflow, but ScrollableWidth={scrollViewer.ScrollableWidth}.");
+
+                var registrationTitle = FindVisibleTextBlock(view, "Thông tin đăng ký");
+                var paymentTitle = FindVisibleTextBlock(view, "Thanh toán chuyển khoản");
+                var paymentBounds = GetBoundsRelativeToAncestor(paymentTitle, view);
+                var registrationBounds = GetBoundsRelativeToAncestor(registrationTitle, view);
+
+                Assert.True(paymentBounds.Right <= view.ActualWidth + 0.5, $"Expected payment card within viewport. Right={paymentBounds.Right}, ViewWidth={view.ActualWidth}.");
+                Assert.True(paymentBounds.Left > registrationBounds.Left, "Expected payment card to remain positioned after the registration card.");
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
     private static XDocument LoadMainWindowDocument()
     {
         var repoRoot = FindRepositoryRoot();
@@ -1906,6 +2052,33 @@ public sealed class WpfResourceTests
         return XDocument.Load(viewPath);
     }
 
+
+    private static XDocument LoadTopBarDocument()
+    {
+        var repoRoot = FindRepositoryRoot();
+        var viewPath = Path.Combine(repoRoot, "src", "DormitoryManagement.WPF", "Views", "Shared", "TopBar.xaml");
+
+        Assert.True(File.Exists(viewPath), $"Expected top bar view '{viewPath}' to exist.");
+        return XDocument.Load(viewPath);
+    }
+
+    private static XDocument LoadVehicleRegistrationViewDocument()
+    {
+        var repoRoot = FindRepositoryRoot();
+        var viewPath = Path.Combine(repoRoot, "src", "DormitoryManagement.WPF", "Views", "Vehicles", "VehicleRegistrationView.xaml");
+
+        Assert.True(File.Exists(viewPath), $"Expected vehicle registration view '{viewPath}' to exist.");
+        return XDocument.Load(viewPath);
+    }
+
+    private static XDocument LoadVehicleRegistrationResourceDocument()
+    {
+        var repoRoot = FindRepositoryRoot();
+        var viewPath = Path.Combine(repoRoot, "src", "DormitoryManagement.WPF", "Resources", "VehicleRegistration.xaml");
+
+        Assert.True(File.Exists(viewPath), $"Expected vehicle registration resources '{viewPath}' to exist.");
+        return XDocument.Load(viewPath);
+    }
 
     [Fact]
     public void Compiled_resources_include_login_view_and_tokens()
@@ -2225,6 +2398,93 @@ public sealed class WpfResourceTests
         Assert.True(File.Exists(resourcePath), $"Expected student-dashboard resource dictionary '{resourcePath}' to exist.");
         return XDocument.Load(resourcePath);
     }
+    [Fact]
+    public void Register_view_reflows_without_horizontal_overflow_at_narrower_desktop_width()
+    {
+        RunOnStaThread(() =>
+        {
+            EnsureApplicationResources();
+            var view = CreateRegisterView();
+            var window = new Window
+            {
+                Width = 1040,
+                Height = 960,
+                Content = view,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = -10000,
+                Top = -10000,
+                ShowInTaskbar = false,
+                Background = Brushes.White
+            };
+
+            try
+            {
+                window.Show();
+                WaitForLayout();
+
+                var scrollViewers = FindDescendants<ScrollViewer>(view)
+                    .Where(scrollViewer => scrollViewer.IsVisible)
+                    .ToArray();
+
+                Assert.NotEmpty(scrollViewers);
+                Assert.All(scrollViewers, scrollViewer => Assert.True(
+                    scrollViewer.ScrollableWidth <= 0.5,
+                    $"Expected no horizontal overflow, but '{scrollViewer.Name}' reported ScrollableWidth={scrollViewer.ScrollableWidth}."));
+
+                var texts = GetVisibleStringValues(view);
+                Assert.Contains("Đăng ký tài khoản", texts);
+                                Assert.Contains("Đăng nhập", texts);
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
+
+    [Fact]
+    public void Register_view_keeps_otp_actions_visible_in_same_shell_after_send_code()
+    {
+        RunOnStaThread(() =>
+        {
+            EnsureApplicationResources();
+            var viewModel = CreateRegisterViewModel();
+            PopulateValidRegisterForm(viewModel);
+            viewModel.AcceptsTerms = true;
+            viewModel.RegisterCommand.Execute(null);
+            WaitUntil(() => viewModel.IsOtpStep);
+
+            var view = CreateRegisterView(viewModel);
+            var window = new Window
+            {
+                Width = 1320,
+                Height = 960,
+                Content = view,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = -10000,
+                Top = -10000,
+                ShowInTaskbar = false,
+                Background = Brushes.White
+            };
+
+            try
+            {
+                window.Show();
+                WaitForLayout();
+
+                var texts = GetVisibleStringValues(view);
+                Assert.Contains("Xác minh email", texts);
+                Assert.Contains("Nhập mã xác minh gồm 6 chữ số được gửi tới email của bạn để hoàn tất đăng ký.", texts);
+                Assert.Contains("Xác minh", texts);
+                Assert.Contains("Gửi lại", texts);
+                Assert.Contains("Đăng nhập", texts);
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
     private static HashSet<string> GetCompiledResourceKeys()
     {
         var assembly = typeof(MainWindow).Assembly;
@@ -2461,6 +2721,88 @@ public sealed class WpfResourceTests
         Assert.True(condition());
     }
 
+    private static RegisterView CreateRegisterView(RegisterViewModel? viewModel = null)
+    {
+        return new RegisterView
+        {
+            DataContext = viewModel ?? CreateRegisterViewModel(),
+            Width = 1320,
+            Height = 960
+        };
+    }
+
+    private static RegisterViewModel CreateRegisterViewModel(IAccountRegistrationService? service = null)
+    {
+        return new RegisterViewModel(
+            service ?? new RegisterStubRegistrationService(),
+            new RecordingNavigationService(),
+            new LoginStubPrefillState());
+    }
+
+    private static void PopulateValidRegisterForm(RegisterViewModel viewModel)
+    {
+        viewModel.FullName = "Nguyễn Văn A";
+        viewModel.StudentCode = "20230001";
+        viewModel.Username = "nguyenvana";
+        viewModel.DateOfBirth = new DateTime(2004, 1, 1);
+        viewModel.SelectedGender = "Nam";
+        viewModel.PhoneNumber = "0901234567";
+        viewModel.Email = "student@example.edu.vn";
+        viewModel.Password = "123456";
+        viewModel.ConfirmPassword = "123456";
+    }
+    private sealed class VehicleRegistrationStubVehicleService : IVehicleService
+    {
+        public Task<IReadOnlyList<VehicleRegistrationDto>> GetCurrentStudentVehicleRegistrationsAsync(DateTime? asOfDate = null, CancellationToken ct = default)
+        {
+            IReadOnlyList<VehicleRegistrationDto> registrations =
+            [
+                new VehicleRegistrationDto
+                {
+                    Id = Guid.NewGuid(),
+                    LicensePlate = "59A1-23456",
+                    NormalizedPlate = "59A1-23456",
+                    MonthCount = 3,
+                    Amount = 120000m,
+                    Status = VehicleStatus.Approved,
+                    StatusText = "Đã duyệt",
+                    RegisteredAt = new DateTime(2023, 10, 15)
+                },
+                new VehicleRegistrationDto
+                {
+                    Id = Guid.NewGuid(),
+                    LicensePlate = "59A1-23456",
+                    NormalizedPlate = "59A1-23456",
+                    MonthCount = 1,
+                    Amount = 40000m,
+                    Status = VehicleStatus.Expired,
+                    StatusText = "Hết hạn",
+                    RegisteredAt = new DateTime(2023, 9, 10)
+                },
+                new VehicleRegistrationDto
+                {
+                    Id = Guid.NewGuid(),
+                    LicensePlate = "59A1-23456",
+                    NormalizedPlate = "59A1-23456",
+                    MonthCount = 1,
+                    Amount = 40000m,
+                    Status = VehicleStatus.Expired,
+                    StatusText = "Hết hạn",
+                    RegisteredAt = new DateTime(2023, 8, 10)
+                }
+            ];
+
+            return Task.FromResult(registrations);
+        }
+
+        public Task<VehicleRegistrationDto> RegisterVehicleAsync(CreateVehicleRegistrationRequest request, CancellationToken ct = default) =>
+            throw new NotSupportedException();
+
+        public Task ApproveVehicleAsync(Guid registrationId, CancellationToken ct = default) => Task.CompletedTask;
+        public Task RejectVehicleAsync(Guid registrationId, string reason, CancellationToken ct = default) => Task.CompletedTask;
+        public Task CancelVehicleAsync(Guid registrationId, CancellationToken ct = default) => Task.CompletedTask;
+    }
+
     private sealed class LoginStubAuthService : IAuthService
     {
         public Task<LoginResult> LoginAsync(LoginRequest request, CancellationToken ct = default) =>
@@ -2568,6 +2910,23 @@ public sealed class WpfResourceTests
         public Task ChangeRoomStatusAsync(Guid roomId, RoomStatus status, CancellationToken ct = default) => Task.CompletedTask;
     }
 
+    private sealed class RegisterStubRegistrationService : IAccountRegistrationService
+    {
+        public Task<StartAccountRegistrationResult> StartStudentAccountRegistrationAsync(RegisterAccountRequest request, CancellationToken ct = default)
+        {
+            return Task.FromResult(StartAccountRegistrationResult.Success(Guid.NewGuid(), "s****@example.edu.vn", DateTime.UtcNow.AddMinutes(5), DateTime.UtcNow.AddMinutes(1)));
+        }
+
+        public Task<RegisterAccountResult> VerifyStudentAccountOtpAsync(Guid pendingRegistrationId, string otpCode, CancellationToken ct = default)
+        {
+            return Task.FromResult(RegisterAccountResult.Success(Guid.NewGuid(), Guid.NewGuid()));
+        }
+
+        public Task<StartAccountRegistrationResult> ResendStudentAccountOtpAsync(Guid pendingRegistrationId, CancellationToken ct = default)
+        {
+            return Task.FromResult(StartAccountRegistrationResult.Success(pendingRegistrationId, "s****@example.edu.vn", DateTime.UtcNow.AddMinutes(5), DateTime.UtcNow.AddMinutes(1)));
+        }
+    }
     private sealed class RecordingNavigationService : INavigationService
     {
         public void NavigateTo<TViewModel>() where TViewModel : ViewModelBase { }
@@ -2684,6 +3043,19 @@ public sealed class WpfResourceTests
     private static readonly XNamespace WpfNamespace = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
     private static readonly XNamespace XamlNamespace = "http://schemas.microsoft.com/winfx/2006/xaml";
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

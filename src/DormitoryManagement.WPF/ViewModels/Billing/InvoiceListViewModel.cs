@@ -95,8 +95,7 @@ public sealed class InvoiceListViewModel : ViewModelBase
     public bool CanPreviewUtilityBilling => CanGenerateInvoices && SelectedRoom is not null && !IsBusy;
     public decimal PreviewTotalAmount => UtilityPreview?.TotalAmount ?? 0m;
     public bool CanGenerateInvoices => _currentUser.IsInRole(RoleNames.Admin)
-        || _currentUser.IsInRole(RoleNames.Manager)
-        || _currentUser.IsInRole(RoleNames.BuildingManager);
+        || _currentUser.IsInRole(RoleNames.Manager);
     public bool IsStudent => _currentUser.IsInRole(RoleNames.Student);
 
     public string BillingPeriod
@@ -640,3 +639,4 @@ public sealed class InvoiceListViewModel : ViewModelBase
         return new DateTime(year, month, 1).AddMonths(1).AddDays(4);
     }
 }
+

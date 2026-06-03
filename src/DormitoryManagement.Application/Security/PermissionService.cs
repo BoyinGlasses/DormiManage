@@ -36,12 +36,7 @@ public sealed class PermissionService : IPermissionService
                 or PermissionNames.TicketsRead
                 or PermissionNames.TicketsCreate
                 or PermissionNames.TicketsAssign
-                or PermissionNames.TicketsUpdate when _currentUser.IsInRole(RoleNames.Manager)
-                    || _currentUser.IsInRole(RoleNames.BuildingManager) => true,
-            PermissionNames.TicketsRead
-                or PermissionNames.TicketsCreate
-                or PermissionNames.TicketsAssign
-                or PermissionNames.TicketsUpdate when _currentUser.IsInRole(RoleNames.Staff) => true,
+                or PermissionNames.TicketsUpdate when _currentUser.IsInRole(RoleNames.Manager) => true,
             PermissionNames.RoomsRead
                 or PermissionNames.RoomRegistrationCreate
                 or PermissionNames.BillingRead

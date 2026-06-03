@@ -90,7 +90,7 @@ public sealed class SupportTicketService : ISupportTicketService
         await _unitOfWork.Repository<SupportTicket>().AddAsync(ticket, ct);
         await _unitOfWork.SaveChangesAsync(ct);
         await _auditLog.WriteAsync("SupportTicket.Created", "SupportTicket", ticket.Id, ticket.Title, ct);
-        await NotifyStaffAsync("New support ticket", ticket.Title, ct);
+        await NotifyManagersAsync("New support ticket", ticket.Title, ct);
         return MapTickets(new[] { ticket }).Single();
     }
 
@@ -261,7 +261,7 @@ public sealed class SupportTicketService : ISupportTicketService
         }).ToArray();
     }
 
-    private async Task NotifyStaffAsync(string title, string message, CancellationToken ct)
+    private async Task NotifyManagersAsync(string title, string message, CancellationToken ct)
     {
         if (_notifications is null)
         {
@@ -270,7 +270,6 @@ public sealed class SupportTicketService : ISupportTicketService
 
         await _notifications.NotifyRoleAsync(RoleNames.Admin, title, message, ct);
         await _notifications.NotifyRoleAsync(RoleNames.Manager, title, message, ct);
-        await _notifications.NotifyRoleAsync(RoleNames.Staff, title, message, ct);
     }
 
     private async Task NotifyTicketOwnerAsync(SupportTicket ticket, string title, string message, CancellationToken ct)
@@ -283,3 +282,5 @@ public sealed class SupportTicketService : ISupportTicketService
         await _notifications.NotifyUserAsync(ticket.CreatedByUserId, title, message, ct);
     }
 }
+
+

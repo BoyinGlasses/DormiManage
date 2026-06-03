@@ -2,221 +2,365 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:DormitoryManagement.WPF.Controls"
-             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-             TextElement.Foreground="{StaticResource TextPrimaryBrush}">
+             Loaded="UserControl_OnLoaded"
+             SizeChanged="UserControl_OnSizeChanged">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ui:ThemesDictionary Theme="Light" />
-                <ui:ControlsDictionary />
+                <ResourceDictionary Source="/DormitoryManagement.WPF;component/Resources/RegisterPage.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <LinearGradientBrush x:Key="RegisterOverlayBrush" StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#99145A32" Offset="0" />
-                <GradientStop Color="#6622C55E" Offset="0.7" />
-                <GradientStop Color="#33145A32" Offset="1" />
+            <LinearGradientBrush x:Key="RegisterPageHeroOverlayBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#12000000" Offset="0" />
+                <GradientStop Color="#59000000" Offset="0.58" />
+                <GradientStop Color="#99000000" Offset="1" />
             </LinearGradientBrush>
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Background="White">
+    <Grid x:Name="SplitCanvasGrid" Background="{StaticResource RegisterPageBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="0" />
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="430" />
+            <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
-            <StackPanel Width="330"
-                        HorizontalAlignment="Center"
-                        Margin="0,42,0,42">
-                <TextBlock Text="Create Student Account"
-                           FontSize="25"
-                           FontWeight="SemiBold"
-                           Foreground="#111827"
-                           Margin="0,0,0,6" />
-                <TextBlock Text="Use your student details to create a sign-in account."
-                           Style="{StaticResource CaptionText}"
-                           TextWrapping="Wrap"
-                           Margin="0,0,0,20" />
-
-                <controls:ErrorState Title="Registration failed"
-                                     Message="{Binding ErrorMessage}"
-                                     Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}"
-                                     Margin="0,0,0,12" />
-
-                <Border Background="{StaticResource SuccessLightBrush}"
-                        BorderBrush="{StaticResource SuccessBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        Padding="12"
-                        Visibility="{Binding HasSuccessMessage, Converter={StaticResource BoolToVisibility}}"
-                        Margin="0,0,0,12">
-                    <TextBlock Text="{Binding SuccessMessage}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                </Border>
-
-                <TextBlock Style="{StaticResource FieldLabelStyle}">
-                    <Run Text="Full name" />
-                    <Run Text=" *" Foreground="{DynamicResource DangerBrush}" FontWeight="Bold" />
-                </TextBlock>
-                <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
-                         IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
-                         AutomationProperties.Name="Full name" />
-
-                <TextBlock Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6">
-                    <Run Text="Email" />
-                    <Run Text=" *" Foreground="{DynamicResource DangerBrush}" FontWeight="Bold" />
-                </TextBlock>
-                <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
-                         IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
-                         AutomationProperties.Name="Email" />
-
-                <TextBlock Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6">
-                    <Run Text="Username" />
-                    <Run Text=" *" Foreground="{DynamicResource DangerBrush}" FontWeight="Bold" />
-                </TextBlock>
-                <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
-                         IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
-                         AutomationProperties.Name="Username" />
-
-                <TextBlock Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6">
-                    <Run Text="Student code" />
-                    <Run Text=" *" Foreground="{DynamicResource DangerBrush}" FontWeight="Bold" />
-                </TextBlock>
-                <TextBox Text="{Binding StudentCode, UpdateSourceTrigger=PropertyChanged}"
-                         IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
-                         AutomationProperties.Name="Student code" />
-
-                <TextBlock Text="Phone number" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6" />
-                <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"
-                         IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
-                         AutomationProperties.Name="Phone number" />
-
-                <Grid Margin="0,12,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="12" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="Gender" Style="{StaticResource FieldLabelStyle}" />
-                        <ComboBox ItemsSource="{Binding GenderOptions}"
-                                  SelectedItem="{Binding SelectedGender}"
-                                  IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
-                                  AutomationProperties.Name="Gender" />
+        <Grid x:Name="HeroPanel"
+              Grid.Row="0"
+              Grid.Column="0"
+              ClipToBounds="True"
+              MinWidth="420">
+            <Image Source="/DormitoryManagement.WPF;component/Assets/Images/Register/register-hero.png"
+                   Stretch="UniformToFill" />
+            <Rectangle Fill="{StaticResource RegisterPageHeroOverlayBrush}" />
+            <Border x:Name="HeroCardBorder"
+                    Margin="48"
+                    Padding="28"
+                    MaxWidth="420"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Left"
+                    Background="{StaticResource RegisterPageGlassBrush}"
+                    BorderBrush="{StaticResource RegisterPageGlassBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="{StaticResource RegisterPageHeroCardCornerRadius}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="28" ShadowDepth="12" Color="#1A000000" Opacity="0.35" />
+                </Border.Effect>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                        <TextBlock Text=""
+                                   FontFamily="Segoe Fluent Icons"
+                                   Foreground="{StaticResource RegisterPagePrimaryContainerBrush}"
+                                   FontSize="26"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="DormManagement"
+                                   Style="{StaticResource RegisterPageBrandTextStyle}"
+                                   Margin="10,0,0,0"
+                                   VerticalAlignment="Center" />
                     </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="Date of birth" Style="{StaticResource FieldLabelStyle}" />
-                        <ui:CalendarDatePicker Date="{Binding DateOfBirth, Mode=TwoWay}"
-                                               Content="{Binding DateOfBirth, StringFormat={}{0:dd/MM/yyyy}, TargetNullValue=Select date}"
-                                               MinHeight="38"
-                                               HorizontalAlignment="Stretch"
-                                               HorizontalContentAlignment="Left"
-                                               IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
-                                               AutomationProperties.Name="Date of birth" />
-                    </StackPanel>
-                </Grid>
+                    <TextBlock Text="Chào mừng bạn đến với không gian sống hiện đại"
+                               Style="{StaticResource RegisterPageHeroTitleTextStyle}" />
+                    <TextBlock Text="Đăng ký tài khoản để bắt đầu trải nghiệm hệ thống quản lý ký túc xá thông minh, tiện lợi và an toàn dành riêng cho bạn."
+                               Style="{StaticResource RegisterPageHeroBodyTextStyle}"
+                               Margin="0,12,0,0" />
+                </StackPanel>
+            </Border>
+        </Grid>
 
-                <TextBlock Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6">
-                    <Run Text="Password" />
-                    <Run Text=" *" Foreground="{DynamicResource DangerBrush}" FontWeight="Bold" />
-                </TextBlock>
-                <PasswordBox x:Name="PasswordInput"
-                             PasswordChanged="PasswordBox_OnPasswordChanged"
-                             IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
-                             AutomationProperties.Name="Password" />
+        <ScrollViewer x:Name="FormScrollViewer"
+                      Grid.Row="0"
+                      Grid.Column="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Background="{StaticResource RegisterPageSurfaceBrush}">
+            <Grid Background="{StaticResource RegisterPageSurfaceBrush}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
 
-                <TextBlock Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6">
-                    <Run Text="Confirm password" />
-                    <Run Text=" *" Foreground="{DynamicResource DangerBrush}" FontWeight="Bold" />
-                </TextBlock>
-                <PasswordBox x:Name="ConfirmPasswordInput"
-                             PasswordChanged="ConfirmPasswordBox_OnPasswordChanged"
-                             IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
-                             AutomationProperties.Name="Confirm password" />
+                <StackPanel x:Name="BrandRow"
+                            Grid.Row="0"
+                            Orientation="Horizontal"
+                            Margin="40,32,40,0">
+                    <TextBlock Text=""
+                               FontFamily="Segoe Fluent Icons"
+                               Foreground="{StaticResource RegisterPagePrimaryBrush}"
+                               FontSize="24"
+                               VerticalAlignment="Center" />
+                    <TextBlock Text="DormManagement"
+                               FontFamily="{StaticResource RegisterPageHeadlineFontFamily}"
+                               Foreground="{StaticResource RegisterPagePrimaryBrush}"
+                               FontWeight="Bold"
+                               FontSize="20"
+                               Margin="8,0,0,0"
+                               VerticalAlignment="Center" />
+                </StackPanel>
 
-                <Button Content="Send verification code"
-                        Command="{Binding RegisterCommand}"
-                        Style="{StaticResource PrimaryButtonStyle}"
-                        IsDefault="True"
-                        IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBool}}"
-                        Visibility="{Binding IsOtpStep, Converter={StaticResource InverseBoolToVisibility}}"
-                        Margin="0,18,0,0" />
-
-                <Border Background="#F0FDF4"
-                        BorderBrush="{StaticResource SuccessBrush}"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        Padding="12"
-                        Margin="0,18,0,0"
-                        Visibility="{Binding IsOtpStep, Converter={StaticResource BoolToVisibility}}">
+                <Grid x:Name="FormContentHost"
+                      Grid.Row="1"
+                      Margin="40,20,40,32"
+                      MaxWidth="460"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Top">
                     <StackPanel>
-                        <TextBlock Text="Email verification"
-                                   FontWeight="SemiBold"
-                                   Foreground="#145A32" />
-                        <TextBlock Text="{Binding OtpMessage}"
-                                   Style="{StaticResource CaptionText}"
-                                   TextWrapping="Wrap"
-                                   Visibility="{Binding HasOtpMessage, Converter={StaticResource BoolToVisibility}}"
-                                   Margin="0,6,0,10" />
-                        <TextBlock Text="Verification code" Style="{StaticResource FieldLabelStyle}" />
-                        <TextBox Text="{Binding OtpCode, UpdateSourceTrigger=PropertyChanged}"
-                                 MaxLength="6"
-                                 AutomationProperties.Name="Verification code" />
-                        <Grid Margin="0,12,0,0">
+                        <TextBlock Text="Đăng ký tài khoản"
+                                   Style="{StaticResource RegisterPageFormTitleTextStyle}" />
+                        <TextBlock Text="Điền thông tin dưới đây để tạo tài khoản mới."
+                                   Style="{StaticResource RegisterPageBodyTextStyle}"
+                                   Margin="0,6,0,24" />
+
+                        <controls:ErrorState Title="Đăng ký thất bại"
+                                             Message="{Binding ErrorMessage}"
+                                             Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}"
+                                             Margin="0,0,0,12" />
+
+                        <Border Background="#F1FFF8"
+                                BorderBrush="{StaticResource RegisterPageSuccessBrush}"
+                                BorderThickness="1"
+                                CornerRadius="{StaticResource RegisterPageCardCornerRadius}"
+                                Padding="14"
+                                Visibility="{Binding HasSuccessMessage, Converter={StaticResource BoolToVisibility}}"
+                                Margin="0,0,0,12">
+                            <TextBlock Text="{Binding SuccessMessage}"
+                                       Style="{StaticResource RegisterPageInlineMessageTextStyle}"
+                                       Foreground="{StaticResource RegisterPageSuccessBrush}" />
+                        </Border>
+
+                        <TextBlock Text="Họ và tên" Style="{StaticResource RegisterPageLabelTextStyle}" />
+                        <Grid Margin="0,6,0,0">
+                            <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource RegisterPageTextBoxStyle}"
+                                     IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
+                                     AutomationProperties.Name="Họ và tên" />
+                            <TextBlock Text=""
+                                       FontFamily="Segoe Fluent Icons"
+                                       Foreground="{StaticResource RegisterPageOutlineBrush}"
+                                       Margin="14,0,0,0"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False" />
+                        </Grid>
+
+                        <Grid Margin="0,16,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Mã số sinh viên" Style="{StaticResource RegisterPageLabelTextStyle}" />
+                                <TextBox Text="{Binding StudentCode, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RegisterPagePlainTextBoxStyle}"
+                                         Margin="0,6,0,0"
+                                         IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
+                                         AutomationProperties.Name="Mã số sinh viên" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Tên đăng nhập" Style="{StaticResource RegisterPageLabelTextStyle}" />
+                                <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RegisterPagePlainTextBoxStyle}"
+                                         Margin="0,6,0,0"
+                                         IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
+                                         AutomationProperties.Name="Tên đăng nhập" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid Margin="0,16,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Ngày sinh" Style="{StaticResource RegisterPageLabelTextStyle}" />
+                                <DatePicker SelectedDate="{Binding DateOfBirth, Mode=TwoWay}"
+                                            Style="{StaticResource RegisterPageDatePickerStyle}"
+                                            Margin="0,6,0,0"
+                                            IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
+                                            AutomationProperties.Name="Ngày sinh" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Giới tính" Style="{StaticResource RegisterPageLabelTextStyle}" />
+                                <ComboBox ItemsSource="{Binding GenderOptions}"
+                                          SelectedItem="{Binding SelectedGender}"
+                                          Style="{StaticResource RegisterPageComboBoxStyle}"
+                                          Margin="0,6,0,0"
+                                          IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
+                                          AutomationProperties.Name="Giới tính" />
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Số điện thoại" Style="{StaticResource RegisterPageLabelTextStyle}" Margin="0,16,0,0" />
+                        <Grid Margin="0,6,0,0">
+                            <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource RegisterPageTextBoxStyle}"
+                                     IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
+                                     AutomationProperties.Name="Số điện thoại" />
+                            <TextBlock Text=""
+                                       FontFamily="Segoe Fluent Icons"
+                                       Foreground="{StaticResource RegisterPageOutlineBrush}"
+                                       Margin="14,0,0,0"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False" />
+                        </Grid>
+
+                        <TextBlock Text="Email" Style="{StaticResource RegisterPageLabelTextStyle}" Margin="0,16,0,0" />
+                        <Grid Margin="0,6,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0">
+                                <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RegisterPageTextBoxStyle}"
+                                         IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
+                                         AutomationProperties.Name="Email" />
+                                <TextBlock Text=""
+                                           FontFamily="Segoe Fluent Icons"
+                                           Foreground="{StaticResource RegisterPageOutlineBrush}"
+                                           Margin="14,0,0,0"
+                                           VerticalAlignment="Center"
+                                           IsHitTestVisible="False" />
+                            </Grid>
+                            <Button Grid.Column="2"
+                                    Content="Gửi mã"
+                                    Command="{Binding RegisterCommand}"
+                                    Style="{StaticResource RegisterPageSecondaryButtonStyle}"
+                                    IsEnabled="{Binding CanSubmitRegistration}"
+                                    Visibility="{Binding IsOtpStep, Converter={StaticResource InverseBoolToVisibility}}"
+                                    MinWidth="92" />
+                        </Grid>
+
+                        <Grid Margin="0,16,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="16" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Button Grid.Column="0"
-                                    Content="Verify"
-                                    Command="{Binding VerifyOtpCommand}"
-                                    Style="{StaticResource PrimaryButtonStyle}"
-                                    IsDefault="True"
-                                    IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBool}}" />
-                            <Button Grid.Column="2"
-                                    Content="Resend"
-                                    Command="{Binding ResendOtpCommand}"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBool}}" />
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Mật khẩu" Style="{StaticResource RegisterPageLabelTextStyle}" />
+                                <Grid Margin="0,6,0,0">
+                                    <PasswordBox x:Name="PasswordInput"
+                                                 PasswordChanged="PasswordBox_OnPasswordChanged"
+                                                 Style="{StaticResource RegisterPagePasswordBoxStyle}"
+                                                 IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
+                                                 AutomationProperties.Name="Mật khẩu" />
+                                    <TextBlock Text=""
+                                               FontFamily="Segoe Fluent Icons"
+                                               Foreground="{StaticResource RegisterPageOutlineBrush}"
+                                               Margin="14,0,0,0"
+                                               VerticalAlignment="Center"
+                                               IsHitTestVisible="False" />
+                                </Grid>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Xác nhận mật khẩu" Style="{StaticResource RegisterPageLabelTextStyle}" />
+                                <Grid Margin="0,6,0,0">
+                                    <PasswordBox x:Name="ConfirmPasswordInput"
+                                                 PasswordChanged="ConfirmPasswordBox_OnPasswordChanged"
+                                                 Style="{StaticResource RegisterPagePasswordBoxStyle}"
+                                                 IsEnabled="{Binding IsFormLocked, Converter={StaticResource InverseBool}}"
+                                                 AutomationProperties.Name="Xác nhận mật khẩu" />
+                                    <TextBlock Text=""
+                                               FontFamily="Segoe Fluent Icons"
+                                               Foreground="{StaticResource RegisterPageOutlineBrush}"
+                                               Margin="14,0,0,0"
+                                               VerticalAlignment="Center"
+                                               IsHitTestVisible="False" />
+                                </Grid>
+                            </StackPanel>
                         </Grid>
-                    </StackPanel>
-                </Border>
 
-                <Button Content="Back to login"
-                        Command="{Binding BackToLoginCommand}"
-                        Style="{StaticResource TextButtonStyle}"
-                        HorizontalAlignment="Center"
-                        Margin="0,12,0,0" />
-            </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                            <CheckBox IsChecked="{Binding AcceptsTerms, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                      VerticalAlignment="Top"
+                                      Margin="0,2,0,0" />
+                            <TextBlock Style="{StaticResource RegisterPageBodyTextStyle}" Margin="8,0,0,0">
+                                <Run Text="Tôi đồng ý với " />
+                                <Run Text="Điều khoản dịch vụ" Foreground="{StaticResource RegisterPagePrimaryBrush}" FontWeight="SemiBold" />
+                                <Run Text=" và " />
+                                <Run Text="Chính sách bảo mật" Foreground="{StaticResource RegisterPagePrimaryBrush}" FontWeight="SemiBold" />
+                            </TextBlock>
+                        </StackPanel>
+
+                        <Button Content="Đăng ký ngay"
+                                Command="{Binding RegisterCommand}"
+                                Style="{StaticResource RegisterPagePrimaryButtonStyle}"
+                                IsEnabled="{Binding CanSubmitRegistration}"
+                                Visibility="{Binding IsOtpStep, Converter={StaticResource InverseBoolToVisibility}}"
+                                Margin="0,20,0,0" />
+
+                        <Border Background="{StaticResource RegisterPageSurfaceLowBrush}"
+                                BorderBrush="{StaticResource RegisterPageOutlineVariantBrush}"
+                                BorderThickness="1"
+                                CornerRadius="{StaticResource RegisterPageCardCornerRadius}"
+                                Padding="16"
+                                Margin="0,20,0,0"
+                                Visibility="{Binding ShowOtpSection, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel>
+                                <TextBlock Text="Xác minh email"
+                                           FontFamily="{StaticResource RegisterPageHeadlineFontFamily}"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource RegisterPageTextPrimaryBrush}" />
+                                <TextBlock Text="{Binding OtpSectionDescription}"
+                                           Style="{StaticResource RegisterPageBodyTextStyle}"
+                                           Margin="0,8,0,0" />
+                                <TextBlock Text="{Binding OtpMessage}"
+                                           Style="{StaticResource RegisterPageBodyTextStyle}"
+                                           Visibility="{Binding HasOtpMessage, Converter={StaticResource BoolToVisibility}}"
+                                           Margin="0,8,0,12" />
+                                <TextBlock Text="Mã xác minh" Style="{StaticResource RegisterPageLabelTextStyle}" />
+                                <TextBox Text="{Binding OtpCode, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource RegisterPagePlainTextBoxStyle}"
+                                         Margin="0,6,0,0"
+                                         MaxLength="6"
+                                         AutomationProperties.Name="Mã xác minh" />
+                                <Grid Margin="0,14,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0"
+                                            Content="Xác minh"
+                                            Command="{Binding VerifyOtpCommand}"
+                                            Style="{StaticResource RegisterPagePrimaryButtonStyle}"
+                                            IsEnabled="{Binding CanVerifyOtp}" />
+                                    <Button Grid.Column="2"
+                                            Content="Gửi lại"
+                                            Command="{Binding ResendOtpCommand}"
+                                            Style="{StaticResource RegisterPageSecondaryButtonStyle}"
+                                            IsEnabled="{Binding CanResendOtp}" />
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,24,0,0">
+                            <TextBlock Text="Đã có tài khoản?"
+                                       Style="{StaticResource RegisterPageBodyTextStyle}"
+                                       VerticalAlignment="Center" />
+                            <Button Content="Đăng nhập"
+                                    Command="{Binding BackToLoginCommand}"
+                                    Style="{StaticResource RegisterPageLinkButtonStyle}"
+                                    Margin="6,0,0,0"
+                                    VerticalAlignment="Center" />
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Grid>
         </ScrollViewer>
 
-        <Grid Grid.Column="1" ClipToBounds="True">
-            <Image Source="/Assets/Images/KTXB.png"
-                   Stretch="UniformToFill"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center" />
-            <Rectangle Fill="{StaticResource RegisterOverlayBrush}" />
-            <StackPanel Margin="46"
-                        VerticalAlignment="Bottom"
-                        MaxWidth="560">
-                <TextBlock Text="Dormitory Management"
-                           Foreground="White"
-                           FontSize="38"
-                           FontWeight="Bold"
-                           LineHeight="44"
-                           TextWrapping="Wrap" />
-                <TextBlock Text="Create a student account, then sign in with your email, username, or student code."
-                           Foreground="#E6F7FA"
-                           FontSize="15"
-                           LineHeight="23"
-                           TextWrapping="Wrap"
-                           Margin="0,12,0,0" />
-            </StackPanel>
-        </Grid>
-
-        <controls:LoadingOverlay Grid.ColumnSpan="2"
-                                 Message="Processing registration..."
+        <controls:LoadingOverlay Grid.RowSpan="2"
+                                 Grid.ColumnSpan="2"
+                                 Message="Đang xử lý đăng ký..."
                                  Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
     </Grid>
 </UserControl>
+

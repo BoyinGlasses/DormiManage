@@ -373,7 +373,7 @@ public sealed class BillingServiceTests
             new AllowAllPermissionService(),
             unitOfWork,
             new RecordingAuditLogService(),
-            new TestCurrentUser(RoleNames.BuildingManager, buildingId: room.BuildingId));
+            new TestCurrentUser(RoleNames.Manager, buildingId: room.BuildingId));
 
         await service.UpsertUtilityReadingAsync(new UtilityReadingRequest
         {
@@ -398,7 +398,7 @@ public sealed class BillingServiceTests
             new AllowAllPermissionService(),
             unitOfWork,
             new RecordingAuditLogService(),
-            new TestCurrentUser(RoleNames.BuildingManager, buildingId: room.BuildingId));
+            new TestCurrentUser(RoleNames.Manager, buildingId: room.BuildingId));
 
         await service.UpsertUtilityReadingAsync(new UtilityReadingRequest
         {
@@ -416,7 +416,7 @@ public sealed class BillingServiceTests
     }
 
     [Fact]
-    public async Task UpsertUtilityReadingAsync_as_building_manager_rejects_room_outside_assigned_building()
+    public async Task UpsertUtilityReadingAsync_as_building_scoped_manager_rejects_room_outside_assigned_building()
     {
         var assignedBuildingId = Guid.NewGuid();
         var otherRoom = new Room { Id = Guid.NewGuid(), RoomNumber = "B-201", BuildingId = Guid.NewGuid() };
@@ -426,7 +426,7 @@ public sealed class BillingServiceTests
             new AllowAllPermissionService(),
             unitOfWork,
             new RecordingAuditLogService(),
-            new TestCurrentUser(RoleNames.BuildingManager, buildingId: assignedBuildingId));
+            new TestCurrentUser(RoleNames.Manager, buildingId: assignedBuildingId));
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.UpsertUtilityReadingAsync(new UtilityReadingRequest
         {
@@ -475,7 +475,7 @@ public sealed class BillingServiceTests
     }
 
     [Fact]
-    public async Task GetInvoicesAsync_as_building_manager_returns_only_assigned_building_invoices()
+    public async Task GetInvoicesAsync_as_building_scoped_manager_returns_only_assigned_building_invoices()
     {
         var assignedBuildingId = Guid.NewGuid();
         var assignedStudent = new Student { Id = Guid.NewGuid(), StudentCode = "SV001", FullName = "Assigned Student" };
@@ -518,7 +518,7 @@ public sealed class BillingServiceTests
             new AllowAllPermissionService(),
             unitOfWork,
             new RecordingAuditLogService(),
-            new TestCurrentUser(RoleNames.BuildingManager, buildingId: assignedBuildingId));
+            new TestCurrentUser(RoleNames.Manager, buildingId: assignedBuildingId));
 
         var invoices = await service.GetInvoicesAsync();
 
@@ -685,3 +685,4 @@ public sealed class BillingServiceTests
         return Assert.IsType<T>(property.GetValue(preview));
     }
 }
+

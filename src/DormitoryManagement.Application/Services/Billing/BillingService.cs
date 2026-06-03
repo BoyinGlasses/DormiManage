@@ -187,7 +187,7 @@ public sealed class BillingService : IBillingService
                 contracts = contracts.Where(contract => contract.RoomId == request.RoomId.Value).ToList();
             }
 
-            if (_currentUser.IsInRole(RoleNames.BuildingManager) && _currentUser.CurrentUser?.BuildingId is { } currentBuildingId)
+            if (_currentUser.IsInRole(RoleNames.Manager) && _currentUser.CurrentUser?.BuildingId is { } currentBuildingId)
             {
                 var allowedRoomIds = _unitOfWork.Repository<Room>().Query()
                     .Where(room => room.BuildingId == currentBuildingId)
@@ -295,7 +295,7 @@ public sealed class BillingService : IBillingService
             var studentId = ResolveCurrentStudentId();
             query = query.Where(invoice => invoice.StudentId == studentId);
         }
-        else if (_currentUser.IsInRole(RoleNames.BuildingManager) && _currentUser.CurrentUser?.BuildingId is { } buildingId)
+        else if (_currentUser.IsInRole(RoleNames.Manager) && _currentUser.CurrentUser?.BuildingId is { } buildingId)
         {
             var allowedRoomIds = _unitOfWork.Repository<Room>().Query()
                 .Where(room => room.BuildingId == buildingId)
@@ -599,20 +599,20 @@ public sealed class BillingService : IBillingService
 
     private void EnsureCanManageRoom(Room room)
     {
-        if (_currentUser.IsInRole(RoleNames.BuildingManager))
+        if (_currentUser.IsInRole(RoleNames.Manager) && _currentUser.CurrentUser?.BuildingId is { })
         {
             var buildingId = _currentUser.CurrentUser?.BuildingId
-                ?? throw new InvalidOperationException("Building manager is not assigned to a building.");
+                ?? throw new InvalidOperationException("Manager is not assigned to a building.");
             if (room.BuildingId != buildingId)
             {
-                throw new InvalidOperationException("Building managers can manage only assigned building rooms.");
+                throw new InvalidOperationException("Managers can manage only assigned building rooms.");
             }
         }
     }
 
     private void EnsureCanViewInvoice(Invoice invoice)
     {
-        if (!_currentUser.IsInRole(RoleNames.BuildingManager))
+        if (!(_currentUser.IsInRole(RoleNames.Manager) && _currentUser.CurrentUser?.BuildingId is { }))
         {
             return;
         }
@@ -648,3 +648,4 @@ public sealed class BillingService : IBillingService
         }
     }
 }
+

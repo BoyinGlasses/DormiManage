@@ -251,8 +251,8 @@ public sealed class BillingTextBoxInputTests
 
     private static void AssertVehicleRegistrationTextBoxShape(TextBox textBox)
     {
-        Assert.Equal(220, textBox.Width);
-        Assert.Equal(44, textBox.Height);
+        Assert.Equal(352, textBox.Width);
+        Assert.Equal(48, textBox.Height);
         Assert.Equal(HorizontalAlignment.Left, textBox.HorizontalAlignment);
         Assert.Equal(VerticalAlignment.Center, textBox.VerticalContentAlignment);
     }
@@ -599,6 +599,7 @@ public sealed class BillingTextBoxInputTests
             Task.CompletedTask;
     }
 }
+
 
 
 

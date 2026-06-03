@@ -6,7 +6,6 @@ using DormitoryManagement.Domain.Constants;
 using DormitoryManagement.WPF.Common;
 using DormitoryManagement.WPF.Navigation;
 using DormitoryManagement.WPF.ViewModels.Dashboard;
-using DormitoryManagement.WPF.ViewModels.SupportTickets;
 
 namespace DormitoryManagement.WPF.ViewModels.Auth;
 
@@ -154,10 +153,6 @@ public sealed class LoginViewModel : ViewModelBase
             {
                 _navigationService.NavigateTo<StudentDashboardViewModel>();
             }
-            else if (result.User?.RoleName.Equals(RoleNames.Staff, StringComparison.OrdinalIgnoreCase) == true)
-            {
-                _navigationService.NavigateTo<SupportTicketListViewModel>();
-            }
             else
             {
                 _navigationService.NavigateTo<AdminDashboardViewModel>();
@@ -221,3 +216,5 @@ public sealed class LoginViewModel : ViewModelBase
         }
     }
 }
+
+

@@ -8,10 +8,10 @@
 - Create room assignments and contracts after approval.
 - Generate monthly invoices from room fees, fee rates, and utility readings.
 - Record mock payments and allocate them to invoices.
-- Admins, managers, and building managers enter room utility readings by billing period, preview electricity, water, internet, and total charges, then confirm monthly utility invoices.
+- Admins and managers enter room utility readings by billing period, preview electricity, water, internet, and total charges, then confirm monthly utility invoices. Managers with an assigned building stay scoped to that building.
 - Monthly utility invoices use the `MonthlyUtility` kind, are due on day 5 of the month after the billing period, include mandatory internet for every active room member, split the room utility total equally per member, and are protected from duplicate student-room-period utility billing.
 - Students pay monthly utility charges from the generated due date. Unpaid monthly utility invoices may request one due-date extension of up to 5 extra days, capped at day 15 of the invoice due-date month.
-- Staff can generate QR banking instructions for an unpaid invoice. Students view their own invoice amount, transfer content, QR image, due date, and payment status from Payments, then refresh status after transferring.
+- Managers can generate QR banking instructions for an unpaid invoice. Students view their own invoice amount, transfer content, QR image, due date, and payment status from Payments, then refresh status after transferring.
 - Verified bank transfer notifications are matched by exact remaining amount and transfer content in the transaction description; one confident match marks the invoice paid and records payment history.
 - Students open Payments from Billing row actions only; the direct student Payments menu item is hidden while contextual payment navigation keeps the selected own invoice.
 - Students register vehicle parking with normalized plates and month options `1/2/3/6/9/12`.

@@ -23,8 +23,8 @@ All demo accounts use password `123456`.
 | --- | --- |
 | Admin | `admin` or `admin@ktx.local` |
 | Manager | `manager` or `manager@ktx.local` |
-| Building manager | `building.manager` or `building.manager@ktx.local` |
-| Staff | `staff` or `staff@ktx.local` |
+| Manager | `building.manager` or `building.manager@ktx.local` |
+| Manager | `staff` or `staff@ktx.local` |
 | Student | `student01`, `student01@ktx.local`, or `SV001` |
 
 ## Final Walkthrough
@@ -49,3 +49,4 @@ All demo accounts use password `123456`.
 - Empty states should appear after filters return no rows.
 - Loading overlays should appear during refresh or save operations.
 - Error states should appear for invalid form input or denied actions.
+

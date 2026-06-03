@@ -11,15 +11,28 @@ namespace DormitoryManagement.Infrastructure.Tests;
 
 public sealed class SeedDataLoginTests
 {
+    [Fact]
+    public async Task Seeded_roles_are_limited_to_admin_manager_and_student()
+    {
+        await using var dbContext = CreateContext();
+        await dbContext.Database.EnsureCreatedAsync();
+
+        var roles = await dbContext.Roles
+            .OrderBy(role => role.Name)
+            .Select(role => role.Name)
+            .ToListAsync();
+
+        Assert.Equal([RoleNames.Admin, RoleNames.Manager, RoleNames.Student], roles);
+    }
     [Theory]
     [InlineData("admin", RoleNames.Admin)]
     [InlineData("admin@ktx.local", RoleNames.Admin)]
     [InlineData("manager", RoleNames.Manager)]
     [InlineData("manager@ktx.local", RoleNames.Manager)]
-    [InlineData("building.manager", RoleNames.BuildingManager)]
-    [InlineData("building.manager@ktx.local", RoleNames.BuildingManager)]
-    [InlineData("staff", RoleNames.Staff)]
-    [InlineData("staff@ktx.local", RoleNames.Staff)]
+    [InlineData("building.manager", RoleNames.Manager)]
+    [InlineData("building.manager@ktx.local", RoleNames.Manager)]
+    [InlineData("staff", RoleNames.Manager)]
+    [InlineData("staff@ktx.local", RoleNames.Manager)]
     [InlineData("student01", RoleNames.Student)]
     [InlineData("student01@ktx.local", RoleNames.Student)]
     [InlineData("SV001", RoleNames.Student)]
@@ -63,3 +76,4 @@ public sealed class SeedDataLoginTests
         public DateTime UtcNow { get; } = new(2026, 5, 14, 8, 0, 0, DateTimeKind.Utc);
     }
 }
+

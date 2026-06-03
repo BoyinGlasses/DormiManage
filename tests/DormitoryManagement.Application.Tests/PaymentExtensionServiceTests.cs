@@ -190,7 +190,7 @@ public sealed class PaymentExtensionServiceTests
             new AllowAllPermissionService(),
             unitOfWork,
             audit,
-            new TestCurrentUser(RoleNames.BuildingManager, buildingId: room.BuildingId));
+            new TestCurrentUser(RoleNames.Manager, buildingId: room.BuildingId));
 
         await service.ApproveExtensionAsync(extension.Id);
 
@@ -200,7 +200,7 @@ public sealed class PaymentExtensionServiceTests
     }
 
     [Fact]
-    public async Task ApproveExtensionAsync_as_building_manager_rejects_invoice_outside_assigned_building()
+    public async Task ApproveExtensionAsync_as_building_scoped_manager_rejects_invoice_outside_assigned_building()
     {
         var student = new Student { Id = Guid.NewGuid(), StudentCode = "SV001", FullName = "Nguyen Van An" };
         var room = new Room { Id = Guid.NewGuid(), BuildingId = Guid.NewGuid(), RoomNumber = "B-201" };
@@ -224,7 +224,7 @@ public sealed class PaymentExtensionServiceTests
             new AllowAllPermissionService(),
             unitOfWork,
             new RecordingAuditLogService(),
-            new TestCurrentUser(RoleNames.BuildingManager, buildingId: Guid.NewGuid()));
+            new TestCurrentUser(RoleNames.Manager, buildingId: Guid.NewGuid()));
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.ApproveExtensionAsync(extension.Id));
 
@@ -271,3 +271,4 @@ public sealed class PaymentExtensionServiceTests
             InvoiceKind = InvoiceKind.MonthlyUtility
         };
 }
+

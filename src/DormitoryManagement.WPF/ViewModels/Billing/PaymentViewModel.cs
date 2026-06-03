@@ -68,8 +68,7 @@ public sealed class PaymentViewModel : ViewModelBase
     public ICommand RequestExtensionCommand { get; }
     public ICommand RefreshQrStatusCommand { get; }
     public bool IsAdmin => _currentUser.IsInRole(RoleNames.Admin)
-        || _currentUser.IsInRole(RoleNames.Manager)
-        || _currentUser.IsInRole(RoleNames.BuildingManager);
+        || _currentUser.IsInRole(RoleNames.Manager);
     public bool IsStudent => _currentUser.IsInRole(RoleNames.Student);
     public bool HasOutstandingInvoices => OutstandingInvoices.Count > 0;
     public bool IsOutstandingInvoicesEmpty => _hasLoaded && !IsBusy && IsStudent && OutstandingInvoices.Count == 0;
@@ -633,3 +632,4 @@ public sealed class PaymentViewModel : ViewModelBase
         _refreshQrStatusCommand.RaiseCanExecuteChanged();
     }
 }
+

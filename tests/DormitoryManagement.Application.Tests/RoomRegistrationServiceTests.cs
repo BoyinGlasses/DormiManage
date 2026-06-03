@@ -384,7 +384,7 @@ public sealed class RoomRegistrationServiceTests
                 FullName = roleName,
                 RoleName = roleName,
                 StudentId = roleName == RoleNames.Student ? Student.Id : null,
-                BuildingId = roleName == RoleNames.BuildingManager ? Room.BuildingId : null
+                BuildingId = roleName == RoleNames.Manager ? Room.BuildingId : null
             });
             Service = new RoomRegistrationService(new FakePermissionService(), UnitOfWork, AuditLog, CurrentUser);
         }
@@ -397,7 +397,7 @@ public sealed class RoomRegistrationServiceTests
         public Room Room { get; }
 
         public static RegistrationFixture CreateStudent(int roomCapacity = 4) => new(RoleNames.Student, roomCapacity);
-        public static RegistrationFixture CreateManager(int roomCapacity = 4) => new(RoleNames.BuildingManager, roomCapacity);
+        public static RegistrationFixture CreateManager(int roomCapacity = 4) => new(RoleNames.Manager, roomCapacity);
 
         public Room CreateRoom(string roomNumber, int capacity = 4, RoomGenderType genderType = RoomGenderType.Male)
         {
@@ -530,3 +530,4 @@ public sealed class RoomRegistrationServiceTests
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 }
+
