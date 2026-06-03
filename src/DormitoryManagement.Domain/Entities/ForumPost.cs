@@ -17,4 +17,6 @@ public class ForumPost : AuditableEntity
     public int ViewCount { get; set; }
     public User? AuthorUser { get; set; }
     public ICollection<ForumPostTag> Tags { get; set; } = new List<ForumPostTag>();
+    public ICollection<ForumComment> Comments { get; set; } = new List<ForumComment>();
+    public ICollection<ForumReaction> Reactions { get; set; } = new List<ForumReaction>();
 }
