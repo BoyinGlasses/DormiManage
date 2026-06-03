@@ -46,6 +46,7 @@ public sealed class DbInitializer
         await EnsureDemoManagersAsync(managerUser, buildingManagerUser, staffUser, ct);
         await _dbContext.SaveChangesAsync(ct);
         await EnsureDashboardDemoDataAsync(ct);
+        await EnsureForumDemoDataAsync(ct);
 
         await _dbContext.SaveChangesAsync(ct);
     }
@@ -742,6 +743,182 @@ public sealed class DbInitializer
             UserId = userId.Value,
             IsRead = isRead,
             ReadAt = isRead ? createdAt : null
+        });
+    }
+
+    private async Task EnsureForumDemoDataAsync(CancellationToken ct)
+    {
+        var categories = new[]
+        {
+            new { Code = "announcements", Name = "Announcements", Description = "Official dormitory notices.", SortOrder = 1 },
+            new { Code = "housing", Name = "Housing", Description = "Room, facility, and move-in discussions.", SortOrder = 2 },
+            new { Code = "events", Name = "Events", Description = "Student activities and campus events.", SortOrder = 3 },
+            new { Code = "support", Name = "Support", Description = "Help, maintenance, and service updates.", SortOrder = 4 }
+        };
+
+        foreach (var row in categories)
+        {
+            var category = await _dbContext.ForumCategories.FirstOrDefaultAsync(x => x.Code == row.Code, ct);
+            if (category is null)
+            {
+                category = new ForumCategory
+                {
+                    Id = Guid.NewGuid(),
+                    Code = row.Code,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _dbContext.ForumCategories.Add(category);
+            }
+
+            category.Name = row.Name;
+            category.Description = row.Description;
+            category.SortOrder = row.SortOrder;
+            category.IsActive = true;
+            category.IsDeleted = false;
+            category.UpdatedAt = DateTime.UtcNow;
+        }
+
+        var tags = new[]
+        {
+            new { Name = "Maintenance", Slug = "maintenance" },
+            new { Name = "Quiet Study", Slug = "quiet-study" },
+            new { Name = "Move-in", Slug = "move-in" },
+            new { Name = "Clubs", Slug = "clubs" }
+        };
+
+        foreach (var row in tags)
+        {
+            var tag = await _dbContext.ForumTags.FirstOrDefaultAsync(x => x.Slug == row.Slug, ct);
+            if (tag is null)
+            {
+                tag = new ForumTag
+                {
+                    Id = Guid.NewGuid(),
+                    Slug = row.Slug,
+                    CreatedAt = DateTime.UtcNow
+                };
+                _dbContext.ForumTags.Add(tag);
+            }
+
+            tag.Name = row.Name;
+            tag.IsActive = true;
+            tag.IsDeleted = false;
+            tag.UpdatedAt = DateTime.UtcNow;
+        }
+
+        await _dbContext.SaveChangesAsync(ct);
+
+        var admin = await _dbContext.Users.FirstAsync(x => x.Username == "admin", ct);
+        var buildingManager = await _dbContext.Users.FirstAsync(x => x.Username == "building.manager", ct);
+        var student = await _dbContext.Users.FirstAsync(x => x.Username == "student01", ct);
+        var buildingA = await _dbContext.Buildings.FirstAsync(x => x.Code == "A", ct);
+        var announcements = await _dbContext.ForumCategories.FirstAsync(x => x.Code == "announcements", ct);
+        var housing = await _dbContext.ForumCategories.FirstAsync(x => x.Code == "housing", ct);
+        var support = await _dbContext.ForumCategories.FirstAsync(x => x.Code == "support", ct);
+        var moveIn = await _dbContext.ForumTags.FirstAsync(x => x.Slug == "move-in", ct);
+        var maintenance = await _dbContext.ForumTags.FirstAsync(x => x.Slug == "maintenance", ct);
+        var quietStudy = await _dbContext.ForumTags.FirstAsync(x => x.Slug == "quiet-study", ct);
+
+        var campusPost = await EnsureForumPostAsync(
+            "Welcome to the dormitory forum",
+            "Use this forum for official updates, housing discussions, and student support.",
+            announcements.Id,
+            admin.Id,
+            ForumVisibilityScope.Campus,
+            null,
+            null,
+            null,
+            ct);
+        await EnsureForumPostTagAsync(campusPost.Id, moveIn.Id, ct);
+
+        var buildingPost = await EnsureForumPostAsync(
+            "Building A maintenance window",
+            "Building A has a short water maintenance window this weekend.",
+            support.Id,
+            buildingManager.Id,
+            ForumVisibilityScope.Building,
+            buildingA.Id,
+            null,
+            null,
+            ct);
+        await EnsureForumPostTagAsync(buildingPost.Id, maintenance.Id, ct);
+
+        var studentPost = await EnsureForumPostAsync(
+            "Quiet study room etiquette",
+            "Please keep calls outside the quiet study rooms during exam week.",
+            housing.Id,
+            student.Id,
+            ForumVisibilityScope.Role,
+            null,
+            null,
+            RoleNames.Student,
+            ct);
+        await EnsureForumPostTagAsync(studentPost.Id, quietStudy.Id, ct);
+
+        if (!await _dbContext.ForumComments.AnyAsync(x => x.PostId == campusPost.Id && x.CreatedByUserId == student.Id, ct))
+        {
+            _dbContext.ForumComments.Add(new ForumComment
+            {
+                Id = Guid.NewGuid(),
+                PostId = campusPost.Id,
+                CreatedByUserId = student.Id,
+                Content = "Thanks for opening the forum.",
+                Status = ForumCommentStatus.Published,
+                CreatedAt = DateTime.UtcNow,
+                IsDeleted = false
+            });
+        }
+    }
+
+    private async Task<ForumPost> EnsureForumPostAsync(
+        string title,
+        string content,
+        Guid categoryId,
+        Guid createdByUserId,
+        ForumVisibilityScope scope,
+        Guid? buildingId,
+        Guid? roomId,
+        string? targetRoleName,
+        CancellationToken ct)
+    {
+        var post = await _dbContext.ForumPosts.FirstOrDefaultAsync(x => x.Title == title, ct);
+        if (post is null)
+        {
+            post = new ForumPost
+            {
+                Id = Guid.NewGuid(),
+                Title = title,
+                CreatedAt = DateTime.UtcNow
+            };
+            _dbContext.ForumPosts.Add(post);
+        }
+
+        post.Content = content;
+        post.CategoryId = categoryId;
+        post.CreatedByUserId = createdByUserId;
+        post.VisibilityScope = scope;
+        post.BuildingId = buildingId;
+        post.RoomId = roomId;
+        post.TargetRoleName = targetRoleName;
+        post.Status = ForumPostStatus.Published;
+        post.PublishedAt ??= DateTime.UtcNow;
+        post.IsDeleted = false;
+        post.UpdatedAt = DateTime.UtcNow;
+        return post;
+    }
+
+    private async Task EnsureForumPostTagAsync(Guid postId, Guid tagId, CancellationToken ct)
+    {
+        if (await _dbContext.ForumPostTags.AnyAsync(x => x.PostId == postId && x.TagId == tagId, ct))
+        {
+            return;
+        }
+
+        _dbContext.ForumPostTags.Add(new ForumPostTag
+        {
+            Id = Guid.NewGuid(),
+            PostId = postId,
+            TagId = tagId
         });
     }
 
