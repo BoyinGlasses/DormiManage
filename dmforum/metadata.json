@@ -1,0 +1,6 @@
+{
+  "name": "DMForum",
+  "description": "Diễn đàn trao đổi thông tin, tin tức và hoạt động dành cho sinh viên nội trú Ký túc xá.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

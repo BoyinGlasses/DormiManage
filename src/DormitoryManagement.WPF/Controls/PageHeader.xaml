@@ -1,0 +1,17 @@
+<UserControl x:Class="DormitoryManagement.WPF.Controls.PageHeader"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DockPanel Margin="0,0,0,20">
+        <StackPanel DockPanel.Dock="Left">
+            <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource PageTitle}" />
+            <TextBlock Text="{Binding Subtitle, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       Style="{StaticResource SubtitleText}"
+                       Margin="0,4,0,0"
+                       TextWrapping="Wrap" />
+        </StackPanel>
+        <ContentPresenter DockPanel.Dock="Right"
+                          Content="{Binding Actions, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Center" />
+    </DockPanel>
+</UserControl>

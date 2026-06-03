@@ -1,0 +1,21 @@
+<UserControl x:Class="DormitoryManagement.WPF.Controls.StatusBadge"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Border x:Name="BadgeBorder"
+            Padding="8,4"
+            CornerRadius="10"
+            BorderThickness="1"
+            Background="Transparent"
+            BorderBrush="Transparent">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock x:Name="BadgeIcon"
+                       FontFamily="Segoe Fluent Icons"
+                       FontSize="11"
+                       VerticalAlignment="Center"
+                       Margin="0,0,6,0" />
+            <TextBlock x:Name="BadgeLabel"
+                       VerticalAlignment="Center"
+                       Style="{StaticResource StatusBadgeTextStyle}" />
+        </StackPanel>
+    </Border>
+</UserControl>

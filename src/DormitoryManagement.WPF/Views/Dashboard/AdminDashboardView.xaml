@@ -1,0 +1,288 @@
+<UserControl x:Class="DormitoryManagement.WPF.Views.Dashboard.AdminDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:DormitoryManagement.WPF.Controls"
+             xmlns:scottplot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
+             Loaded="OnLoaded">
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="24">
+                <controls:PageHeader Title="Dashboard" Subtitle="Live dormitory operations across occupancy, billing, registrations, and support.">
+                    <controls:PageHeader.Actions>
+                        <Button Content="Refresh" Command="{Binding RefreshCommand}" />
+                    </controls:PageHeader.Actions>
+                </controls:PageHeader>
+
+                <controls:ErrorState Title="Could not load dashboard"
+                                     Message="{Binding ErrorMessage}"
+                                     Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}"
+                                     Margin="0,0,0,14" />
+
+                <UniformGrid Columns="3" Rows="2" Margin="0,0,0,18">
+                    <controls:StatCard Title="Total Students" Value="{Binding TotalStudents}" Subtitle="Active student records" AccentBrush="{StaticResource PrimaryBrush}" Margin="0,0,12,12" />
+                    <controls:StatCard Title="Occupied Beds" Value="{Binding OccupiedRooms}" Subtitle="Assigned beds across buildings" AccentBrush="{StaticResource AccentBrush}" Margin="0,0,12,12" />
+                    <controls:StatCard Title="Available Rooms" Value="{Binding AvailableRooms}" Subtitle="Ready for new registrations" AccentBrush="{StaticResource SuccessBrush}" Margin="0,0,0,12" />
+                    <controls:StatCard Title="Monthly Revenue" Value="{Binding MonthlyRevenueText}" Subtitle="Collected this month" TrendText="{Binding MonthlyRevenueTrendText}" AccentBrush="{StaticResource SuccessBrush}" Margin="0,0,12,0" />
+                    <controls:StatCard Title="Unpaid Invoices" Value="{Binding UnpaidInvoices}" Subtitle="Outstanding billing records" TrendText="{Binding UnpaidInvoicesTrendText}" AccentBrush="{StaticResource WarningBrush}" Margin="0,0,12,0" />
+                    <controls:StatCard Title="Open Tickets" Value="{Binding OpenTickets}" Subtitle="Support workload in progress" TrendText="{Binding OpenTicketsTrendText}" AccentBrush="{StaticResource DangerBrush}" />
+                </UniformGrid>
+
+                <Grid Margin="0,0,0,18">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource SectionCardStyle}" MinHeight="290">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <DockPanel Margin="0,0,0,12">
+                                <TextBlock Text="Revenue Trend" Style="{StaticResource SectionTitle}" DockPanel.Dock="Left" Margin="0" />
+                                <controls:StatusBadge Status="Paid" Text="Monthly" DockPanel.Dock="Right" />
+                            </DockPanel>
+                            <scottplot:WpfPlot x:Name="RevenuePlot"
+                                               Grid.Row="1"
+                                               Margin="-8,4,-4,-8"
+                                               Visibility="{Binding HasRevenueData, Converter={StaticResource BoolToVisibility}}" />
+                            <controls:EmptyState Grid.Row="1"
+                                                 Title="No paid invoices yet"
+                                                 Message="Confirmed payments will build the monthly revenue trend automatically."
+                                                 Icon="&#xE9D2;"
+                                                 Visibility="{Binding HasRevenueData, Converter={StaticResource InverseBoolToVisibility}}" />
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource SectionCardStyle}" MinHeight="290">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Occupancy Summary" Style="{StaticResource SectionTitle}" />
+                            <ItemsControl Grid.Row="1"
+                                          ItemsSource="{Binding OccupancySummaries}"
+                                          Visibility="{Binding OccupancySummaries, Converter={StaticResource HasItemsToVisibility}}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,14">
+                                            <DockPanel Margin="0,0,0,6">
+                                                <TextBlock Text="{Binding Building}" FontWeight="SemiBold" DockPanel.Dock="Left" />
+                                                <TextBlock Text="{Binding OccupancyText}" Style="{StaticResource CaptionText}" DockPanel.Dock="Right" HorizontalAlignment="Right" />
+                                            </DockPanel>
+                                            <ProgressBar Height="8"
+                                                         Minimum="0"
+                                                         Maximum="100"
+                                                         Value="{Binding OccupancyPercent, Mode=OneWay}"
+                                                         Background="{StaticResource SurfaceMutedBrush}"
+                                                         Foreground="{StaticResource AccentBrush}" />
+                                            <TextBlock Text="{Binding OccupancyPercent, StringFormat={}{0:N1}% occupied}"
+                                                       Style="{StaticResource CaptionText}"
+                                                       Margin="0,5,0,0" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <controls:EmptyState Grid.Row="1"
+                                                 Title="No occupancy data"
+                                                 Message="Building occupancy appears after rooms are assigned to students."
+                                                 Icon="&#xE80F;"
+                                                 Visibility="{Binding OccupancySummaries, Converter={StaticResource EmptyCollectionToVisibility}}" />
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Grid Margin="0,0,0,18">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource SectionCardStyle}" MinHeight="300">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <DockPanel Margin="0,0,0,12">
+                                <TextBlock Text="Pending Registrations" Style="{StaticResource SectionTitle}" DockPanel.Dock="Left" Margin="0" />
+                                <Button Content="Review All"
+                                        Command="{Binding ReviewRegistrationsCommand}"
+                                        Style="{StaticResource TextButtonStyle}"
+                                        DockPanel.Dock="Right" />
+                            </DockPanel>
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding PendingRegistrations}"
+                                      Visibility="{Binding PendingRegistrations, Converter={StaticResource HasItemsToVisibility}}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Student" Binding="{Binding Student}" Width="1.5*" />
+                                    <DataGridTextColumn Header="Preferred Room" Binding="{Binding PreferredRoom}" Width="*" />
+                                    <DataGridTextColumn Header="Submitted" Binding="{Binding SubmittedAt}" Width="*" />
+                                    <DataGridTemplateColumn Header="Status" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <controls:StatusBadge Status="{Binding Status}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Quick Approve" Width="1.1*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Content="Approve"
+                                                        Command="{Binding DataContext.ReviewRegistrationsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        Style="{StaticResource TextButtonStyle}"
+                                                        Padding="8,2"
+                                                        MinHeight="28"
+                                                        ToolTip="Open registration review before approval" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <controls:EmptyState Grid.Row="1"
+                                                 Title="No pending registrations"
+                                                 Message="New room requests will appear here for quick review."
+                                                 Icon="&#xE9F5;"
+                                                 Visibility="{Binding PendingRegistrations, Converter={StaticResource EmptyCollectionToVisibility}}" />
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource SectionCardStyle}" MinHeight="300">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <DockPanel Margin="0,0,0,12">
+                                <TextBlock Text="Overdue Invoices" Style="{StaticResource SectionTitle}" DockPanel.Dock="Left" Margin="0" />
+                                <Button Content="Open Billing"
+                                        Command="{Binding OpenBillingCommand}"
+                                        Style="{StaticResource TextButtonStyle}"
+                                        DockPanel.Dock="Right" />
+                            </DockPanel>
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding OverdueInvoices}" Visibility="{Binding OverdueInvoices, Converter={StaticResource HasItemsToVisibility}}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Invoice" Binding="{Binding InvoiceNumber}" Width="1.1*" />
+                                    <DataGridTextColumn Header="Student" Binding="{Binding Student}" Width="1.4*" />
+                                    <DataGridTextColumn Header="Remaining" Binding="{Binding Remaining, StringFormat=N0}" Width="*" />
+                                    <DataGridTextColumn Header="Due Date" Binding="{Binding DueDate}" Width="*" />
+                                    <DataGridTemplateColumn Header="Status" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <controls:StatusBadge Status="{Binding Status}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <controls:EmptyState Grid.Row="1"
+                                                 Title="No overdue invoices"
+                                                 Message="Payment risks will appear here when invoices pass their due date."
+                                                 Icon="&#xE8A5;"
+                                                 Visibility="{Binding OverdueInvoices, Converter={StaticResource EmptyCollectionToVisibility}}" />
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.35*" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource SectionCardStyle}" MinHeight="300">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <DockPanel Margin="0,0,0,12">
+                                <TextBlock Text="Open Support Tickets" Style="{StaticResource SectionTitle}" DockPanel.Dock="Left" Margin="0" />
+                                <Button Content="Open Tickets"
+                                        Command="{Binding OpenTicketsCommand}"
+                                        Style="{StaticResource TextButtonStyle}"
+                                        DockPanel.Dock="Right" />
+                            </DockPanel>
+                            <DataGrid Grid.Row="1" ItemsSource="{Binding OpenSupportTickets}" Visibility="{Binding OpenSupportTickets, Converter={StaticResource HasItemsToVisibility}}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Ticket" Binding="{Binding Ticket}" Width="2*" />
+                                    <DataGridTemplateColumn Header="Priority" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <controls:StatusBadge Status="{Binding Priority}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Status" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <controls:StatusBadge Status="{Binding Status}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="Assigned Staff" Binding="{Binding AssignedStaff}" Width="1.4*" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <controls:EmptyState Grid.Row="1"
+                                                 Title="No open support tickets"
+                                                 Message="Resident maintenance and billing tickets will surface here."
+                                                 Icon="&#xE90F;"
+                                                 Visibility="{Binding OpenSupportTickets, Converter={StaticResource EmptyCollectionToVisibility}}" />
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource SectionCardStyle}" MinHeight="300">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Recent Activity" Style="{StaticResource SectionTitle}" />
+                            <ListBox Grid.Row="1"
+                                     ItemsSource="{Binding RecentActivities}"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     Visibility="{Binding RecentActivities, Converter={StaticResource HasItemsToVisibility}}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="28" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Border Width="20" Height="20" CornerRadius="10" Background="{StaticResource AccentLightBrush}" VerticalAlignment="Top">
+                                                <TextBlock Text="&#xE9D2;"
+                                                           FontFamily="Segoe Fluent Icons"
+                                                           FontSize="10"
+                                                           Foreground="{StaticResource AccentBrush}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center" />
+                                            </Border>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                                                <TextBlock Text="{Binding Description}" Style="{StaticResource CaptionText}" TextWrapping="Wrap" />
+                                                <TextBlock Text="{Binding Time}" Style="{StaticResource CaptionText}" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <controls:EmptyState Grid.Row="1"
+                                                 Title="No recent activity"
+                                                 Message="Payments, tickets, and room operations will be listed after staff activity starts."
+                                                 Icon="&#xE81C;"
+                                                 Visibility="{Binding RecentActivities, Converter={StaticResource EmptyCollectionToVisibility}}" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+
+        <controls:LoadingOverlay Message="Loading dashboard..." Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
+    </Grid>
+</UserControl>

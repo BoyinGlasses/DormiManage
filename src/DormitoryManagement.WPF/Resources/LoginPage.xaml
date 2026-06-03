@@ -1,0 +1,135 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <Color x:Key="LoginPageColorBackground">#F8F9FF</Color>
+    <Color x:Key="LoginPageColorSurface">#FFFFFF</Color>
+    <Color x:Key="LoginPageColorSurfaceLow">#EFF4FF</Color>
+    <Color x:Key="LoginPageColorSurfaceContainer">#E5EEFF</Color>
+    <Color x:Key="LoginPageColorSurfaceHigh">#DCE9FF</Color>
+    <Color x:Key="LoginPageColorSurfaceHighest">#D3E4FE</Color>
+    <Color x:Key="LoginPageColorOutline">#8D7168</Color>
+    <Color x:Key="LoginPageColorOutlineVariant">#E1BFB5</Color>
+    <Color x:Key="LoginPageColorTextPrimary">#0B1C30</Color>
+    <Color x:Key="LoginPageColorTextSecondary">#594139</Color>
+    <Color x:Key="LoginPageColorPrimary">#AB3500</Color>
+    <Color x:Key="LoginPageColorPrimaryContainer">#FF6B35</Color>
+    <Color x:Key="LoginPageColorSecondary">#4648D4</Color>
+    <Color x:Key="LoginPageColorSecondaryContainer">#6063EE</Color>
+    <Color x:Key="LoginPageColorTertiary">#006C49</Color>
+    <Color x:Key="LoginPageColorTertiaryContainer">#00AF79</Color>
+    <Color x:Key="LoginPageColorError">#BA1A1A</Color>
+
+    <SolidColorBrush x:Key="LoginPageBackgroundBrush" Color="{StaticResource LoginPageColorBackground}" />
+    <SolidColorBrush x:Key="LoginPageSurfaceBrush" Color="{StaticResource LoginPageColorSurface}" />
+    <SolidColorBrush x:Key="LoginPageSurfaceLowBrush" Color="{StaticResource LoginPageColorSurfaceLow}" />
+    <SolidColorBrush x:Key="LoginPageSurfaceContainerBrush" Color="{StaticResource LoginPageColorSurfaceContainer}" />
+    <SolidColorBrush x:Key="LoginPageSurfaceHighBrush" Color="{StaticResource LoginPageColorSurfaceHigh}" />
+    <SolidColorBrush x:Key="LoginPageSurfaceHighestBrush" Color="{StaticResource LoginPageColorSurfaceHighest}" />
+    <SolidColorBrush x:Key="LoginPageOutlineBrush" Color="{StaticResource LoginPageColorOutline}" />
+    <SolidColorBrush x:Key="LoginPageOutlineVariantBrush" Color="{StaticResource LoginPageColorOutlineVariant}" />
+    <SolidColorBrush x:Key="LoginPageTextPrimaryBrush" Color="{StaticResource LoginPageColorTextPrimary}" />
+    <SolidColorBrush x:Key="LoginPageTextSecondaryBrush" Color="{StaticResource LoginPageColorTextSecondary}" />
+    <SolidColorBrush x:Key="LoginPagePrimaryBrush" Color="{StaticResource LoginPageColorPrimary}" />
+    <SolidColorBrush x:Key="LoginPagePrimaryContainerBrush" Color="{StaticResource LoginPageColorPrimaryContainer}" />
+    <SolidColorBrush x:Key="LoginPageSecondaryBrush" Color="{StaticResource LoginPageColorSecondary}" />
+    <SolidColorBrush x:Key="LoginPageSecondaryContainerBrush" Color="{StaticResource LoginPageColorSecondaryContainer}" />
+    <SolidColorBrush x:Key="LoginPageTertiaryBrush" Color="{StaticResource LoginPageColorTertiary}" />
+    <SolidColorBrush x:Key="LoginPageTertiaryContainerBrush" Color="{StaticResource LoginPageColorTertiaryContainer}" />
+    <SolidColorBrush x:Key="LoginPageErrorBrush" Color="{StaticResource LoginPageColorError}" />
+
+    <FontFamily x:Key="LoginPageHeadlineFontFamily">pack://application:,,,/DormitoryManagement.WPF;component/Assets/Fonts/PlusJakartaSans/#Plus Jakarta Sans</FontFamily>
+    <FontFamily x:Key="LoginPageBodyFontFamily">pack://application:,,,/DormitoryManagement.WPF;component/Assets/Fonts/Inter/#Inter</FontFamily>
+
+    <system:Double x:Key="LoginPageDisplayLargeSize">48</system:Double>
+    <system:Double x:Key="LoginPageHeadlineLargeSize">32</system:Double>
+    <system:Double x:Key="LoginPageHeadlineMediumSize">24</system:Double>
+    <system:Double x:Key="LoginPageHeadlineSmallSize">18</system:Double>
+    <system:Double x:Key="LoginPageBodyLargeSize">16</system:Double>
+    <system:Double x:Key="LoginPageBodyMediumSize">14</system:Double>
+    <system:Double x:Key="LoginPageLabelMediumSize">14</system:Double>
+    <system:Double x:Key="LoginPageLabelSmallSize">12</system:Double>
+    <system:Double x:Key="LoginPageHeaderHeight">76</system:Double>
+    <system:Double x:Key="LoginPageMarginDesktop">32</system:Double>
+    <system:Double x:Key="LoginPageMarginMobile">16</system:Double>
+    <system:Double x:Key="LoginPageGutter">24</system:Double>
+    <system:Double x:Key="LoginPageContainerMaxWidth">1440</system:Double>
+    <system:Double x:Key="LoginPageStackSmall">8</system:Double>
+    <system:Double x:Key="LoginPageStackMedium">16</system:Double>
+    <system:Double x:Key="LoginPageStackLarge">24</system:Double>
+
+    <CornerRadius x:Key="LoginPageControlCornerRadius">8</CornerRadius>
+    <CornerRadius x:Key="LoginPageCardCornerRadius">16</CornerRadius>
+    <CornerRadius x:Key="LoginPageOverlayCornerRadius">24</CornerRadius>
+    <CornerRadius x:Key="LoginPagePillCornerRadius">9999</CornerRadius>
+
+    <Thickness x:Key="LoginPageInputPadding">40,12,12,12</Thickness>
+    <Thickness x:Key="LoginPagePasswordInputPadding">40,12,40,12</Thickness>
+    <Thickness x:Key="LoginPageSectionSpacing">0,0,0,24</Thickness>
+
+    <Style x:Key="LoginPageBrandTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource LoginPageHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource LoginPageHeadlineMediumSize}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource LoginPagePrimaryBrush}" />
+        <Setter Property="LineHeight" Value="32" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="LoginPageHeroTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource LoginPageHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource LoginPageHeadlineMediumSize}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource LoginPageTextPrimaryBrush}" />
+        <Setter Property="LineHeight" Value="32" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="LoginPageFormTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource LoginPageHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource LoginPageHeadlineLargeSize}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource LoginPageTextPrimaryBrush}" />
+        <Setter Property="LineHeight" Value="40" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="LoginPageBodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource LoginPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource LoginPageBodyMediumSize}" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Foreground" Value="{StaticResource LoginPageTextSecondaryBrush}" />
+        <Setter Property="LineHeight" Value="22" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="LoginPageLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource LoginPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource LoginPageLabelMediumSize}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource LoginPageTextPrimaryBrush}" />
+        <Setter Property="LineHeight" Value="20" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="LoginPageFooterTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource LoginPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource LoginPageLabelSmallSize}" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Foreground" Value="{StaticResource LoginPageTextSecondaryBrush}" />
+        <Setter Property="LineHeight" Value="16" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+</ResourceDictionary>

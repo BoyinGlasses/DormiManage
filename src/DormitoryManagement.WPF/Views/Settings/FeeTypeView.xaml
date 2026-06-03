@@ -1,0 +1,50 @@
+<UserControl x:Class="DormitoryManagement.WPF.Views.Settings.FeeTypeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:DormitoryManagement.WPF.Controls">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <DockPanel>
+            <TextBlock Text="Fee Types" FontSize="24" FontWeight="SemiBold" DockPanel.Dock="Left" />
+        </DockPanel>
+        <Border Grid.Row="1" Background="{StaticResource SurfaceBrush}" Padding="18" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Margin="0,18,0,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBox Text="{Binding Code, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" />
+                <TextBox Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" />
+                <TextBox Grid.Column="2" Text="{Binding Unit, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" />
+                <CheckBox Grid.Column="3" Content="Recurring" IsChecked="{Binding IsRecurring}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <Button Grid.Column="4" Content="Save" Command="{Binding SaveDraftCommand}" />
+                <Button Grid.Column="5" Content="Refresh" Command="{Binding LoadCommand}" />
+            </Grid>
+        </Border>
+        <DataGrid Grid.Row="2" ItemsSource="{Binding FeeTypes}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="*" />
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" />
+                <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" Width="*" />
+                <DataGridCheckBoxColumn Header="Recurring" Binding="{Binding IsRecurring}" Width="*" />
+                <DataGridTemplateColumn Header="Status" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <controls:StatusBadge Status="{Binding Status}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <TextBlock Grid.Row="3" Text="{Binding StatusMessage}" Foreground="{StaticResource AccentBrush}" Margin="0,8,0,0" />
+    </Grid>
+</UserControl>

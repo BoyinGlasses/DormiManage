@@ -1,0 +1,71 @@
+<UserControl x:Class="DormitoryManagement.WPF.Views.Audit.AuditLogListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:DormitoryManagement.WPF.Controls"
+             Loaded="OnLoaded">
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="24">
+                <controls:PageHeader Title="Audit Logs" Subtitle="Review workflow activity and system changes.">
+                    <controls:PageHeader.Actions>
+                        <Button Content="Refresh" Command="{Binding LoadCommand}" />
+                    </controls:PageHeader.Actions>
+                </controls:PageHeader>
+
+                <controls:ErrorState Title="Could not load audit logs"
+                                     Message="{Binding ErrorMessage}"
+                                     Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}"
+                                     Margin="0,0,0,14" />
+
+                <controls:SearchFilterBar>
+                    <controls:SearchFilterBar.FilterContent>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Search audit logs" />
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="12,0,0,0">
+                                <Button Content="Search" Command="{Binding SearchCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,0,8,0" />
+                                <Button Content="Clear" Command="{Binding ClearSearchCommand}" />
+                            </StackPanel>
+                        </Grid>
+                    </controls:SearchFilterBar.FilterContent>
+                </controls:SearchFilterBar>
+
+                <Border Style="{StaticResource SectionCardStyle}" MinHeight="520">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Latest actions" Style="{StaticResource SectionTitle}" />
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding Logs}" Visibility="{Binding HasLogs, Converter={StaticResource BoolToVisibility}}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Time" Binding="{Binding CreatedAt, StringFormat=g}" Width="1.2*" />
+                                <DataGridTextColumn Header="Actor" Binding="{Binding UserName}" Width="1.2*" />
+                                <DataGridTemplateColumn Header="Action" Width="1.3*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <controls:StatusBadge Status="{Binding Action}" Text="{Binding Action}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Entity" Binding="{Binding EntityName}" Width="*" />
+                                <DataGridTextColumn Header="Details" Binding="{Binding Details}" Width="2*" />
+                                <DataGridTextColumn Header="Workstation" Binding="{Binding Workstation}" Width="1.2*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <controls:EmptyState Grid.Row="1"
+                                             Title="No audit logs"
+                                             Message="Workflow activity will appear here after users interact with the system."
+                                             Icon="AL"
+                                             Visibility="{Binding IsLogsEmpty, Converter={StaticResource BoolToVisibility}}" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <controls:LoadingOverlay Message="Loading audit logs..." Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
+    </Grid>
+</UserControl>

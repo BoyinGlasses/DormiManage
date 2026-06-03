@@ -1,0 +1,133 @@
+<UserControl x:Class="DormitoryManagement.WPF.Views.Registrations.RegistrationApprovalView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:DormitoryManagement.WPF.Controls"
+             Loaded="OnLoaded">
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="24">
+                <controls:PageHeader Title="Registration Approvals" Subtitle="Review pending room registration requests and approve or reject with a clear reason.">
+                    <controls:PageHeader.Actions>
+                        <Button Content="Refresh" Command="{Binding LoadCommand}" />
+                    </controls:PageHeader.Actions>
+                </controls:PageHeader>
+
+                <controls:ErrorState Title="Action failed"
+                                     Message="{Binding ErrorMessage}"
+                                     Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}"
+                                     Margin="0,0,0,14" />
+
+                <Border Background="{StaticResource SuccessLightBrush}"
+                        BorderBrush="{StaticResource SuccessBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="12"
+                        Margin="0,0,0,14"
+                        Visibility="{Binding HasActionMessage, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="{Binding ActionMessage}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold" />
+                </Border>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="1.2*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource SectionCardStyle}" MinHeight="440">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Pending requests" Style="{StaticResource SectionTitle}" />
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding Registrations}"
+                                      SelectedItem="{Binding SelectedRegistration}"
+                                      Visibility="{Binding HasRegistrations, Converter={StaticResource BoolToVisibility}}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Code" Binding="{Binding RegistrationCode}" Width="*" />
+                                    <DataGridTextColumn Header="Student" Binding="{Binding StudentCode}" Width="*" />
+                                    <DataGridTextColumn Header="Name" Binding="{Binding StudentName}" Width="1.5*" />
+                                    <DataGridTextColumn Header="Building" Binding="{Binding BuildingName}" Width="*" />
+                                    <DataGridTextColumn Header="Preferred Room" Binding="{Binding PreferredRoom}" Width="*" />
+                                    <DataGridTextColumn Header="Requested" Binding="{Binding RequestedAt, StringFormat=d}" Width="*" />
+                                    <DataGridTemplateColumn Header="Status" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <controls:StatusBadge Status="{Binding Status}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <controls:EmptyState Grid.Row="1"
+                                                 Title="No pending registrations"
+                                                 Message="Pending room registration requests will appear here for review."
+                                                 Icon="✓"
+                                                 Visibility="{Binding IsRegistrationsEmpty, Converter={StaticResource BoolToVisibility}}" />
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource SectionCardStyle}" MinHeight="440">
+                        <Grid>
+                            <StackPanel Visibility="{Binding SelectedRegistration, Converter={StaticResource NotNullToVisibility}}">
+                                <DockPanel Margin="0,0,0,14">
+                                    <TextBlock Text="Request detail" Style="{StaticResource SectionTitle}" DockPanel.Dock="Left" Margin="0" />
+                                    <controls:StatusBadge Status="{Binding SelectedRegistration.Status}" DockPanel.Dock="Right" />
+                                </DockPanel>
+
+                                <TextBlock Text="Student" Style="{StaticResource FieldLabelStyle}" />
+                                <TextBlock Text="{Binding SelectedRegistration.StudentName}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding SelectedRegistration.StudentCode}" Style="{StaticResource CaptionText}" Margin="0,2,0,14" />
+
+                                <TextBlock Text="Preferred room" Style="{StaticResource FieldLabelStyle}" />
+                                <TextBlock Text="{Binding SelectedRegistration.PreferredRoom}" FontWeight="SemiBold" Margin="0,0,0,14" />
+
+                                <Grid Margin="0,0,0,14">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Term months" Style="{StaticResource FieldLabelStyle}" />
+                                        <TextBlock Text="{Binding SelectedRegistration.TermMonths}" FontWeight="SemiBold" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Start date" Style="{StaticResource FieldLabelStyle}" />
+                                        <DatePicker SelectedDate="{Binding StartDate}" AutomationProperties.Name="Contract start date" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="Note" Style="{StaticResource FieldLabelStyle}" />
+                                <Border Background="{StaticResource SurfaceAltBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10" MinHeight="80" Margin="0,0,0,16">
+                                    <TextBlock Text="{Binding SelectedRegistration.Note}" TextWrapping="Wrap" />
+                                </Border>
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="Reject" Command="{Binding OpenRejectDialogCommand}" IsEnabled="{Binding CanRejectRegistration}" Margin="0,0,8,0" />
+                                    <Button Content="Approve" Command="{Binding ApproveCommand}" IsEnabled="{Binding CanApproveRegistration}" Style="{StaticResource PrimaryButtonStyle}" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <controls:EmptyState Title="Select a request"
+                                                 Message="Choose a pending registration to review student and room details."
+                                                 Icon="→"
+                                                 Visibility="{Binding SelectedRegistration, Converter={StaticResource NullToVisibility}}" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+
+        <controls:ConfirmDialog IsOpen="{Binding IsRejectDialogOpen}"
+                                Title="Reject registration"
+                                Message="Enter a clear reason. The reason is required and will be stored with the decision."
+                                Reason="{Binding RejectReason, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ErrorMessage="{Binding RejectReasonError}"
+                                ConfirmCommand="{Binding ConfirmRejectCommand}"
+                                CancelCommand="{Binding CancelRejectCommand}" />
+        <controls:LoadingOverlay Message="Processing registration..." Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
+    </Grid>
+</UserControl>

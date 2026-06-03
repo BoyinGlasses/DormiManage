@@ -1,0 +1,359 @@
+<UserControl x:Class="DormitoryManagement.WPF.Views.Billing.InvoiceListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:DormitoryManagement.WPF.Controls"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             Loaded="OnLoaded">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemesDictionary Theme="Light" />
+                <ui:ControlsDictionary />
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="BillingRowExtendButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+                <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="Padding" Value="10,5" />
+                <Setter Property="MinHeight" Value="30" />
+                <Style.Triggers>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Setter Property="Background" Value="{DynamicResource NeutralLightBrush}" />
+                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+                        <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="BillingRowPaymentButtonStyle" TargetType="Button" BasedOn="{StaticResource TextButtonStyle}">
+                <Setter Property="Padding" Value="10,5" />
+                <Setter Property="MinHeight" Value="30" />
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="24">
+                <controls:PageHeader Title="Billing" Subtitle="Generate monthly invoices and review current billing records.">
+                    <controls:PageHeader.Actions>
+                        <controls:StatusBadge Status="Info" Text="Finance" />
+                    </controls:PageHeader.Actions>
+                </controls:PageHeader>
+
+                <controls:ErrorState Title="Billing action failed"
+                                     Message="{Binding ErrorMessage}"
+                                     Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}"
+                                     Margin="0,0,0,14" />
+
+                <Border Background="{StaticResource SuccessLightBrush}"
+                        BorderBrush="{StaticResource SuccessBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="12"
+                        Margin="0,0,0,14"
+                        Visibility="{Binding HasSuccessMessage, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="{Binding SuccessMessage}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold" />
+                </Border>
+
+                <ItemsControl ItemsSource="{Binding Warnings}"
+                              Visibility="{Binding HasWarnings, Converter={StaticResource BoolToVisibility}}"
+                              Margin="0,0,0,14">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Style="{StaticResource CaptionText}" TextWrapping="Wrap" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Border Style="{StaticResource SectionCardStyle}"
+                        Margin="0,0,0,16"
+                        Visibility="{Binding CanGenerateInvoices, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel>
+                        <DockPanel Margin="0,0,0,16">
+                            <StackPanel DockPanel.Dock="Left">
+                                <TextBlock Text="Monthly utility billing" Style="{StaticResource SectionTitle}" />
+                                <TextBlock Text="Enter current readings, preview charges, then confirm invoices." Style="{StaticResource CaptionText}" />
+                            </StackPanel>
+                            <TextBlock DockPanel.Dock="Right"
+                                       Text="{Binding PreviewTotalAmount, StringFormat={}{0:N0} VND}"
+                                       Foreground="{StaticResource AccentBrush}"
+                                       FontSize="24"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Top" />
+                        </DockPanel>
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="12" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.2*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="1.2*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Row="0" Grid.Column="0">
+                                <TextBlock Text="Building type" Style="{StaticResource FieldLabelStyle}" />
+                                <ComboBox ItemsSource="{Binding BuildingTypeOptions}"
+                                          SelectedItem="{Binding SelectedBuildingType}"
+                                          Height="58"
+                                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                          materialDesign:HintAssist.Hint="Building type"
+                                          AutomationProperties.Name="Building type" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="0" Grid.Column="2">
+                                <TextBlock Text="Room" Style="{StaticResource FieldLabelStyle}" />
+                                <ComboBox ItemsSource="{Binding RoomOptions}"
+                                          SelectedItem="{Binding SelectedRoom}"
+                                          DisplayMemberPath="RoomNumber"
+                                          Height="58"
+                                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                                          materialDesign:HintAssist.Hint="Room"
+                                          AutomationProperties.Name="Room" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="0" Grid.Column="4">
+                                <TextBlock Text="Billing period" Style="{StaticResource FieldLabelStyle}" />
+                                <ui:TextBox Text="{Binding BillingPeriod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            Width="150"
+                                            Height="58"
+                                            HorizontalAlignment="Left"
+                                            VerticalContentAlignment="Center"
+                                            IsEnabled="True"
+                                            IsReadOnly="False"
+                                            PlaceholderText="yyyy-MM"
+                                            AutomationProperties.Name="Billing period" />
+                                <TextBlock Text="{Binding BillingPeriodError}"
+                                           Style="{StaticResource FieldErrorStyle}"
+                                           Visibility="{Binding HasBillingPeriodError, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="0" Grid.Column="6">
+                                <TextBlock Text="Auto due date" Style="{StaticResource FieldLabelStyle}" />
+                                <DatePicker SelectedDate="{Binding DueDate}"
+                                            IsEnabled="False"
+                                            Height="58"
+                                            AutomationProperties.Name="Invoice due date" />
+                                <TextBlock Text="{Binding DueDateError}"
+                                           Style="{StaticResource FieldErrorStyle}"
+                                           Visibility="{Binding HasDueDateError, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2" Grid.Column="0">
+                                <TextBlock Text="Electricity reading" Style="{StaticResource FieldLabelStyle}" />
+                                <ui:TextBox Text="{Binding ElectricityCurrentText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            Width="150"
+                                            Height="58"
+                                            HorizontalAlignment="Left"
+                                            VerticalContentAlignment="Center"
+                                            IsEnabled="True"
+                                            IsReadOnly="False"
+                                            PlaceholderText="Current kWh"
+                                            AutomationProperties.Name="Electricity reading" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2" Grid.Column="2">
+                                <TextBlock Text="Water reading" Style="{StaticResource FieldLabelStyle}" />
+                                <ui:TextBox Text="{Binding WaterCurrentText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            Width="150"
+                                            Height="58"
+                                            HorizontalAlignment="Left"
+                                            VerticalContentAlignment="Center"
+                                            IsEnabled="True"
+                                            IsReadOnly="False"
+                                            PlaceholderText="Current m3"
+                                            AutomationProperties.Name="Water reading" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2" Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                <Button Content="Preview"
+                                        Command="{Binding PreviewUtilityBillingCommand}"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Margin="0,0,8,0" />
+                                <Button Content="Confirm"
+                                        Command="{Binding GenerateMonthlyInvoicesCommand}"
+                                        Style="{StaticResource MaterialDesignRaisedButton}" />
+                            </StackPanel>
+
+                            <Grid Grid.Row="2" Grid.Column="6" Visibility="{Binding HasUtilityPreview, Converter={StaticResource BoolToVisibility}}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="4" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="4" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="4" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="4" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="4" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <DockPanel Grid.Row="0">
+                                    <TextBlock Text="Electricity" Style="{StaticResource CaptionText}" />
+                                    <TextBlock Text="{Binding UtilityPreview.ElectricityAmount, StringFormat={}{0:N0} VND}" DockPanel.Dock="Right" FontWeight="SemiBold" />
+                                </DockPanel>
+                                <DockPanel Grid.Row="2">
+                                    <TextBlock Text="Water" Style="{StaticResource CaptionText}" />
+                                    <TextBlock Text="{Binding UtilityPreview.WaterAmount, StringFormat={}{0:N0} VND}" DockPanel.Dock="Right" FontWeight="SemiBold" />
+                                </DockPanel>
+                                <DockPanel Grid.Row="4">
+                                    <TextBlock Text="Internet" Style="{StaticResource CaptionText}" />
+                                    <TextBlock Text="{Binding UtilityPreview.InternetAmount, StringFormat={}{0:N0} VND}" DockPanel.Dock="Right" FontWeight="SemiBold" />
+                                </DockPanel>
+                                <DockPanel Grid.Row="6">
+                                    <TextBlock Text="Active members" Style="{StaticResource CaptionText}" />
+                                    <TextBlock Text="{Binding UtilityPreview.ActiveMemberCount}" DockPanel.Dock="Right" FontWeight="SemiBold" />
+                                </DockPanel>
+                                <DockPanel Grid.Row="8">
+                                    <TextBlock Text="Per member" Style="{StaticResource CaptionText}" />
+                                    <TextBlock Text="{Binding UtilityPreview.PerMemberAmount, StringFormat={}{0:N0} VND}" DockPanel.Dock="Right" FontWeight="SemiBold" />
+                                </DockPanel>
+                                <DockPanel Grid.Row="10">
+                                    <TextBlock Text="Due" Style="{StaticResource CaptionText}" />
+                                    <TextBlock Text="{Binding UtilityPreview.DueDate, StringFormat=d}" DockPanel.Dock="Right" FontWeight="SemiBold" />
+                                </DockPanel>
+                            </Grid>
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding PreviewValidationMessages}"
+                                      Visibility="{Binding HasPreviewValidationMessages, Converter={StaticResource BoolToVisibility}}"
+                                      Margin="0,12,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Style="{StaticResource FieldErrorStyle}" TextWrapping="Wrap" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SectionCardStyle}" MinHeight="440">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Invoice records" Style="{StaticResource SectionTitle}" />
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding StudentBillingRows}"
+                                  AutoGenerateColumns="False"
+                                  Visibility="{Binding HasStudentBillingRows, Converter={StaticResource BoolToVisibility}}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Invoice" Binding="{Binding InvoiceNumber}" Width="1.2*" />
+                                <DataGridTextColumn Header="Kind" Binding="{Binding InvoiceKind}" Width="*" />
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="1.4*" />
+                                <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="*" />
+                                <DataGridTextColumn Header="Period" Binding="{Binding BillingPeriod}" Width="*" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat={}{0:N0}}" Width="*" />
+                                <DataGridTextColumn Header="Paid" Binding="{Binding PaidAmount, StringFormat={}{0:N0}}" Width="*" />
+                                <DataGridTextColumn Header="Due" Binding="{Binding DueDate, StringFormat=d}" Width="*" />
+                                <DataGridTemplateColumn Header="Status" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <controls:StatusBadge Status="{Binding Status}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Extend" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Extend"
+                                                    Command="{Binding DataContext.ExtendInvoiceCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                                    CommandParameter="{Binding}"
+                                                    IsEnabled="{Binding CanExtend}"
+                                                    Visibility="{Binding CanShowExtendAction, Converter={StaticResource BoolToVisibility}}"
+                                                    Style="{StaticResource BillingRowExtendButtonStyle}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Payment" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Pay"
+                                                    Command="{Binding DataContext.PayInvoiceCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                                    CommandParameter="{Binding}"
+                                                    IsEnabled="{Binding CanPay}"
+                                                    Style="{StaticResource BillingRowPaymentButtonStyle}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding Invoices}"
+                                  SelectedItem="{Binding SelectedInvoice}"
+                                  AutoGenerateColumns="False"
+                                  Visibility="{Binding HasStaffInvoiceRows, Converter={StaticResource BoolToVisibility}}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Invoice" Binding="{Binding InvoiceNumber}" Width="*" />
+                                <DataGridTextColumn Header="Kind" Binding="{Binding InvoiceKind}" Width="*" />
+                                <DataGridTextColumn Header="Student" Binding="{Binding StudentCode}" Width="*" />
+                                <DataGridTextColumn Header="Name" Binding="{Binding StudentName}" Width="1.4*" />
+                                <DataGridTextColumn Header="Room" Binding="{Binding RoomNumber}" Width="*" />
+                                <DataGridTextColumn Header="Period" Binding="{Binding BillingPeriod}" Width="*" />
+                                <DataGridTextColumn Header="Total" Binding="{Binding TotalAmount, StringFormat=N0}" Width="*" />
+                                <DataGridTextColumn Header="Paid" Binding="{Binding PaidAmount, StringFormat=N0}" Width="*" />
+                                <DataGridTextColumn Header="Remaining" Binding="{Binding RemainingAmount, StringFormat=N0}" Width="*" />
+                                <DataGridTextColumn Header="Due" Binding="{Binding DueDate, StringFormat=d}" Width="*" />
+                                <DataGridTemplateColumn Header="Status" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <controls:StatusBadge Status="{Binding Status}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <controls:EmptyState Grid.Row="1"
+                                             Title="No invoices loaded"
+                                             Message="Generated or selected invoices will appear here."
+                                             Icon="BI"
+                                             Visibility="{Binding IsStaffInvoicesEmpty, Converter={StaticResource BoolToVisibility}}" />
+                        <controls:EmptyState Grid.Row="1"
+                                             Title="No invoices loaded"
+                                             Message="Monthly utility and parking invoices will appear here."
+                                             Icon="BI"
+                                             Visibility="{Binding IsStudentInvoicesEmpty, Converter={StaticResource BoolToVisibility}}" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SectionCardStyle}" MinHeight="220" Margin="0,16,0,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Invoice detail" Style="{StaticResource SectionTitle}" />
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding SelectedInvoiceItems}"
+                                  AutoGenerateColumns="False"
+                                  Visibility="{Binding HasSelectedInvoiceItems, Converter={StaticResource BoolToVisibility}}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="2*" />
+                                <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity, StringFormat=N2}" Width="*" />
+                                <DataGridTextColumn Header="Unit Price" Binding="{Binding UnitPrice, StringFormat=N0}" Width="*" />
+                                <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat=N0}" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <controls:EmptyState Grid.Row="1"
+                                             Title="No invoice selected"
+                                             Message="Select an invoice to review billing items."
+                                             Icon="IT"
+                                             Visibility="{Binding IsSelectedInvoiceItemsEmpty, Converter={StaticResource BoolToVisibility}}" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <controls:LoadingOverlay Message="Updating billing..." Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
+    </Grid>
+</UserControl>

@@ -1,0 +1,61 @@
+<UserControl x:Class="DormitoryManagement.WPF.Views.Students.StudentListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:DormitoryManagement.WPF.Controls"
+             Loaded="OnLoaded">
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="24">
+                <controls:PageHeader Title="Students" Subtitle="Browse active student records from the dormitory database.">
+                    <controls:PageHeader.Actions>
+                        <Button Content="Refresh" Command="{Binding RefreshCommand}" />
+                    </controls:PageHeader.Actions>
+                </controls:PageHeader>
+
+                <controls:ErrorState Title="Could not load students"
+                                     Message="{Binding ErrorMessage}"
+                                     Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}"
+                                     Margin="0,0,0,14" />
+
+                <Border Style="{StaticResource SectionCardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <DockPanel Margin="0,0,0,10">
+                            <TextBlock Text="Student directory" Style="{StaticResource SectionTitle}" DockPanel.Dock="Left" Margin="0" />
+                            <TextBlock Text="{Binding TotalCount, StringFormat={}{0} total}" Style="{StaticResource CaptionText}" DockPanel.Dock="Right" HorizontalAlignment="Right" />
+                        </DockPanel>
+
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding Students}"
+                                  Visibility="{Binding HasStudents, Converter={StaticResource BoolToVisibility}}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Code" Binding="{Binding StudentCode}" Width="*" />
+                                <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="2*" />
+                                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="2*" />
+                                <DataGridTextColumn Header="Phone" Binding="{Binding PhoneNumber}" Width="*" />
+                                <DataGridTemplateColumn Header="Status" Width="*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <controls:StatusBadge Status="{Binding Status}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <controls:EmptyState Grid.Row="1"
+                                             Title="No students found"
+                                             Message="Student records will appear here when the current role can access them."
+                                             Icon="ST"
+                                             Visibility="{Binding IsStudentsEmpty, Converter={StaticResource BoolToVisibility}}" />
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <controls:LoadingOverlay Message="Loading students..." Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
+    </Grid>
+</UserControl>
