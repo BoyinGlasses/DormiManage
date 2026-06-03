@@ -97,7 +97,7 @@ public sealed class ShellViewModelTests
         Assert.False(shell.IsDefaultTopBarChrome);
         Assert.True(shell.IsSharedTopBarChrome);
         Assert.True(shell.IsTopBarVisible);
-        Assert.Equal("Vehicle registration", shell.CurrentPageTitle);
+        Assert.Equal("Đăng ký gửi xe", shell.CurrentPageTitle);
         Assert.Contains(shell.MenuItems, item => item.Key == "Vehicles" && item.IsActive);
     }
 
@@ -258,6 +258,7 @@ public sealed class ShellViewModelTests
         public bool IsInRole(string roleName) => Roles.Contains(roleName, StringComparer.OrdinalIgnoreCase);
     }
 }
+
 
 
 

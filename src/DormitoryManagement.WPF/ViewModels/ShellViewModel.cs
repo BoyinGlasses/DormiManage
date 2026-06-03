@@ -186,7 +186,7 @@ public sealed class ShellViewModel : ViewModelBase
                 Navigate<AuditLogListViewModel>("Audit logs");
                 break;
             case "Vehicles":
-                Navigate<VehicleRegistrationViewModel>("Vehicle registration");
+                Navigate<VehicleRegistrationViewModel>("Đăng ký gửi xe");
                 break;
             case "Tickets":
                 Navigate<SupportTicketListViewModel>("Support tickets");
@@ -355,7 +355,7 @@ public sealed class ShellViewModel : ViewModelBase
                 ProfileViewModel => "Profile",
                 UserManagementViewModel => "Settings",
                 FeeTypeViewModel => "Fee types",
-                VehicleRegistrationViewModel => "Vehicle registration",
+                VehicleRegistrationViewModel => "Đăng ký gửi xe",
                 _ => CurrentPageTitle
             };
             ActivateMenu(CurrentViewModel switch
@@ -479,6 +479,7 @@ public sealed class ShellNotificationItem
     public bool IsRead { get; }
     public DateTime CreatedAt { get; }
 }
+
 
 
 

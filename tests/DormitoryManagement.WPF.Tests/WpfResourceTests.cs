@@ -1902,23 +1902,43 @@ public sealed class WpfResourceTests
     }
 
     [Fact]
-    public void Vehicle_registration_resources_define_recovery_typography_and_geometry_tokens()
+    public void Vehicle_registration_resources_define_compact_recovery_typography_and_geometry_tokens()
     {
         var document = LoadVehicleRegistrationResourceDocument();
 
-        AssertResourceValue(document, "Double", "VehicleRegistrationPagePadding", "32");
-        AssertResourceValue(document, "Double", "VehicleRegistrationSectionGap", "24");
-        AssertResourceValue(document, "Double", "VehicleRegistrationCardPaddingDesktop", "32");
-        AssertResourceValue(document, "Double", "VehicleRegistrationQrFrameSize", "192");
-        AssertResourceValue(document, "Double", "VehicleRegistrationQrCodeSize", "160");
+        AssertResourceValue(document, "Double", "VehicleRegistrationSectionGap", "20");
+        AssertResourceValue(document, "Double", "VehicleRegistrationCardPaddingDesktop", "24");
+        AssertResourceValue(document, "GridLength", "VehicleRegistrationPaymentColumnWidth", "320");
+        AssertResourceValue(document, "Double", "VehicleRegistrationQrFrameSize", "168");
+        AssertResourceValue(document, "Double", "VehicleRegistrationQrCodeSize", "136");
+        AssertResourceValue(document, "Double", "VehicleRegistrationPageTitleSize", "30");
+        AssertResourceValue(document, "Double", "VehicleRegistrationSectionTitleSize", "22");
+        AssertResourceValue(document, "Double", "VehicleRegistrationHelperTextSize", "12");
+        AssertResourceValue(document, "Double", "VehicleRegistrationPriceTextSize", "22");
+        AssertResourceValue(document, "Double", "VehicleRegistrationButtonMinWidth", "120");
+        AssertResourceValue(document, "Double", "VehicleRegistrationVerifiedBadgeMaxWidth", "200");
+        AssertResourceValue(document, "Double", "VehicleRegistrationVerifiedBadgeIconSize", "12");
+        AssertResourceValue(document, "Double", "VehicleRegistrationVerifiedBadgeTextSize", "11");
 
-        AssertStyleSetter(document, "VehicleRegistrationPageTitleTextStyle", "FontSize", "32");
-        AssertStyleSetter(document, "VehicleRegistrationPageTitleTextStyle", "LineHeight", "40");
-        AssertStyleSetter(document, "VehicleRegistrationSectionTitleTextStyle", "FontSize", "24");
-        AssertStyleSetter(document, "VehicleRegistrationSectionTitleTextStyle", "LineHeight", "32");
-        AssertStyleSetter(document, "VehicleRegistrationFieldLabelTextStyle", "FontSize", "14");
-        AssertStyleSetter(document, "VehicleRegistrationFieldLabelTextStyle", "LineHeight", "20");
-        AssertStyleSetter(document, "VehicleRegistrationPriceTextStyle", "FontSize", "24");
+        AssertResourceValue(document, "Thickness", "VehicleRegistrationCardPadding", "24");
+        AssertResourceValue(document, "Thickness", "VehicleRegistrationSectionDividerMargin", "0,14,0,20");
+        AssertResourceValue(document, "Thickness", "VehicleRegistrationPrimaryButtonPadding", "20,0");
+        AssertResourceValue(document, "Thickness", "VehicleRegistrationVerifiedBadgePadding", "10,4");
+
+        AssertStyleSetter(document, "VehicleRegistrationPageTitleTextStyle", "FontSize", "{StaticResource VehicleRegistrationPageTitleSize}");
+        AssertStyleSetter(document, "VehicleRegistrationSectionTitleTextStyle", "FontSize", "{StaticResource VehicleRegistrationSectionTitleSize}");
+        AssertStyleSetter(document, "VehicleRegistrationHelperTextStyle", "FontSize", "{StaticResource VehicleRegistrationHelperTextSize}");
+        AssertStyleSetter(document, "VehicleRegistrationPriceTextStyle", "FontSize", "{StaticResource VehicleRegistrationPriceTextSize}");
+        AssertStyleSetter(document, "VehicleRegistrationPrimaryButtonStyle", "MinWidth", "{StaticResource VehicleRegistrationButtonMinWidth}");
+        AssertStyleSetter(document, "VehicleRegistrationPrimaryButtonStyle", "Height", "{StaticResource VehicleRegistrationPrimaryButtonHeight}");
+
+        var buttonShadow = document.Root!
+            .Elements(WpfNamespace + "DropShadowEffect")
+            .First(element => string.Equals(element.Attribute(XamlNamespace + "Key")?.Value, "VehicleRegistrationButtonShadowEffect", StringComparison.Ordinal));
+
+        Assert.Equal("12", buttonShadow.Attribute("BlurRadius")?.Value);
+        Assert.Equal("0.14", buttonShadow.Attribute("Opacity")?.Value);
+        Assert.Equal("2", buttonShadow.Attribute("ShadowDepth")?.Value);
     }
 
     [Fact]
@@ -1939,6 +1959,21 @@ public sealed class WpfResourceTests
         Assert.DoesNotContain("Content=\"Invoices\"", xaml, StringComparison.Ordinal);
         Assert.DoesNotContain("Content=\"Vehicles\"", xaml, StringComparison.Ordinal);
         Assert.DoesNotContain("Content=\"Forum\"", xaml, StringComparison.Ordinal);
+    }
+[Fact]
+    public void Vehicle_registration_view_removes_payment_blob_and_keeps_compact_two_column_contract()
+    {
+        var xaml = LoadVehicleRegistrationViewDocument().ToString(SaveOptions.DisableFormatting);
+
+        Assert.DoesNotContain("#33FFB59D", xaml, StringComparison.Ordinal);
+        Assert.Contains("Width=\"{StaticResource VehicleRegistrationPaymentColumnWidth}\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Width=\"{StaticResource VehicleRegistrationQrFrameSize}\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Padding=\"{StaticResource VehicleRegistrationVerifiedBadgePadding}\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Text=\"Ngày đăng ký\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Text=\"Biển số xe\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Text=\"Thời hạn\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Text=\"Tổng tiền\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Text=\"Trạng thái\"", xaml, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -1973,7 +2008,7 @@ public sealed class WpfResourceTests
                 WaitUntil(() => viewModel.HistoryReviewRows.Count == 3);
 
                 var repoRoot = FindRepositoryRoot();
-                var artifactPath = Path.Combine(repoRoot, ".ai", "artifacts", "vehicle-registration-wpf-recovery.png");
+                var artifactPath = Path.Combine(repoRoot, ".ai", "artifacts", "vehicles-qa-recovered.png");
                 SaveFrameworkElementAsPng(view, artifactPath);
 
                 Assert.True(File.Exists(artifactPath));
@@ -1984,7 +2019,6 @@ public sealed class WpfResourceTests
             }
         });
     }
-
 
     [Fact]
     public void Vehicle_registration_view_reflows_without_horizontal_overflow_at_narrower_desktop_width()
@@ -3043,6 +3077,11 @@ public sealed class WpfResourceTests
     private static readonly XNamespace WpfNamespace = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
     private static readonly XNamespace XamlNamespace = "http://schemas.microsoft.com/winfx/2006/xaml";
 }
+
+
+
+
+
 
 
 
