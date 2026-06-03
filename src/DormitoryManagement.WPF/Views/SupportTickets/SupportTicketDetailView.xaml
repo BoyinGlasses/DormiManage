@@ -1,0 +1,97 @@
+<UserControl x:Class="DormitoryManagement.WPF.Views.SupportTickets.SupportTicketDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:DormitoryManagement.WPF.Controls">
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="24">
+                <controls:PageHeader Title="Ticket Detail" Subtitle="Update ticket status and keep a response timeline." />
+
+                <controls:ErrorState Title="Ticket update failed"
+                                     Message="{Binding ErrorMessage}"
+                                     Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}"
+                                     Margin="0,0,0,14" />
+                <Border Background="{StaticResource SuccessLightBrush}"
+                        BorderBrush="{StaticResource SuccessBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="12"
+                        Margin="0,0,0,14"
+                        Visibility="{Binding HasSuccessMessage, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="{Binding SuccessMessage}" Foreground="{StaticResource SuccessBrush}" FontWeight="SemiBold" />
+                </Border>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="420" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="Ticket" Style="{StaticResource SectionTitle}" />
+                                <TextBlock Text="Ticket id" Style="{StaticResource FieldLabelStyle}" />
+                                <TextBox Text="{Binding TicketId, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Ticket id" />
+                                <TextBlock Text="Status" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6" />
+                                <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding Status}" AutomationProperties.Name="Ticket status" />
+                                <TextBlock Text="Status note" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6" />
+                                <TextBox Text="{Binding StatusNote, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Status note" />
+                                <Button Content="Update Status" Command="{Binding UpdateStatusCommand}" Style="{StaticResource PrimaryButtonStyle}" Margin="0,16,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SectionCardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="Add response" Style="{StaticResource SectionTitle}" />
+                                <TextBox Text="{Binding ResponseMessage, UpdateSourceTrigger=PropertyChanged}"
+                                         AcceptsReturn="True"
+                                         Height="116"
+                                         TextWrapping="Wrap"
+                                         VerticalScrollBarVisibility="Auto"
+                                         AutomationProperties.Name="Ticket response" />
+                                <Button Content="Add Response" Command="{Binding AddResponseCommand}" Margin="0,14,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <Border Grid.Column="2" Style="{StaticResource SectionCardStyle}" MinHeight="520">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <DockPanel Margin="0,0,0,12">
+                                <TextBlock Text="Response timeline" Style="{StaticResource SectionTitle}" DockPanel.Dock="Left" Margin="0" />
+                                <controls:StatusBadge Status="{Binding Status}" DockPanel.Dock="Right" />
+                            </DockPanel>
+
+                            <ItemsControl Grid.Row="1" ItemsSource="{Binding Responses}" Visibility="{Binding Responses, Converter={StaticResource HasItemsToVisibility}}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="0,0,0,12" Margin="0,0,0,12">
+                                            <StackPanel>
+                                                <DockPanel>
+                                                    <TextBlock Text="{Binding Author}" FontWeight="SemiBold" DockPanel.Dock="Left" />
+                                                    <TextBlock Text="{Binding CreatedAt, StringFormat=g}" Style="{StaticResource CaptionText}" DockPanel.Dock="Right" />
+                                                </DockPanel>
+                                                <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Margin="0,6,0,0" />
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <controls:EmptyState Grid.Row="1"
+                                                 Title="No responses yet"
+                                                 Message="Ticket responses and status notes will appear in this timeline."
+                                                 Icon="!"
+                                                 Visibility="{Binding Responses, Converter={StaticResource EmptyCollectionToVisibility}}" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+        <controls:LoadingOverlay Message="Updating ticket..." Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
+    </Grid>
+</UserControl>

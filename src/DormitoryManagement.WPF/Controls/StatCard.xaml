@@ -1,0 +1,40 @@
+<UserControl x:Class="DormitoryManagement.WPF.Controls.StatCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinHeight="112">
+    <Border Style="{StaticResource CardBorderStyle}" Padding="18">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <DockPanel>
+                <Border DockPanel.Dock="Left" Width="4" Height="28" CornerRadius="2" Background="{Binding AccentBrush, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="0,0,11,0" />
+                <Border DockPanel.Dock="Right"
+                        Padding="7,3"
+                        CornerRadius="9"
+                        Background="{StaticResource SurfaceAltBrush}"
+                        BorderBrush="{Binding AccentBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        BorderThickness="1"
+                        Visibility="{Binding TrendText, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource StringToVisibility}}">
+                    <TextBlock Text="{Binding TrendText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                               Foreground="{Binding AccentBrush, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                               FontSize="11"
+                               FontWeight="SemiBold" />
+                </Border>
+                <TextBlock Text="{Binding Title, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           Style="{StaticResource LabelText}"
+                           VerticalAlignment="Center" />
+            </DockPanel>
+            <TextBlock Grid.Row="1"
+                       Text="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       Style="{StaticResource StatValueText}"
+                       Margin="0,10,0,2" />
+            <TextBlock Grid.Row="2"
+                       Text="{Binding Subtitle, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                       Style="{StaticResource CaptionText}"
+                       TextWrapping="Wrap" />
+        </Grid>
+    </Border>
+</UserControl>

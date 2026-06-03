@@ -1,0 +1,321 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <Color x:Key="VehicleRegistrationColorCanvas">#F8F9FF</Color>
+    <Color x:Key="VehicleRegistrationColorSurface">#FFFFFF</Color>
+    <Color x:Key="VehicleRegistrationColorSurfaceLow">#EFF4FF</Color>
+    <Color x:Key="VehicleRegistrationColorSurfaceContainer">#E5EEFF</Color>
+    <Color x:Key="VehicleRegistrationColorSurfaceHigh">#DCE9FF</Color>
+    <Color x:Key="VehicleRegistrationColorSurfaceHighest">#D3E4FE</Color>
+    <Color x:Key="VehicleRegistrationColorTextPrimary">#0B1C30</Color>
+    <Color x:Key="VehicleRegistrationColorTextSecondary">#594139</Color>
+    <Color x:Key="VehicleRegistrationColorPrimary">#AB3500</Color>
+    <Color x:Key="VehicleRegistrationColorPrimaryContainer">#FF6B35</Color>
+    <Color x:Key="VehicleRegistrationColorSecondary">#4648D4</Color>
+    <Color x:Key="VehicleRegistrationColorSecondaryContainer">#6063EE</Color>
+    <Color x:Key="VehicleRegistrationColorTertiary">#006C49</Color>
+    <Color x:Key="VehicleRegistrationColorTertiaryContainer">#00AF79</Color>
+    <Color x:Key="VehicleRegistrationColorOutline">#8D7168</Color>
+    <Color x:Key="VehicleRegistrationColorOutlineVariant">#E1BFB5</Color>
+    <Color x:Key="VehicleRegistrationColorInputBorder">#E2E8F0</Color>
+    <Color x:Key="VehicleRegistrationColorShadow">#1A000000</Color>
+
+    <SolidColorBrush x:Key="VehicleRegistrationCanvasBrush" Color="{StaticResource VehicleRegistrationColorCanvas}" />
+    <SolidColorBrush x:Key="VehicleRegistrationSurfaceBrush" Color="{StaticResource VehicleRegistrationColorSurface}" />
+    <SolidColorBrush x:Key="VehicleRegistrationSurfaceLowBrush" Color="{StaticResource VehicleRegistrationColorSurfaceLow}" />
+    <SolidColorBrush x:Key="VehicleRegistrationSurfaceContainerBrush" Color="{StaticResource VehicleRegistrationColorSurfaceContainer}" />
+    <SolidColorBrush x:Key="VehicleRegistrationSurfaceHighBrush" Color="{StaticResource VehicleRegistrationColorSurfaceHigh}" />
+    <SolidColorBrush x:Key="VehicleRegistrationSurfaceHighestBrush" Color="{StaticResource VehicleRegistrationColorSurfaceHighest}" />
+    <SolidColorBrush x:Key="VehicleRegistrationTextPrimaryBrush" Color="{StaticResource VehicleRegistrationColorTextPrimary}" />
+    <SolidColorBrush x:Key="VehicleRegistrationTextSecondaryBrush" Color="{StaticResource VehicleRegistrationColorTextSecondary}" />
+    <SolidColorBrush x:Key="VehicleRegistrationPrimaryBrush" Color="{StaticResource VehicleRegistrationColorPrimary}" />
+    <SolidColorBrush x:Key="VehicleRegistrationPrimaryContainerBrush" Color="{StaticResource VehicleRegistrationColorPrimaryContainer}" />
+    <SolidColorBrush x:Key="VehicleRegistrationSecondaryBrush" Color="{StaticResource VehicleRegistrationColorSecondary}" />
+    <SolidColorBrush x:Key="VehicleRegistrationSecondaryContainerBrush" Color="{StaticResource VehicleRegistrationColorSecondaryContainer}" />
+    <SolidColorBrush x:Key="VehicleRegistrationTertiaryBrush" Color="{StaticResource VehicleRegistrationColorTertiary}" />
+    <SolidColorBrush x:Key="VehicleRegistrationTertiaryContainerBrush" Color="{StaticResource VehicleRegistrationColorTertiaryContainer}" />
+    <SolidColorBrush x:Key="VehicleRegistrationOutlineBrush" Color="{StaticResource VehicleRegistrationColorOutline}" />
+    <SolidColorBrush x:Key="VehicleRegistrationOutlineVariantBrush" Color="{StaticResource VehicleRegistrationColorOutlineVariant}" />
+    <SolidColorBrush x:Key="VehicleRegistrationInputBorderBrush" Color="{StaticResource VehicleRegistrationColorInputBorder}" />
+    <SolidColorBrush x:Key="VehicleRegistrationApprovedBadgeBrush" Color="#4D6FFBBE" />
+    <SolidColorBrush x:Key="VehicleRegistrationExpiredBadgeBrush" Color="#80E1E0FF" />
+
+    <FontFamily x:Key="VehicleRegistrationHeadlineFontFamily">pack://application:,,,/DormitoryManagement.WPF;component/Assets/Fonts/PlusJakartaSans/#Plus Jakarta Sans</FontFamily>
+    <FontFamily x:Key="VehicleRegistrationBodyFontFamily">pack://application:,,,/DormitoryManagement.WPF;component/Assets/Fonts/Inter/#Inter</FontFamily>
+
+    <system:Double x:Key="VehicleRegistrationPageMaxWidth">1440</system:Double>
+    <system:Double x:Key="VehicleRegistrationTopBarHorizontalPadding">32</system:Double>
+    <system:Double x:Key="VehicleRegistrationTopBarVerticalPadding">16</system:Double>
+    <system:Double x:Key="VehicleRegistrationPagePadding">24</system:Double>
+    <system:Double x:Key="VehicleRegistrationSectionGap">20</system:Double>
+    <system:Double x:Key="VehicleRegistrationCardPaddingDesktop">32</system:Double>
+    <system:Double x:Key="VehicleRegistrationQrFrameSize">192</system:Double>
+    <system:Double x:Key="VehicleRegistrationQrCodeSize">160</system:Double>
+
+    <CornerRadius x:Key="VehicleRegistrationControlCornerRadius">8</CornerRadius>
+    <CornerRadius x:Key="VehicleRegistrationCardCornerRadius">12</CornerRadius>
+    <CornerRadius x:Key="VehicleRegistrationPillCornerRadius">999</CornerRadius>
+
+    <Thickness x:Key="VehicleRegistrationCardPadding">24</Thickness>
+    <Thickness x:Key="VehicleRegistrationSectionHeaderPadding">0,0,0,16</Thickness>
+    <Thickness x:Key="VehicleRegistrationHistoryHeaderPadding">0,0,0,16</Thickness>
+
+    <DropShadowEffect x:Key="VehicleRegistrationCardShadowEffect"
+                      BlurRadius="20"
+                      Opacity="0.12"
+                      ShadowDepth="4"
+                      Color="{StaticResource VehicleRegistrationColorShadow}" />
+    <DropShadowEffect x:Key="VehicleRegistrationButtonShadowEffect"
+                      BlurRadius="24"
+                      Opacity="0.28"
+                      ShadowDepth="4"
+                      Color="#66FF6B35" />
+
+    <Style x:Key="VehicleRegistrationPageTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="LineHeight" Value="36" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationTextPrimaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="VehicleRegistrationSectionTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="LineHeight" Value="26" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationTextPrimaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="VehicleRegistrationBodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationBodyFontFamily}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="LineHeight" Value="26" />
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationTextSecondaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="VehicleRegistrationFieldLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationBodyFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="LineHeight" Value="20" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationTextPrimaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="VehicleRegistrationHelperTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationBodyFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationTextSecondaryBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="VehicleRegistrationTableHeaderTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationBodyFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationTextSecondaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="VehicleRegistrationTableCellTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationBodyFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationTextPrimaryBrush}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="VehicleRegistrationTablePlateTextStyle" TargetType="TextBlock" BasedOn="{StaticResource VehicleRegistrationTableCellTextStyle}">
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationHeadlineFontFamily}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+
+    <Style x:Key="VehicleRegistrationPriceTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationPrimaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="VehicleRegistrationCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource VehicleRegistrationSurfaceBrush}" />
+        <Setter Property="CornerRadius" Value="{StaticResource VehicleRegistrationCardCornerRadius}" />
+        <Setter Property="Padding" Value="{StaticResource VehicleRegistrationCardPadding}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Effect" Value="{StaticResource VehicleRegistrationCardShadowEffect}" />
+    </Style>
+
+    <Style x:Key="VehicleRegistrationTopBarBrandTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="VehicleRegistrationNavButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0,0,0,2" />
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationTextSecondaryBrush}" />
+        <Setter Property="Padding" Value="4,8" />
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationBodyFontFamily}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Margin" Value="0,0,18,0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Border"
+                            Background="Transparent"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationPrimaryBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="VehicleRegistrationNavButtonActiveStyle" TargetType="Button" BasedOn="{StaticResource VehicleRegistrationNavButtonStyle}">
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationPrimaryBrush}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="BorderBrush" Value="{StaticResource VehicleRegistrationPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="VehicleRegistrationIconButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Width" Value="32" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationPrimaryBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Border"
+                            Background="Transparent"
+                            CornerRadius="16">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource VehicleRegistrationSurfaceLowBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="VehicleRegistrationPrimaryButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource VehicleRegistrationPrimaryContainerBrush}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderBrush" Value="{StaticResource VehicleRegistrationPrimaryContainerBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="18,12" />
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationBodyFontFamily}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Effect" Value="{StaticResource VehicleRegistrationButtonShadowEffect}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource VehicleRegistrationPrimaryBrush}" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource VehicleRegistrationPrimaryBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Border" Property="Opacity" Value="0.55" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="VehicleRegistrationLinkButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationPrimaryBrush}" />
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationBodyFontFamily}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style x:Key="VehicleRegistrationDurationToggleButtonStyle" TargetType="ToggleButton">
+        <Setter Property="Background" Value="{StaticResource VehicleRegistrationSurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource VehicleRegistrationOutlineVariantBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationTextSecondaryBrush}" />
+        <Setter Property="Padding" Value="16,8" />
+        <Setter Property="FontFamily" Value="{StaticResource VehicleRegistrationBodyFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="MinWidth" Value="72" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{StaticResource VehicleRegistrationPillCornerRadius}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource VehicleRegistrationPrimaryBrush}" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource VehicleRegistrationPrimaryBrush}" />
+                            <Setter Property="Foreground" Value="White" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
+
+
+
+
+
+
+

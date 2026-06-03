@@ -1,0 +1,445 @@
+<UserControl x:Class="DormitoryManagement.WPF.Views.Auth.LoginView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="UserControl_OnLoaded"
+             SizeChanged="UserControl_OnSizeChanged">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/DormitoryManagement.WPF;component/Resources/LoginPage.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="LoginPageTextBoxStyle" TargetType="TextBox">
+                <Setter Property="Background" Value="{StaticResource LoginPageSurfaceBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource LoginPageTextPrimaryBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource LoginPageOutlineVariantBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Padding" Value="{StaticResource LoginPageInputPadding}" />
+                <Setter Property="FontFamily" Value="{StaticResource LoginPageBodyFontFamily}" />
+                <Setter Property="FontSize" Value="{StaticResource LoginPageBodyMediumSize}" />
+                <Setter Property="Height" Value="48" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+                <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border x:Name="Border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="{StaticResource LoginPageCardCornerRadius}">
+                                <ScrollViewer x:Name="PART_ContentHost" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource LoginPagePrimaryBrush}" />
+                                    <Setter TargetName="Border" Property="BorderThickness" Value="2" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="LoginPagePasswordBoxStyle" TargetType="PasswordBox">
+                <Setter Property="Background" Value="{StaticResource LoginPageSurfaceBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource LoginPageTextPrimaryBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource LoginPageOutlineVariantBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Padding" Value="{StaticResource LoginPagePasswordInputPadding}" />
+                <Setter Property="FontFamily" Value="{StaticResource LoginPageBodyFontFamily}" />
+                <Setter Property="FontSize" Value="{StaticResource LoginPageBodyMediumSize}" />
+                <Setter Property="Height" Value="48" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="PasswordBox">
+                            <Border x:Name="Border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="{StaticResource LoginPageCardCornerRadius}">
+                                <ScrollViewer x:Name="PART_ContentHost" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource LoginPagePrimaryBrush}" />
+                                    <Setter TargetName="Border" Property="BorderThickness" Value="2" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="LoginPagePrimaryButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource LoginPagePrimaryBrush}" />
+                <Setter Property="Foreground" Value="White" />
+                <Setter Property="BorderBrush" Value="{StaticResource LoginPagePrimaryBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Padding" Value="16,12" />
+                <Setter Property="FontFamily" Value="{StaticResource LoginPageBodyFontFamily}" />
+                <Setter Property="FontSize" Value="{StaticResource LoginPageLabelMediumSize}" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect BlurRadius="20" ShadowDepth="4" Opacity="0.12" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="{StaticResource LoginPageCardCornerRadius}">
+                                <ContentPresenter Margin="{TemplateBinding Padding}"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Border" Property="Background" Value="{StaticResource LoginPagePrimaryContainerBrush}" />
+                                    <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource LoginPagePrimaryContainerBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="Border" Property="Opacity" Value="0.6" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="LoginPageLinkButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Foreground" Value="{StaticResource LoginPagePrimaryBrush}" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="FontFamily" Value="{StaticResource LoginPageBodyFontFamily}" />
+                <Setter Property="FontSize" Value="{StaticResource LoginPageLabelSmallSize}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <ContentPresenter x:Name="ContentHost"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Foreground" Value="{StaticResource LoginPagePrimaryContainerBrush}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="LoginPageInlineErrorTextStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource LoginPageErrorBrush}" />
+                <Setter Property="FontFamily" Value="{StaticResource LoginPageBodyFontFamily}" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+                <Setter Property="MinHeight" Value="18" />
+                <Setter Property="Margin" Value="0,6,0,0" />
+                <Setter Property="LineHeight" Value="16" />
+            </Style>
+
+            <Style x:Key="LoginPagePlaceholderTextStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource LoginPageOutlineBrush}" />
+                <Setter Property="FontFamily" Value="{StaticResource LoginPageBodyFontFamily}" />
+                <Setter Property="FontSize" Value="{StaticResource LoginPageBodyMediumSize}" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="IsHitTestVisible" Value="False" />
+                <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+                <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+            </Style>
+
+            <Style x:Key="LoginPageFooterBrandTextStyle" TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource LoginPageHeadlineFontFamily}" />
+                <Setter Property="FontSize" Value="{StaticResource LoginPageHeadlineSmallSize}" />
+                <Setter Property="FontWeight" Value="Bold" />
+                <Setter Property="Foreground" Value="{StaticResource LoginPageTextPrimaryBrush}" />
+                <Setter Property="LineHeight" Value="24" />
+                <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+                <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <UserControl.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding LoginCommand}" />
+    </UserControl.InputBindings>
+
+    <ScrollViewer x:Name="RootScrollViewer"
+                  VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Background="{StaticResource LoginPageBackgroundBrush}">
+        <Grid Background="{StaticResource LoginPageBackgroundBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Background="{StaticResource LoginPageSurfaceBrush}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="12"
+                                      ShadowDepth="2"
+                                      Color="#000000"
+                                      Opacity="0.05" />
+                </Border.Effect>
+                <Grid x:Name="HeaderContainer"
+                      MaxWidth="1440"
+                      Height="{StaticResource LoginPageHeaderHeight}"
+                      Margin="24,0"
+                      HorizontalAlignment="Center">
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text=""
+                                   FontFamily="Segoe Fluent Icons"
+                                   Foreground="{StaticResource LoginPagePrimaryBrush}"
+                                   FontSize="28"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="DormManagement"
+                                   Style="{StaticResource LoginPageBrandTextStyle}"
+                                   Margin="8,0,0,0"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border x:Name="MainCanvasBorder"
+                    Grid.Row="1"
+                    MaxWidth="1440"
+                    HorizontalAlignment="Center"
+                    Background="{StaticResource LoginPageSurfaceBrush}">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="20"
+                                      ShadowDepth="4"
+                                      Color="#000000"
+                                      Opacity="0.08" />
+                </Border.Effect>
+                <Grid x:Name="SplitCanvasGrid"
+                      MinHeight="640"
+                      Background="{StaticResource LoginPageSurfaceBrush}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="0" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid x:Name="HeroPanel"
+                          Grid.Row="0"
+                          Grid.Column="0"
+                          Background="{StaticResource LoginPageSurfaceHighestBrush}"
+                          ClipToBounds="True">
+                        <Image x:Name="HeroImage"
+                               Stretch="UniformToFill" />
+                        <Border x:Name="HeroOverlayBorder"
+                                VerticalAlignment="Bottom"
+                                Margin="48"
+                                Padding="24"
+                                Background="#CCFFFFFF"
+                                BorderBrush="#33FFFFFF"
+                                BorderThickness="1"
+                                CornerRadius="{StaticResource LoginPageOverlayCornerRadius}">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="30"
+                                                  ShadowDepth="8"
+                                                  Color="#000000"
+                                                  Opacity="0.08" />
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="Chào mừng trở về"
+                                           Style="{StaticResource LoginPageHeroTitleTextStyle}" />
+                                <TextBlock Text="Truy cập bảng điều khiển ký túc xá của bạn để quản lý cài đặt phòng, xem các sự kiện cộng đồng và kết nối với bạn bè."
+                                           Style="{StaticResource LoginPageBodyTextStyle}"
+                                           FontSize="{StaticResource LoginPageBodyLargeSize}"
+                                           LineHeight="26"
+                                           Margin="0,8,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Border x:Name="FormPanel"
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Background="{StaticResource LoginPageSurfaceBrush}">
+                        <Grid x:Name="FormHost"
+                              Margin="96,32">
+                            <StackPanel x:Name="FormStack"
+                                        MaxWidth="448"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <StackPanel Margin="0,0,0,32">
+                                    <TextBlock Text="Đăng nhập"
+                                               Style="{StaticResource LoginPageFormTitleTextStyle}" />
+                                    <TextBlock Text="Nhập thông tin sinh viên của bạn để truy cập bảng điều khiển."
+                                               Style="{StaticResource LoginPageBodyTextStyle}"
+                                               Margin="0,8,0,0" />
+                                </StackPanel>
+
+                                <TextBlock Text="Mã sinh viên"
+                                           Style="{StaticResource LoginPageLabelTextStyle}" />
+                                <Grid Margin="0,8,0,0">
+                                    <TextBox x:Name="StudentIdInput"
+                                             Text="{Binding EmailOrStudentCode, UpdateSourceTrigger=PropertyChanged}"
+                                             TextChanged="StudentIdInput_OnTextChanged"
+                                             Style="{StaticResource LoginPageTextBoxStyle}"
+                                             AutomationProperties.Name="Mã sinh viên" />
+                                    <TextBlock Text=""
+                                               FontFamily="Segoe Fluent Icons"
+                                               Foreground="{StaticResource LoginPageOutlineBrush}"
+                                               Margin="16,0,0,0"
+                                               VerticalAlignment="Center"
+                                               IsHitTestVisible="False" />
+                                    <TextBlock x:Name="StudentIdPlaceholder"
+                                               Text="VD: 20248901"
+                                               Style="{StaticResource LoginPagePlaceholderTextStyle}"
+                                               Margin="40,0,12,0" />
+                                </Grid>
+                                <TextBlock Text="{Binding AccountError}"
+                                           Style="{StaticResource LoginPageInlineErrorTextStyle}" />
+
+                                <DockPanel Margin="0,18,0,0">
+                                    <TextBlock Text="Mật khẩu"
+                                               Style="{StaticResource LoginPageLabelTextStyle}"
+                                               DockPanel.Dock="Left" />
+                                    <Button Content="Quên mật khẩu?"
+                                            Style="{StaticResource LoginPageLinkButtonStyle}"
+                                            HorizontalAlignment="Right"
+                                            Click="ClickSafeLinkButton_OnClick" />
+                                </DockPanel>
+                                <Grid Margin="0,8,0,0">
+                                    <PasswordBox x:Name="PasswordInput"
+                                                 PasswordChanged="PasswordBox_OnPasswordChanged"
+                                                 Style="{StaticResource LoginPagePasswordBoxStyle}"
+                                                 AutomationProperties.Name="Mật khẩu" />
+                                    <TextBox x:Name="VisiblePasswordInput"
+                                             Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}"
+                                             TextChanged="VisiblePasswordInput_OnTextChanged"
+                                             Style="{StaticResource LoginPageTextBoxStyle}"
+                                             Padding="{StaticResource LoginPagePasswordInputPadding}"
+                                             Visibility="Collapsed"
+                                             AutomationProperties.Name="Mật khẩu hiển thị" />
+                                    <TextBlock Text=""
+                                               FontFamily="Segoe Fluent Icons"
+                                               Foreground="{StaticResource LoginPageOutlineBrush}"
+                                               Margin="16,0,0,0"
+                                               VerticalAlignment="Center"
+                                               IsHitTestVisible="False" />
+                                    <TextBlock x:Name="PasswordPlaceholder"
+                                               Text="••••••••"
+                                               Style="{StaticResource LoginPagePlaceholderTextStyle}"
+                                               Margin="40,0,40,0" />
+                                    <Button x:Name="PasswordVisibilityToggleButton"
+                                            Content=""
+                                            FontFamily="Segoe Fluent Icons"
+                                            Style="{StaticResource LoginPageLinkButtonStyle}"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,0,16,0"
+                                            VerticalAlignment="Center"
+                                            Click="PasswordVisibilityToggleButton_OnClick" />
+                                </Grid>
+                                <TextBlock Text="{Binding PasswordError}"
+                                           Style="{StaticResource LoginPageInlineErrorTextStyle}" />
+
+                                <CheckBox Content="Ghi nhớ đăng nhập"
+                                          Margin="0,16,0,0"
+                                          IsChecked="{Binding RememberMe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                <Button Content="{Binding SubmitButtonText}"
+                                        Command="{Binding LoginCommand}"
+                                        Style="{StaticResource LoginPagePrimaryButtonStyle}"
+                                        IsDefault="True"
+                                        IsEnabled="{Binding IsLoading, Converter={StaticResource InverseBool}}"
+                                        Margin="0,24,0,0" />
+
+                                <TextBlock Text="{Binding ErrorMessage}"
+                                           Style="{StaticResource LoginPageInlineErrorTextStyle}"
+                                           Margin="0,12,0,0" />
+
+                                <WrapPanel Margin="0,24,0,0"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center">
+                                    <TextBlock Text="Bạn mới biết đến DormManagement?"
+                                               Style="{StaticResource LoginPageBodyTextStyle}"
+                                               VerticalAlignment="Center" />
+                                    <Button Content="Đăng ký tại đây"
+                                            Command="{Binding CreateAccountCommand}"
+                                            Style="{StaticResource LoginPageLinkButtonStyle}"
+                                            Margin="6,0,0,0"
+                                            VerticalAlignment="Center" />
+                                </WrapPanel>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2"
+                    Background="{StaticResource LoginPageSurfaceBrush}"
+                    BorderBrush="{StaticResource LoginPageOutlineVariantBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="0,24">
+                <Grid x:Name="FooterGrid"
+                      MaxWidth="1440"
+                      Margin="32,0"
+                      HorizontalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="0" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock x:Name="FooterBrandText"
+                               Grid.Row="0"
+                               Grid.Column="0"
+                               Text="DormManagement"
+                               Style="{StaticResource LoginPageFooterBrandTextStyle}"
+                               VerticalAlignment="Center" />
+
+                    <WrapPanel x:Name="FooterLinksPanel"
+                               Grid.Row="0"
+                               Grid.Column="1"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               ItemWidth="Auto"
+                               Orientation="Horizontal">
+                        <Button Content="Chính sách bảo mật"
+                                Style="{StaticResource LoginPageLinkButtonStyle}"
+                                Click="ClickSafeLinkButton_OnClick" />
+                        <Button Content="Điều khoản dịch vụ"
+                                Style="{StaticResource LoginPageLinkButtonStyle}"
+                                Margin="24,0,0,0"
+                                Click="ClickSafeLinkButton_OnClick" />
+                        <Button Content="Hỗ trợ"
+                                Style="{StaticResource LoginPageLinkButtonStyle}"
+                                Margin="24,0,0,0"
+                                Click="ClickSafeLinkButton_OnClick" />
+                    </WrapPanel>
+
+                    <TextBlock x:Name="FooterCopyrightText"
+                               Grid.Row="0"
+                               Grid.Column="2"
+                               Text="© 2026 DormManagement. Bảo lưu mọi quyền."
+                               Style="{StaticResource LoginPageFooterTextStyle}"
+                               VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

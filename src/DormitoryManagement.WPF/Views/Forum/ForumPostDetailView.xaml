@@ -1,0 +1,354 @@
+<UserControl x:Class="DormitoryManagement.WPF.Views.Forum.ForumPostDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/DormitoryManagement.WPF;component/Resources/ForumPostDetail.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource ForumPostDetailCanvasBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0"
+                Background="{StaticResource ForumPostDetailSurfaceBrush}"
+                BorderBrush="{StaticResource ForumPostDetailOutlineBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="32,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="{Binding BrandText}"
+                           Style="{StaticResource ForumPostDetailBrandTextStyle}"
+                           VerticalAlignment="Center" />
+
+                <Border Grid.Column="1"
+                        Width="320"
+                        Height="52"
+                        Margin="24,0,0,0"
+                        HorizontalAlignment="Left"
+                        Background="{StaticResource ForumPostDetailSurfaceLowBrush}"
+                        CornerRadius="26"
+                        Padding="18,0">
+                    <DockPanel LastChildFill="True">
+                        <TextBlock Text="⌕"
+                                   FontSize="18"
+                                   Foreground="{StaticResource ForumPostDetailTextSecondaryBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,12,0" />
+                        <TextBlock Text="{Binding SearchPlaceholder}"
+                                   Style="{StaticResource ForumPostDetailMetaTextStyle}"
+                                   VerticalAlignment="Center" />
+                    </DockPanel>
+                </Border>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="🔔" Margin="0,0,18,0" VerticalAlignment="Center" FontSize="18" />
+                    <Border Width="42" Height="42" Background="#DDE9FF" CornerRadius="21">
+                        <TextBlock Text="{Binding HeaderUserSummary.AvatarLabel}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold" />
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="32,32,32,48" MaxWidth="1440" HorizontalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="820" />
+                    <ColumnDefinition Width="32" />
+                    <ColumnDefinition Width="320" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,32">
+                        <TextBlock Text="Home" Style="{StaticResource ForumPostDetailMetaTextStyle}" />
+                        <TextBlock Text="  ›  " Style="{StaticResource ForumPostDetailMetaTextStyle}" />
+                        <TextBlock Text="General News" Style="{StaticResource ForumPostDetailMetaTextStyle}" />
+                        <TextBlock Text="  ›  " Style="{StaticResource ForumPostDetailMetaTextStyle}" />
+                        <TextBlock Text="Thông báo lịch bảo trì..." Style="{StaticResource ForumPostDetailMetaTextStyle}" />
+                    </StackPanel>
+
+                    <Border Style="{StaticResource ForumPostDetailCardBorderStyle}" Margin="0,0,0,32">
+                        <StackPanel>
+                            <StackPanel Margin="32,32,32,24">
+                                <ItemsControl ItemsSource="{Binding Article.Tags}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{StaticResource ForumPostDetailSurfaceLowBrush}"
+                                                    BorderBrush="{StaticResource ForumPostDetailOutlineBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="8"
+                                                    Padding="12,4"
+                                                    Margin="0,0,8,8">
+                                                <TextBlock Text="{Binding Text}" Style="{StaticResource ForumPostDetailMetaTextStyle}" FontWeight="SemiBold" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <TextBlock Text="{Binding Article.Title}" Style="{StaticResource ForumPostDetailDisplayTextStyle}" Margin="0,16,0,24" />
+
+                                <DockPanel LastChildFill="False">
+                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                        <Border Width="48" Height="48" Background="{StaticResource ForumPostDetailSecondaryContainerBrush}" CornerRadius="24">
+                                            <TextBlock Text="BQ" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontWeight="Bold" />
+                                        </Border>
+                                        <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Article.Author}" Style="{StaticResource ForumPostDetailBodyTextStyle}" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding Article.RelativeTimeText}" Style="{StaticResource ForumPostDetailMetaTextStyle}" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <TextBlock DockPanel.Dock="Right" Text="⋯" FontSize="22" VerticalAlignment="Center" Foreground="{StaticResource ForumPostDetailTextSecondaryBrush}" />
+                                </DockPanel>
+                            </StackPanel>
+
+                            <Border Height="400" Margin="32,0,32,32" CornerRadius="14" ClipToBounds="True">
+                                <Image Source="{Binding Article.ImagePath}" Stretch="UniformToFill" />
+                            </Border>
+
+                            <StackPanel Margin="32,0,32,32">
+                                <ItemsControl ItemsSource="{Binding Article.BodyParagraphs}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" Style="{StaticResource ForumPostDetailBodyTextStyle}" FontSize="18" Margin="0,0,0,24" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <Border Background="{StaticResource ForumPostDetailSurfaceLowBrush}"
+                                        BorderBrush="{StaticResource ForumPostDetailPrimaryBrush}"
+                                        BorderThickness="4,0,0,0"
+                                        CornerRadius="14"
+                                        Padding="24"
+                                        Margin="0,0,0,24">
+                                    <ItemsControl ItemsSource="{Binding Article.InfoRows}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Style="{StaticResource ForumPostDetailBodyTextStyle}" Margin="0,0,0,12">
+                                                    <Run Text="{Binding Label, Mode=OneWay}" FontWeight="Bold" />
+                                                    <Run Text=" " />
+                                                    <Run Text="{Binding Value, Mode=OneWay}" />
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+
+                                <Border Background="#FFF2EF" CornerRadius="12" Padding="18" Margin="0,0,0,24">
+                                    <TextBlock Text="{Binding Article.WarningText}" Foreground="{StaticResource ForumPostDetailErrorBrush}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                </Border>
+
+                                <TextBlock Text="{Binding Article.SignatureText}" Style="{StaticResource ForumPostDetailMetaTextStyle}" />
+                            </StackPanel>
+
+                            <Border Background="{StaticResource ForumPostDetailSurfaceLowBrush}" Padding="18,14">
+                                <DockPanel LastChildFill="False">
+                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                        <Button Command="{Binding ToggleLikeCommand}" CommandParameter="{Binding Article}" Style="{StaticResource ForumPostDetailOutlinePillButtonStyle}" Margin="0,0,10,0">
+                                            <TextBlock Text="{Binding Article.LikeCountText}" />
+                                        </Button>
+                                        <Border BorderBrush="#D6E0F7" BorderThickness="1" CornerRadius="999" Padding="16,8">
+                                            <TextBlock Text="{Binding Article.CommentCountText}" Style="{StaticResource ForumPostDetailMetaTextStyle}" />
+                                        </Border>
+                                    </StackPanel>
+                                    <Border DockPanel.Dock="Right" BorderBrush="#D6E0F7" BorderThickness="1" CornerRadius="999" Padding="16,8">
+                                        <TextBlock Text="{Binding Article.ShareLabel}" Style="{StaticResource ForumPostDetailMetaTextStyle}" />
+                                    </Border>
+                                </DockPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource ForumPostDetailCardBorderStyle}" Padding="32">
+                        <StackPanel>
+                            <TextBlock Text="Comments (32)" Style="{StaticResource ForumPostDetailHeadlineTextStyle}" Margin="0,0,0,24" />
+                            <Border Background="{StaticResource ForumPostDetailSurfaceLowBrush}"
+                                    BorderBrush="#D6E0F7"
+                                    BorderThickness="1"
+                                    CornerRadius="16"
+                                    Padding="18"
+                                    Margin="0,0,0,36">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40" />
+                                        <ColumnDefinition Width="16" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="40" Height="40" Background="#DDE9FF" CornerRadius="20">
+                                        <TextBlock Text="{Binding Composer.AvatarLabel}" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" />
+                                    </Border>
+                                    <Grid Grid.Column="2">
+                                        <Border BorderBrush="#D6E0F7" BorderThickness="1" CornerRadius="16" Background="{StaticResource ForumPostDetailSurfaceBrush}" />
+                                        <TextBox Text="{Binding Composer.DraftText, UpdateSourceTrigger=PropertyChanged}"
+                                                 Height="96"
+                                                 AcceptsReturn="True"
+                                                 Background="Transparent"
+                                                 BorderThickness="0"
+                                                 Padding="16,16,90,16"
+                                                 TextWrapping="Wrap" />
+                                        <TextBlock Text="Add to the discussion..."
+                                                   Style="{StaticResource ForumPostDetailMetaTextStyle}"
+                                                   Margin="16,16,90,0"
+                                                   VerticalAlignment="Top"
+                                                   IsHitTestVisible="False" />
+                                        <Button Content="{Binding Composer.SubmitLabel}"
+                                                Command="{Binding SubmitCommentDraftCommand}"
+                                                Style="{StaticResource ForumPostDetailFilledButtonStyle}"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Bottom"
+                                                Margin="0,0,12,12"
+                                                Padding="16,8" />
+                                    </Grid>
+                                </Grid>
+                            </Border>
+
+                            <ItemsControl ItemsSource="{Binding Comments}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,24">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="40" />
+                                                <ColumnDefinition Width="16" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <Border Width="40" Height="40"
+                                                    Background="{StaticResource ForumPostDetailTertiaryContainerBrush}"
+                                                    CornerRadius="20"
+                                                    VerticalAlignment="Top">
+                                                <TextBlock Text="{Binding AvatarLabel}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontWeight="Bold" />
+                                            </Border>
+                                            <StackPanel Grid.Column="2">
+                                                <Border Background="{StaticResource ForumPostDetailSurfaceLowBrush}"
+                                                        BorderBrush="#D6E0F7"
+                                                        BorderThickness="1"
+                                                        CornerRadius="24"
+                                                        Padding="16">
+                                                    <StackPanel>
+                                                        <DockPanel Margin="0,0,0,8">
+                                                            <TextBlock Text="{Binding Author}" Style="{StaticResource ForumPostDetailBodyTextStyle}" FontWeight="Bold" DockPanel.Dock="Left" />
+                                                            <TextBlock Text="{Binding RelativeTimeText}" Style="{StaticResource ForumPostDetailMetaTextStyle}" DockPanel.Dock="Right" />
+                                                        </DockPanel>
+                                                        <TextBlock Text="{Binding Message}" Style="{StaticResource ForumPostDetailBodyTextStyle}" />
+                                                    </StackPanel>
+                                                </Border>
+                                                <StackPanel Orientation="Horizontal" Margin="8,8,0,0">
+                                                    <TextBlock Text="{Binding LikeCountText}" Style="{StaticResource ForumPostDetailMetaTextStyle}" Margin="0,0,16,0" />
+                                                    <Button Command="{Binding DataContext.ReplyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource ForumPostDetailGhostButtonStyle}"
+                                                            Margin="0,0,16,0">
+                                                        <TextBlock Text="{Binding ReplyLabel}" Style="{StaticResource ForumPostDetailMetaTextStyle}" />
+                                                    </Button>
+                                                    <Button Command="{Binding DataContext.ReportCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource ForumPostDetailGhostButtonStyle}">
+                                                        <TextBlock Text="{Binding ReportLabel}" Style="{StaticResource ForumPostDetailMetaTextStyle}" />
+                                                    </Button>
+                                                </StackPanel>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <Button Command="{Binding OpenCreatePostCommand}"
+                            Style="{StaticResource ForumPostDetailFilledButtonStyle}"
+                            Margin="0,12,0,24"
+                            Padding="20,16">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="＋" Foreground="White" FontSize="18" Margin="0,0,10,0" />
+                            <TextBlock Text="Create New Post" Foreground="White" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Button>
+
+                    <Border Style="{StaticResource ForumPostDetailCardBorderStyle}" Padding="24" Margin="0,0,0,24">
+                        <StackPanel>
+                            <TextBlock Text="Danh mục" Style="{StaticResource ForumPostDetailHeadlineTextStyle}" Margin="0,0,0,18" />
+                            <ItemsControl ItemsSource="{Binding Categories}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.OpenCategoryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource ForumPostDetailOutlinePillButtonStyle}"
+                                                Margin="0,0,0,10"
+                                                HorizontalContentAlignment="Stretch">
+                                            <TextBlock Text="{Binding Text}" HorizontalAlignment="Center" FontWeight="SemiBold" />
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource ForumPostDetailCardBorderStyle}" Padding="24" Margin="0,0,0,24">
+                        <StackPanel>
+                            <TextBlock Text="Related Posts" Style="{StaticResource ForumPostDetailHeadlineTextStyle}" Margin="0,0,0,18" />
+                            <ItemsControl ItemsSource="{Binding RelatedPosts}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,18">
+                                            <Button Command="{Binding DataContext.OpenRelatedPostCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource ForumPostDetailGhostButtonStyle}"
+                                                    HorizontalContentAlignment="Left">
+                                                <TextBlock Text="{Binding Title}" Style="{StaticResource ForumPostDetailBodyTextStyle}" FontWeight="SemiBold" />
+                                            </Button>
+                                            <TextBlock Text="{Binding MetaText}" Style="{StaticResource ForumPostDetailMetaTextStyle}" Margin="0,4,0,0" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource ForumPostDetailCardBorderStyle}" Padding="24">
+                        <StackPanel>
+                            <TextBlock Text="Trending Tags" Style="{StaticResource ForumPostDetailHeadlineTextStyle}" Margin="0,0,0,18" />
+                            <ItemsControl ItemsSource="{Binding TrendingTags}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.OpenTrendingTagCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource ForumPostDetailOutlinePillButtonStyle}"
+                                                Margin="0,0,10,10">
+                                            <TextBlock Text="{Binding Text}" />
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
+
+
+

@@ -1,0 +1,466 @@
+<UserControl x:Class="DormitoryManagement.WPF.Views.Vehicles.VehicleRegistrationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:DormitoryManagement.WPF.Controls"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             Loaded="OnLoaded">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemesDictionary Theme="Light" />
+                <ui:ControlsDictionary />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource VehicleRegistrationCanvasBrush}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <Grid HorizontalAlignment="Center"
+                  MaxWidth="1440"
+                  Margin="24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0"
+                            Margin="0,0,0,16">
+                    <TextBlock Text="{Binding RegistrationTitle}"
+                               Style="{StaticResource VehicleRegistrationPageTitleTextStyle}" />
+                    <TextBlock Text="Chọn thời hạn, nhập biển số xe máy, và quét mã QR để hoàn tất thanh toán gửi xe tháng này."
+                               Style="{StaticResource VehicleRegistrationBodyTextStyle}"
+                               Opacity="0"
+                               Margin="0,2,0,0" />
+                </StackPanel>
+
+                <controls:ErrorState Grid.Row="1"
+                                     Title="Không thể đăng ký giữ xe"
+                                     Message="{Binding ErrorMessage}"
+                                     Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}"
+                                     Margin="0,0,0,16" />
+
+                <Border Grid.Row="1"
+                        Background="#FFF3E8"
+                        BorderBrush="{StaticResource VehicleRegistrationPrimaryContainerBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="12"
+                        Margin="0,0,0,16"
+                        Visibility="{Binding HasSuccessMessage, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="{Binding SuccessMessage}"
+                               Foreground="{StaticResource VehicleRegistrationPrimaryBrush}"
+                               FontFamily="{StaticResource VehicleRegistrationBodyFontFamily}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap" />
+                </Border>
+
+                <Grid Grid.Row="2"
+                      Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition Width="360" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource VehicleRegistrationCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{Binding RegistrationSectionTitle}"
+                                       Style="{StaticResource VehicleRegistrationSectionTitleTextStyle}" />
+                            <Border Background="{StaticResource VehicleRegistrationSurfaceHighBrush}"
+                                    Height="1"
+                                    Margin="0,12,0,18" />
+
+                            <StackPanel>
+                                <TextBlock Text="{Binding LicensePlateLabel}"
+                                           Style="{StaticResource VehicleRegistrationFieldLabelTextStyle}" />
+                                <ui:TextBox Width="220"
+                                            Height="44"
+                                            HorizontalAlignment="Left"
+                                            VerticalContentAlignment="Center"
+                                            Text="{Binding LicensePlate, UpdateSourceTrigger=PropertyChanged}"
+                                            CharacterCasing="Upper"
+                                            PlaceholderText="{Binding LicensePlatePlaceholder}"
+                                            AutomationProperties.Name="Biển số xe" />
+                                <TextBlock Text="{Binding LicensePlateHelperText}"
+                                           Style="{StaticResource VehicleRegistrationHelperTextStyle}"
+                                           Margin="0,8,0,0" />
+                                <TextBlock Text="{Binding LicensePlateError}"
+                                           Style="{StaticResource FieldErrorStyle}"
+                                           Visibility="{Binding HasLicensePlateError, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+
+                            <StackPanel Margin="0,20,0,0">
+                                <TextBlock Text="{Binding DurationLabel}"
+                                           Style="{StaticResource VehicleRegistrationFieldLabelTextStyle}"
+                                           Margin="0,0,0,12" />
+                                <ItemsControl ItemsSource="{Binding DurationOptions}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <ToggleButton Content="{Binding Label}"
+                                                          IsChecked="{Binding IsSelected, Mode=OneWay}"
+                                                          Command="{Binding DataContext.SelectDurationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                          CommandParameter="{Binding Months}"
+                                                          Style="{StaticResource VehicleRegistrationDurationToggleButtonStyle}"
+                                                          Margin="0,0,12,12" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+
+                            <Border Background="{StaticResource VehicleRegistrationSurfaceLowBrush}"
+                                    BorderBrush="{StaticResource VehicleRegistrationSurfaceContainerBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="8"
+                                    Padding="16"
+                                    Margin="0,12,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding SubtotalLabel}"
+                                               Style="{StaticResource VehicleRegistrationBodyTextStyle}"
+                                               VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding SubtotalAmountText}"
+                                               Style="{StaticResource VehicleRegistrationPriceTextStyle}"
+                                               VerticalAlignment="Center" />
+                                </Grid>
+                            </Border>
+
+                            <Button Content="{Binding PrimaryActionLabel}"
+                                    Command="{Binding SubmitCommand}"
+                                    Style="{StaticResource VehicleRegistrationPrimaryButtonStyle}"
+                                    MinWidth="128"
+                                    Height="40"
+                                    HorizontalAlignment="Left"
+                                    Margin="0,20,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2"
+                            Style="{StaticResource VehicleRegistrationCardStyle}">
+                        <Grid>
+                            <Ellipse Width="128"
+                                     Height="132"
+                                     Fill="#33FFB59D"
+                                     HorizontalAlignment="Right"
+                                     VerticalAlignment="Top"
+                                     Margin="0,-48,-48,0" />
+                            <StackPanel HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="{Binding PaymentTitle}"
+                                           Style="{StaticResource VehicleRegistrationSectionTitleTextStyle}"
+                                           FontSize="18"
+                                           LineHeight="24"
+                                           TextAlignment="Center" />
+                                <TextBlock Text="{Binding PaymentSupportingText}"
+                                           Style="{StaticResource VehicleRegistrationHelperTextStyle}"
+                                           TextAlignment="Center"
+                                           Margin="0,8,0,0" />
+
+                                <Border Width="180"
+                                        Height="180"
+                                        Background="{StaticResource VehicleRegistrationCanvasBrush}"
+                                        BorderBrush="{StaticResource VehicleRegistrationOutlineVariantBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="12"
+                                        Margin="0,20,0,0">
+                                    <Grid>
+                                        <Border Width="148"
+                                                Height="148"
+                                                Background="#EEF3FF"
+                                                CornerRadius="8"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center">
+                                            <Canvas Width="128"
+                                                    Height="112"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+                                                <Border Width="28" Height="28" BorderBrush="#FF0B1C30" BorderThickness="4" Canvas.Left="0" Canvas.Top="0">
+                                                    <Border Margin="6" Background="#FF0B1C30" />
+                                                </Border>
+                                                <Border Width="28" Height="28" BorderBrush="#FF0B1C30" BorderThickness="4" Canvas.Left="84" Canvas.Top="0">
+                                                    <Border Margin="6" Background="#FF0B1C30" />
+                                                </Border>
+                                                <Border Width="28" Height="28" BorderBrush="#FF0B1C30" BorderThickness="4" Canvas.Left="0" Canvas.Top="84">
+                                                    <Border Margin="6" Background="#FF0B1C30" />
+                                                </Border>
+
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="42" Canvas.Top="10" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="56" Canvas.Top="10" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="70" Canvas.Top="24" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="42" Canvas.Top="38" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="56" Canvas.Top="38" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="70" Canvas.Top="38" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="42" Canvas.Top="52" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="28" Canvas.Top="66" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="42" Canvas.Top="66" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="56" Canvas.Top="66" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="84" Canvas.Top="52" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="84" Canvas.Top="66" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="56" Canvas.Top="84" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="70" Canvas.Top="84" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="84" Canvas.Top="98" />
+                                            </Canvas>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+                                <Border Background="#4D6FFBBE"
+                                        CornerRadius="999"
+                                        Padding="12,6"
+                                        Margin="0,20,0,0"
+                                        MaxWidth="236">
+                                    <Grid HorizontalAlignment="Center">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="&#xE73E;"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="14"
+                                                   Foreground="{StaticResource VehicleRegistrationTertiaryBrush}"
+                                                   Margin="0,1,6,0"
+                                                   VerticalAlignment="Top" />
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding PaymentVerifiedBadgeText}"
+                                                   FontFamily="{StaticResource VehicleRegistrationBodyFontFamily}"
+                                                   FontSize="12"
+                                                   Foreground="{StaticResource VehicleRegistrationTertiaryBrush}"
+                                                   TextWrapping="Wrap"
+                                                   TextAlignment="Left" />
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="3"
+                        Style="{StaticResource VehicleRegistrationCardStyle}"
+                        Grid.IsSharedSizeScope="True">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding HistoryTitle}"
+                                       Style="{StaticResource VehicleRegistrationSectionTitleTextStyle}" />
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource VehicleRegistrationLinkButtonStyle}"
+                                    HorizontalAlignment="Right">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding HistoryActionLabel}"
+                                               Margin="0,0,4,0" />
+                                    <TextBlock Text="&#xE72A;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                        <Border Background="{StaticResource VehicleRegistrationSurfaceHighBrush}"
+                                Height="1"
+                                Margin="0,0,0,12" />
+
+                        <StackPanel Visibility="{Binding HasHistoryReviewRows, Converter={StaticResource BoolToVisibility}}">
+                            <Grid Margin="0,0,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition SharedSizeGroup="RegisteredAt" Width="1.1*" />
+                                    <ColumnDefinition SharedSizeGroup="Plate" Width="1.2*" />
+                                    <ColumnDefinition SharedSizeGroup="Duration" Width="0.9*" />
+                                    <ColumnDefinition SharedSizeGroup="Total" Width="1*" />
+                                    <ColumnDefinition SharedSizeGroup="Status" Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Ngày đăng ký"
+                                           Style="{StaticResource VehicleRegistrationTableHeaderTextStyle}"
+                                           TextAlignment="Left"
+                                           Margin="8,0" />
+                                <TextBlock Grid.Column="1"
+                                           Text="Biển số xe"
+                                           Style="{StaticResource VehicleRegistrationTableHeaderTextStyle}"
+                                           TextAlignment="Left"
+                                           Margin="8,0" />
+                                <TextBlock Grid.Column="2"
+                                           Text="Thời hạn"
+                                           Style="{StaticResource VehicleRegistrationTableHeaderTextStyle}"
+                                           TextAlignment="Left"
+                                           Margin="8,0" />
+                                <TextBlock Grid.Column="3"
+                                           Text="Tổng tiền"
+                                           Style="{StaticResource VehicleRegistrationTableHeaderTextStyle}"
+                                           TextAlignment="Left"
+                                           Margin="8,0" />
+                                <TextBlock Grid.Column="4"
+                                           Text="Trạng thái"
+                                           Style="{StaticResource VehicleRegistrationTableHeaderTextStyle}"
+                                           TextAlignment="Left"
+                                           Margin="8,0" />
+                            </Grid>
+                            <Border Background="{StaticResource VehicleRegistrationSurfaceContainerBrush}"
+                                    Height="1"
+                                    Margin="0,0,0,4" />
+
+                            <ItemsControl ItemsSource="{Binding HistoryReviewRows}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <Grid Margin="0,0,0,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition SharedSizeGroup="RegisteredAt" Width="1.1*" />
+                                                    <ColumnDefinition SharedSizeGroup="Plate" Width="1.2*" />
+                                                    <ColumnDefinition SharedSizeGroup="Duration" Width="0.9*" />
+                                                    <ColumnDefinition SharedSizeGroup="Total" Width="1*" />
+                                                    <ColumnDefinition SharedSizeGroup="Status" Width="1*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding RegisteredAtText}"
+                                                           Style="{StaticResource VehicleRegistrationTableCellTextStyle}"
+                                                           Margin="8,12" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding LicensePlateText}"
+                                                           Style="{StaticResource VehicleRegistrationTablePlateTextStyle}"
+                                                           Margin="8,12" />
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{Binding DurationText}"
+                                                           Style="{StaticResource VehicleRegistrationTableCellTextStyle}"
+                                                           Foreground="{StaticResource VehicleRegistrationTextSecondaryBrush}"
+                                                           Margin="8,12" />
+                                                <TextBlock Grid.Column="3"
+                                                           Text="{Binding TotalAmountText}"
+                                                           Style="{StaticResource VehicleRegistrationTableCellTextStyle}"
+                                                           FontWeight="SemiBold"
+                                                           Margin="8,12" />
+                                                <Border Grid.Column="4"
+                                                        x:Name="StatusBadgeBorder"
+                                                        CornerRadius="999"
+                                                        Padding="10,5"
+                                                        HorizontalAlignment="Left"
+                                                        Margin="8,10">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="{StaticResource VehicleRegistrationSurfaceLowBrush}" />
+                                                            <Setter Property="BorderBrush" Value="{StaticResource VehicleRegistrationOutlineVariantBrush}" />
+                                                            <Setter Property="BorderThickness" Value="1" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding StatusTone}" Value="approved">
+                                                                    <Setter Property="Background" Value="#4D6FFBBE" />
+                                                                    <Setter Property="BorderBrush" Value="#4D00AF79" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding StatusTone}" Value="expired">
+                                                                    <Setter Property="Background" Value="#80E1E0FF" />
+                                                                    <Setter Property="BorderBrush" Value="#66C0C1FF" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding StatusTone}" Value="rejected">
+                                                                    <Setter Property="Background" Value="#33FFDAD6" />
+                                                                    <Setter Property="BorderBrush" Value="#66BA1A1A" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Ellipse x:Name="StatusDot"
+                                                                 Width="6"
+                                                                 Height="6"
+                                                                 Margin="0,0,6,0"
+                                                                 VerticalAlignment="Center">
+                                                            <Ellipse.Style>
+                                                                <Style TargetType="Ellipse">
+                                                                    <Setter Property="Fill" Value="{StaticResource VehicleRegistrationTextSecondaryBrush}" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding StatusTone}" Value="approved">
+                                                                            <Setter Property="Fill" Value="{StaticResource VehicleRegistrationTertiaryBrush}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding StatusTone}" Value="expired">
+                                                                            <Setter Property="Fill" Value="{StaticResource VehicleRegistrationSecondaryBrush}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding StatusTone}" Value="rejected">
+                                                                            <Setter Property="Fill" Value="Red" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Ellipse.Style>
+                                                        </Ellipse>
+                                                        <TextBlock Text="{Binding StatusLabel}"
+                                                                   FontFamily="{StaticResource VehicleRegistrationBodyFontFamily}"
+                                                                   FontSize="12"
+                                                                   FontWeight="SemiBold"
+                                                                   VerticalAlignment="Center">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationTextSecondaryBrush}" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding StatusTone}" Value="approved">
+                                                                            <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationTertiaryBrush}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding StatusTone}" Value="expired">
+                                                                            <Setter Property="Foreground" Value="{StaticResource VehicleRegistrationSecondaryBrush}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding StatusTone}" Value="rejected">
+                                                                            <Setter Property="Foreground" Value="Red" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </Border>
+                                            </Grid>
+                                            <Border Background="#FFF1F5F9"
+                                                    Height="1" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <StackPanel HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Margin="0,20,0,0"
+                                    Visibility="{Binding IsHistoryEmpty, Converter={StaticResource BoolToVisibility}}">
+                            <Border Width="64"
+                                    Height="64"
+                                    Background="{StaticResource VehicleRegistrationSurfaceContainerBrush}"
+                                    CornerRadius="32">
+                                <TextBlock Text="&#xE804;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="28"
+                                           Foreground="{StaticResource VehicleRegistrationOutlineBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="Chưa có đăng ký giữ xe"
+                                       Style="{StaticResource VehicleRegistrationSectionTitleTextStyle}"
+                                       FontSize="16"
+                                       LineHeight="24"
+                                       Margin="0,16,0,0"
+                                       TextAlignment="Center" />
+                            <TextBlock Text="Các lượt đăng ký xe máy và tình trạng thanh toán sẽ xuất hiện tại đây."
+                                       Style="{StaticResource VehicleRegistrationHelperTextStyle}"
+                                       TextAlignment="Center"
+                                       MaxWidth="360"
+                                       Margin="0,8,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
+
+        <controls:LoadingOverlay Message="Đang cập nhật đăng ký giữ xe..."
+                                 Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
+    </Grid>
+</UserControl>
+
+
+
+

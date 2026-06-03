@@ -1,0 +1,38 @@
+<UserControl x:Class="DormitoryManagement.WPF.Controls.ConfirmDialog"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Visibility="{Binding IsOpen, ElementName=Root, Converter={StaticResource BoolToVisibility}}">
+    <Grid Background="{DynamicResource DialogScrimBrush}">
+        <Border Background="{StaticResource SurfaceBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="20"
+                Width="420"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <StackPanel>
+                <TextBlock Text="{Binding Title, ElementName=Root}" Style="{StaticResource TitleText}" />
+                <TextBlock Text="{Binding Message, ElementName=Root}"
+                           Style="{StaticResource SubtitleText}"
+                           TextWrapping="Wrap"
+                           Margin="0,8,0,16" />
+                <TextBlock Text="Reason" Style="{StaticResource FieldLabelStyle}" />
+                <TextBox Text="{Binding Reason, ElementName=Root, UpdateSourceTrigger=PropertyChanged}"
+                         AutomationProperties.Name="Reason"
+                         AcceptsReturn="True"
+                         Height="88"
+                         TextWrapping="Wrap"
+                         VerticalScrollBarVisibility="Auto" />
+                <TextBlock Text="{Binding ErrorMessage, ElementName=Root}"
+                           Style="{StaticResource FieldErrorStyle}"
+                           Visibility="{Binding ErrorMessage, ElementName=Root, Converter={StaticResource StringToVisibility}}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+                    <Button Content="Cancel" Command="{Binding CancelCommand, ElementName=Root}" Margin="0,0,8,0" />
+                    <Button Content="Confirm" Command="{Binding ConfirmCommand, ElementName=Root}" Style="{StaticResource DangerButtonStyle}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

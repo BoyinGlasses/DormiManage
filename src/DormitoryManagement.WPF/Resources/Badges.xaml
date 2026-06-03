@@ -1,0 +1,31 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="BadgeSuccessBackgroundBrush" Color="{DynamicResource ColorSuccessLight}" />
+    <SolidColorBrush x:Key="BadgeSuccessForegroundBrush" Color="{DynamicResource ColorSuccess}" />
+    <SolidColorBrush x:Key="BadgeSuccessBorderBrush" Color="{DynamicResource ColorBadgeSuccessBorder}" />
+
+    <SolidColorBrush x:Key="BadgeWarningBackgroundBrush" Color="{DynamicResource ColorWarningLight}" />
+    <SolidColorBrush x:Key="BadgeWarningForegroundBrush" Color="{DynamicResource ColorWarning}" />
+    <SolidColorBrush x:Key="BadgeWarningBorderBrush" Color="{DynamicResource ColorBadgeWarningBorder}" />
+
+    <SolidColorBrush x:Key="BadgeDangerBackgroundBrush" Color="{DynamicResource ColorDangerLight}" />
+    <SolidColorBrush x:Key="BadgeDangerForegroundBrush" Color="{DynamicResource ColorDanger}" />
+    <SolidColorBrush x:Key="BadgeDangerBorderBrush" Color="{DynamicResource ColorBadgeDangerBorder}" />
+
+    <SolidColorBrush x:Key="BadgeInfoBackgroundBrush" Color="{DynamicResource ColorInfoLight}" />
+    <SolidColorBrush x:Key="BadgeInfoForegroundBrush" Color="{DynamicResource ColorInfo}" />
+    <SolidColorBrush x:Key="BadgeInfoBorderBrush" Color="{DynamicResource ColorBadgeInfoBorder}" />
+
+    <SolidColorBrush x:Key="BadgeNeutralBackgroundBrush" Color="{DynamicResource ColorNeutralLight}" />
+    <SolidColorBrush x:Key="BadgeNeutralForegroundBrush" Color="{DynamicResource ColorNeutral}" />
+    <SolidColorBrush x:Key="BadgeNeutralBorderBrush" Color="{DynamicResource ColorBorder}" />
+
+    <Style x:Key="StatusBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+</ResourceDictionary>
