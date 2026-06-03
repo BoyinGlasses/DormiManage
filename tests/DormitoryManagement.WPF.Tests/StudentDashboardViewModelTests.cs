@@ -15,7 +15,7 @@ using DormitoryManagement.WPF.ViewModels;
 using DormitoryManagement.WPF.ViewModels.Billing;
 using DormitoryManagement.WPF.ViewModels.Dashboard;
 using DormitoryManagement.WPF.ViewModels.Forum;
-using DormitoryManagement.WPF.ViewModels.Profile;
+using DormitoryManagement.WPF.ViewModels.Students;
 using DormitoryManagement.WPF.ViewModels.Registrations;
 using DormitoryManagement.WPF.ViewModels.SupportTickets;
 using Microsoft.Extensions.DependencyInjection;
@@ -219,7 +219,7 @@ public sealed class StudentDashboardViewModelTests
         Assert.Equal(typeof(ForumHomeViewModel), navigation.LastViewModelType);
 
         viewModel.OpenProfileCommand.Execute(null);
-        Assert.Equal(typeof(ProfileViewModel), navigation.LastViewModelType);
+        Assert.Equal(typeof(StudentProfileViewModel), navigation.LastViewModelType);
 
         viewModel.RegisterRoomCommand.Execute(null);
         Assert.Equal(typeof(RoomRegistrationViewModel), navigation.LastViewModelType);
@@ -376,4 +376,3 @@ public sealed class StudentDashboardViewModelTests
         public bool IsInRole(string roleName) => Roles.Contains(roleName, StringComparer.OrdinalIgnoreCase);
     }
 }
-

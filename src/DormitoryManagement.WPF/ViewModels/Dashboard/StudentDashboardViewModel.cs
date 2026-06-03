@@ -7,7 +7,7 @@ using DormitoryManagement.WPF.Common;
 using DormitoryManagement.WPF.Navigation;
 using DormitoryManagement.WPF.ViewModels.Billing;
 using DormitoryManagement.WPF.ViewModels.Forum;
-using DormitoryManagement.WPF.ViewModels.Profile;
+using DormitoryManagement.WPF.ViewModels.Students;
 using DormitoryManagement.WPF.ViewModels.Registrations;
 using DormitoryManagement.WPF.ViewModels.SupportTickets;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,7 +49,7 @@ public sealed class StudentDashboardViewModel : ViewModelBase
         PayInvoiceCommand = new RelayCommand(() => _navigationService.NavigateTo<PaymentViewModel>());
         CreateTicketCommand = new RelayCommand(() => _navigationService.NavigateTo<SupportTicketListViewModel>());
         OpenForumCommand = new RelayCommand(() => _navigationService.NavigateTo<ForumHomeViewModel>());
-        OpenProfileCommand = new RelayCommand(() => _navigationService.NavigateTo<ProfileViewModel>());
+        OpenProfileCommand = new RelayCommand(() => _navigationService.NavigateTo<StudentProfileViewModel>());
     }
 
     public ICommand RefreshCommand { get; }

@@ -1952,7 +1952,7 @@ public sealed class WpfResourceTests
 
         Assert.Contains("DormManagement", xaml);
         Assert.Contains("CurrentPageTitle", xaml);
-        Assert.Contains("OpenProfileCommand", xaml);
+        Assert.Contains("CommandParameter=\"StudentProfile\"", xaml);
         Assert.DoesNotContain("Lumina Community", xaml, StringComparison.Ordinal);
         Assert.DoesNotContain("Content=\"Dashboard\"", xaml, StringComparison.Ordinal);
         Assert.DoesNotContain("Content=\"My Room\"", xaml, StringComparison.Ordinal);

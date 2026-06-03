@@ -21,6 +21,6 @@
         <ResourceDictionary Source="Icons.xaml" />
         <ResourceDictionary Source="StudentDashboard.xaml" />
         <ResourceDictionary Source="VehicleRegistration.xaml" />
+        <ResourceDictionary Source="ProfilePage.xaml" />
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>
-

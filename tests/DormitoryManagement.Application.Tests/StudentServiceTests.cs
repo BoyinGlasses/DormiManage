@@ -83,5 +83,84 @@ public sealed class StudentServiceTests
         var student = Assert.Single(result.Items);
         Assert.Equal("SV001", student.StudentCode);
     }
+
+    [Fact]
+    public async Task GetCurrentStudentProfileAsync_returns_current_student_projection_with_room_summary()
+    {
+        var unitOfWork = new InMemoryUnitOfWork();
+        var buildingId = Guid.NewGuid();
+        var roomId = Guid.NewGuid();
+        var currentStudentId = Guid.NewGuid();
+        var otherStudentId = Guid.NewGuid();
+
+        unitOfWork.Set<Building>().Items.Add(new Building { Id = buildingId, Code = "A", Name = "Tòa nhà A" });
+        unitOfWork.Set<Room>().Items.Add(new Room { Id = roomId, BuildingId = buildingId, RoomNumber = "101" });
+        unitOfWork.Set<Student>().Items.AddRange(new[]
+        {
+            new Student
+            {
+                Id = currentStudentId,
+                StudentCode = "24521111",
+                FullName = "Nguyễn Văn A",
+                Email = "nguyen.van.a@student.edu.vn",
+                PhoneNumber = "+84 123 456 789",
+                DateOfBirth = new DateTime(2002, 8, 15),
+                Gender = "Nam",
+                Status = StudentStatus.Staying
+            },
+            new Student
+            {
+                Id = otherStudentId,
+                StudentCode = "24529999",
+                FullName = "Sinh viên khác",
+                Email = "other@student.edu.vn",
+                Status = StudentStatus.Staying
+            }
+        });
+        unitOfWork.Set<RoomAssignment>().Items.Add(new RoomAssignment
+        {
+            Id = Guid.NewGuid(),
+            StudentId = currentStudentId,
+            RoomId = roomId,
+            IsActive = true,
+            StartDate = new DateTime(2026, 1, 1)
+        });
+
+        var service = new StudentService(
+            new InMemoryStudentRepository(unitOfWork),
+            new AllowAllPermissionService(),
+            unitOfWork,
+            new TestCurrentUser(RoleNames.Student, studentId: currentStudentId));
+
+        var result = await service.GetCurrentStudentProfileAsync();
+
+        Assert.Equal(currentStudentId, result.StudentId);
+        Assert.Equal("Nguyễn Văn A", result.FullName);
+        Assert.Equal("24521111", result.StudentCode);
+        Assert.Equal("nguyen.van.a@student.edu.vn", result.Email);
+        Assert.Equal("+84 123 456 789", result.PhoneNumber);
+        Assert.Equal(new DateTime(2002, 8, 15), result.DateOfBirth);
+        Assert.Equal("Nam", result.Gender);
+        Assert.Equal("Tòa nhà A", result.BuildingName);
+        Assert.Equal("A-101", result.RoomLabel);
+        Assert.Equal("Đang ở", result.AssignmentStatus);
+        Assert.True(result.HasActiveAssignment);
+        Assert.Contains("đồng bộ", result.DormitorySupportMessage);
+    }
+
+    [Fact]
+    public async Task GetCurrentStudentProfileAsync_throws_when_current_user_is_not_linked_to_student_profile()
+    {
+        var unitOfWork = new InMemoryUnitOfWork();
+        var service = new StudentService(
+            new InMemoryStudentRepository(unitOfWork),
+            new AllowAllPermissionService(),
+            unitOfWork,
+            new TestCurrentUser(RoleNames.Student));
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => service.GetCurrentStudentProfileAsync());
+
+        Assert.Equal("Current user is not linked to a student profile.", ex.Message);
+    }
 }
 
