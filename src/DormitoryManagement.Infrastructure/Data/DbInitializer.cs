@@ -45,6 +45,8 @@ public sealed class DbInitializer
         await EnsureStudentAsync(studentUser, ct);
         await EnsureDemoManagersAsync(managerUser, buildingManagerUser, staffUser, ct);
         await _dbContext.SaveChangesAsync(ct);
+        await EnsureForumDemoDataAsync(ct);
+        await _dbContext.SaveChangesAsync(ct);
         await EnsureDashboardDemoDataAsync(ct);
 
         await _dbContext.SaveChangesAsync(ct);
@@ -376,6 +378,138 @@ public sealed class DbInitializer
         await EnsureNotificationAsync(students["SV001"].UserId, "Registration approved", "Your room registration has been approved.", false, DateTime.UtcNow.AddHours(-3), ct);
         await EnsureNotificationAsync(students["SV002"].UserId, "Payment pending", "Your payment is waiting for admin confirmation.", false, DateTime.UtcNow.AddHours(-2), ct);
         await EnsureNotificationAsync(users.GetValueOrDefault("manager")?.Id, "New pending registration", "A student submitted a room registration.", false, DateTime.UtcNow.AddHours(-1), ct);
+    }
+
+    private async Task EnsureForumDemoDataAsync(CancellationToken ct)
+    {
+        var users = await _dbContext.Users.ToDictionaryAsync(x => x.Username, ct);
+        var admin = users.GetValueOrDefault("admin") ?? users.Values.First();
+        var manager = users.GetValueOrDefault("manager") ?? admin;
+        var student = users.GetValueOrDefault("student01") ?? admin;
+        var now = DateTime.UtcNow;
+
+        await EnsureForumPostAsync(
+            title: "Maintenance schedule for electricity and water in Building B",
+            author: manager,
+            category: "Announcements",
+            area: "Building B",
+            content: "Building B will have a scheduled electricity and water maintenance window this Saturday from 08:00 to 11:30. Please charge essential devices in advance and prepare drinking water for the morning.",
+            tags: ["maintenance", "building-b", "announcement"],
+            createdAt: now.AddHours(-2),
+            viewCount: 245,
+            isPinned: true,
+            isImportant: true,
+            ct);
+
+        await EnsureForumPostAsync(
+            title: "Volunteer club recruitment",
+            author: student,
+            category: "Events",
+            area: "Study Hall",
+            content: "The volunteer club is recruiting students for weekend community activities. Interested residents can join the orientation session in the study hall this Friday evening.",
+            tags: ["clubs", "volunteer", "events"],
+            createdAt: now.AddHours(-8),
+            viewCount: 87,
+            isPinned: false,
+            isImportant: false,
+            ct);
+
+        await EnsureForumPostAsync(
+            title: "New cafeteria food review",
+            author: student,
+            category: "General",
+            area: "Cafeteria",
+            content: "The cafeteria added several lunch options this week. The rice bowl is quick and affordable, while the soup counter is best before peak hour.",
+            tags: ["cafeteria", "review", "food"],
+            createdAt: now.AddDays(-1),
+            viewCount: 132,
+            isPinned: false,
+            isImportant: false,
+            ct);
+
+        await EnsureForumPostAsync(
+            title: "Emergency after-hours contact guide",
+            author: admin,
+            category: "Support",
+            area: "Front Desk",
+            content: "For after-hours emergencies, call the front desk hotline first. Security can support urgent building access, maintenance leaks, and safety concerns until office hours resume.",
+            tags: ["support", "emergency", "front-desk"],
+            createdAt: now.AddDays(-2),
+            viewCount: 301,
+            isPinned: true,
+            isImportant: true,
+            ct);
+
+        await EnsureForumPostAsync(
+            title: "Wi-Fi setup guide for Buildings A and C",
+            author: manager,
+            category: "Guides",
+            area: "Buildings A and C",
+            content: "Students in Buildings A and C should forget the old network, reconnect to the dormitory SSID, and sign in with their student code. Contact support if the device cannot authenticate.",
+            tags: ["wifi", "guide", "building-a", "building-c"],
+            createdAt: now.AddDays(-3),
+            viewCount: 176,
+            isPinned: false,
+            isImportant: false,
+            ct);
+    }
+
+    private async Task EnsureForumPostAsync(
+        string title,
+        User author,
+        string category,
+        string? area,
+        string content,
+        IReadOnlyCollection<string> tags,
+        DateTime createdAt,
+        int viewCount,
+        bool isPinned,
+        bool isImportant,
+        CancellationToken ct)
+    {
+        var post = await _dbContext.ForumPosts
+            .Include(x => x.Tags)
+            .FirstOrDefaultAsync(x => x.Title == title, ct);
+
+        if (post is null)
+        {
+            post = new ForumPost
+            {
+                Id = Guid.NewGuid(),
+                Title = title,
+                CreatedAt = createdAt,
+                Status = ForumPostStatus.Published
+            };
+            _dbContext.ForumPosts.Add(post);
+        }
+
+        post.AuthorUserId = author.Id;
+        post.Content = content;
+        post.Excerpt = content.Length <= 240 ? content : content[..237] + "...";
+        post.Category = category;
+        post.Area = area;
+        post.ViewCount = viewCount;
+        post.IsPinned = isPinned;
+        post.IsImportant = isImportant;
+        post.Status = ForumPostStatus.Published;
+        post.UpdatedAt = DateTime.UtcNow;
+
+        var normalizedTags = tags.Select(x => x.Trim().TrimStart('#').ToLowerInvariant()).Where(x => x.Length > 0).Distinct().ToArray();
+        foreach (var tag in post.Tags.Where(tag => !normalizedTags.Contains(tag.Name)).ToArray())
+        {
+            post.Tags.Remove(tag);
+        }
+
+        var existingTags = post.Tags.Select(tag => tag.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var tag in normalizedTags.Where(tag => !existingTags.Contains(tag)))
+        {
+            post.Tags.Add(new ForumPostTag
+            {
+                Id = Guid.NewGuid(),
+                ForumPostId = post.Id,
+                Name = tag
+            });
+        }
     }
 
     private async Task EnsureAdditionalDemoRoomsAsync(CancellationToken ct)

@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<ISupportTicketRepository, SupportTicketRepository>();
+        services.AddScoped<IForumPostRepository, ForumPostRepository>();
         services.AddSingleton<IPasswordHasher, PasswordHasherService>();
         services.AddSingleton<SessionService>();
         services.AddSingleton<ISessionService>(sp => sp.GetRequiredService<SessionService>());
