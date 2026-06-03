@@ -2225,6 +2225,93 @@ public sealed class WpfResourceTests
         Assert.True(File.Exists(resourcePath), $"Expected student-dashboard resource dictionary '{resourcePath}' to exist.");
         return XDocument.Load(resourcePath);
     }
+    [Fact]
+    public void Register_view_reflows_without_horizontal_overflow_at_narrower_desktop_width()
+    {
+        RunOnStaThread(() =>
+        {
+            EnsureApplicationResources();
+            var view = CreateRegisterView();
+            var window = new Window
+            {
+                Width = 1040,
+                Height = 960,
+                Content = view,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = -10000,
+                Top = -10000,
+                ShowInTaskbar = false,
+                Background = Brushes.White
+            };
+
+            try
+            {
+                window.Show();
+                WaitForLayout();
+
+                var scrollViewers = FindDescendants<ScrollViewer>(view)
+                    .Where(scrollViewer => scrollViewer.IsVisible)
+                    .ToArray();
+
+                Assert.NotEmpty(scrollViewers);
+                Assert.All(scrollViewers, scrollViewer => Assert.True(
+                    scrollViewer.ScrollableWidth <= 0.5,
+                    $"Expected no horizontal overflow, but '{scrollViewer.Name}' reported ScrollableWidth={scrollViewer.ScrollableWidth}."));
+
+                var texts = GetVisibleStringValues(view);
+                Assert.Contains("Đăng ký tài khoản", texts);
+                                Assert.Contains("Đăng nhập", texts);
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
+
+    [Fact]
+    public void Register_view_keeps_otp_actions_visible_in_same_shell_after_send_code()
+    {
+        RunOnStaThread(() =>
+        {
+            EnsureApplicationResources();
+            var viewModel = CreateRegisterViewModel();
+            PopulateValidRegisterForm(viewModel);
+            viewModel.AcceptsTerms = true;
+            viewModel.RegisterCommand.Execute(null);
+            WaitUntil(() => viewModel.IsOtpStep);
+
+            var view = CreateRegisterView(viewModel);
+            var window = new Window
+            {
+                Width = 1320,
+                Height = 960,
+                Content = view,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = -10000,
+                Top = -10000,
+                ShowInTaskbar = false,
+                Background = Brushes.White
+            };
+
+            try
+            {
+                window.Show();
+                WaitForLayout();
+
+                var texts = GetVisibleStringValues(view);
+                Assert.Contains("Xác minh email", texts);
+                Assert.Contains("Nhập mã xác minh gồm 6 chữ số được gửi tới email của bạn để hoàn tất đăng ký.", texts);
+                Assert.Contains("Xác minh", texts);
+                Assert.Contains("Gửi lại", texts);
+                Assert.Contains("Đăng nhập", texts);
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
     private static HashSet<string> GetCompiledResourceKeys()
     {
         var assembly = typeof(MainWindow).Assembly;
@@ -2461,6 +2548,36 @@ public sealed class WpfResourceTests
         Assert.True(condition());
     }
 
+    private static RegisterView CreateRegisterView(RegisterViewModel? viewModel = null)
+    {
+        return new RegisterView
+        {
+            DataContext = viewModel ?? CreateRegisterViewModel(),
+            Width = 1320,
+            Height = 960
+        };
+    }
+
+    private static RegisterViewModel CreateRegisterViewModel(IAccountRegistrationService? service = null)
+    {
+        return new RegisterViewModel(
+            service ?? new RegisterStubRegistrationService(),
+            new RecordingNavigationService(),
+            new LoginStubPrefillState());
+    }
+
+    private static void PopulateValidRegisterForm(RegisterViewModel viewModel)
+    {
+        viewModel.FullName = "Nguyễn Văn A";
+        viewModel.StudentCode = "20230001";
+        viewModel.Username = "nguyenvana";
+        viewModel.DateOfBirth = new DateTime(2004, 1, 1);
+        viewModel.SelectedGender = "Nam";
+        viewModel.PhoneNumber = "0901234567";
+        viewModel.Email = "student@example.edu.vn";
+        viewModel.Password = "123456";
+        viewModel.ConfirmPassword = "123456";
+    }
     private sealed class LoginStubAuthService : IAuthService
     {
         public Task<LoginResult> LoginAsync(LoginRequest request, CancellationToken ct = default) =>
@@ -2568,6 +2685,23 @@ public sealed class WpfResourceTests
         public Task ChangeRoomStatusAsync(Guid roomId, RoomStatus status, CancellationToken ct = default) => Task.CompletedTask;
     }
 
+    private sealed class RegisterStubRegistrationService : IAccountRegistrationService
+    {
+        public Task<StartAccountRegistrationResult> StartStudentAccountRegistrationAsync(RegisterAccountRequest request, CancellationToken ct = default)
+        {
+            return Task.FromResult(StartAccountRegistrationResult.Success(Guid.NewGuid(), "s****@example.edu.vn", DateTime.UtcNow.AddMinutes(5), DateTime.UtcNow.AddMinutes(1)));
+        }
+
+        public Task<RegisterAccountResult> VerifyStudentAccountOtpAsync(Guid pendingRegistrationId, string otpCode, CancellationToken ct = default)
+        {
+            return Task.FromResult(RegisterAccountResult.Success(Guid.NewGuid(), Guid.NewGuid()));
+        }
+
+        public Task<StartAccountRegistrationResult> ResendStudentAccountOtpAsync(Guid pendingRegistrationId, CancellationToken ct = default)
+        {
+            return Task.FromResult(StartAccountRegistrationResult.Success(pendingRegistrationId, "s****@example.edu.vn", DateTime.UtcNow.AddMinutes(5), DateTime.UtcNow.AddMinutes(1)));
+        }
+    }
     private sealed class RecordingNavigationService : INavigationService
     {
         public void NavigateTo<TViewModel>() where TViewModel : ViewModelBase { }
@@ -2684,6 +2818,10 @@ public sealed class WpfResourceTests
     private static readonly XNamespace WpfNamespace = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
     private static readonly XNamespace XamlNamespace = "http://schemas.microsoft.com/winfx/2006/xaml";
 }
+
+
+
+
 
 
 

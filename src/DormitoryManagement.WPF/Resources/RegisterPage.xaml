@@ -1,0 +1,321 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <Color x:Key="RegisterPageColorBackground">#F8F9FF</Color>
+    <Color x:Key="RegisterPageColorSurface">#FFFFFF</Color>
+    <Color x:Key="RegisterPageColorSurfaceLow">#EFF4FF</Color>
+    <Color x:Key="RegisterPageColorSurfaceContainer">#E5EEFF</Color>
+    <Color x:Key="RegisterPageColorSurfaceHigh">#DCE9FF</Color>
+    <Color x:Key="RegisterPageColorSurfaceHighest">#D3E4FE</Color>
+    <Color x:Key="RegisterPageColorOutline">#8D7168</Color>
+    <Color x:Key="RegisterPageColorOutlineVariant">#E1BFB5</Color>
+    <Color x:Key="RegisterPageColorTextPrimary">#0B1C30</Color>
+    <Color x:Key="RegisterPageColorTextSecondary">#594139</Color>
+    <Color x:Key="RegisterPageColorPrimary">#AB3500</Color>
+    <Color x:Key="RegisterPageColorPrimaryContainer">#FF6B35</Color>
+    <Color x:Key="RegisterPageColorSecondary">#4648D4</Color>
+    <Color x:Key="RegisterPageColorSecondaryContainer">#6063EE</Color>
+    <Color x:Key="RegisterPageColorTertiary">#006C49</Color>
+    <Color x:Key="RegisterPageColorTertiaryContainer">#00AF79</Color>
+    <Color x:Key="RegisterPageColorError">#BA1A1A</Color>
+    <Color x:Key="RegisterPageColorSuccess">#006C49</Color>
+
+    <SolidColorBrush x:Key="RegisterPageBackgroundBrush" Color="{StaticResource RegisterPageColorBackground}" />
+    <SolidColorBrush x:Key="RegisterPageSurfaceBrush" Color="{StaticResource RegisterPageColorSurface}" />
+    <SolidColorBrush x:Key="RegisterPageSurfaceLowBrush" Color="{StaticResource RegisterPageColorSurfaceLow}" />
+    <SolidColorBrush x:Key="RegisterPageSurfaceContainerBrush" Color="{StaticResource RegisterPageColorSurfaceContainer}" />
+    <SolidColorBrush x:Key="RegisterPageSurfaceHighBrush" Color="{StaticResource RegisterPageColorSurfaceHigh}" />
+    <SolidColorBrush x:Key="RegisterPageSurfaceHighestBrush" Color="{StaticResource RegisterPageColorSurfaceHighest}" />
+    <SolidColorBrush x:Key="RegisterPageOutlineBrush" Color="{StaticResource RegisterPageColorOutline}" />
+    <SolidColorBrush x:Key="RegisterPageOutlineVariantBrush" Color="{StaticResource RegisterPageColorOutlineVariant}" />
+    <SolidColorBrush x:Key="RegisterPageTextPrimaryBrush" Color="{StaticResource RegisterPageColorTextPrimary}" />
+    <SolidColorBrush x:Key="RegisterPageTextSecondaryBrush" Color="{StaticResource RegisterPageColorTextSecondary}" />
+    <SolidColorBrush x:Key="RegisterPagePrimaryBrush" Color="{StaticResource RegisterPageColorPrimary}" />
+    <SolidColorBrush x:Key="RegisterPagePrimaryContainerBrush" Color="{StaticResource RegisterPageColorPrimaryContainer}" />
+    <SolidColorBrush x:Key="RegisterPageSecondaryBrush" Color="{StaticResource RegisterPageColorSecondary}" />
+    <SolidColorBrush x:Key="RegisterPageSecondaryContainerBrush" Color="{StaticResource RegisterPageColorSecondaryContainer}" />
+    <SolidColorBrush x:Key="RegisterPageTertiaryBrush" Color="{StaticResource RegisterPageColorTertiary}" />
+    <SolidColorBrush x:Key="RegisterPageTertiaryContainerBrush" Color="{StaticResource RegisterPageColorTertiaryContainer}" />
+    <SolidColorBrush x:Key="RegisterPageErrorBrush" Color="{StaticResource RegisterPageColorError}" />
+    <SolidColorBrush x:Key="RegisterPageSuccessBrush" Color="{StaticResource RegisterPageColorSuccess}" />
+    <SolidColorBrush x:Key="RegisterPageGlassBrush" Color="#19FFFFFF" />
+    <SolidColorBrush x:Key="RegisterPageGlassBorderBrush" Color="#40FFFFFF" />
+    <SolidColorBrush x:Key="RegisterPageDisabledBackgroundBrush" Color="#FFF3EE" />
+    <SolidColorBrush x:Key="RegisterPageDisabledForegroundBrush" Color="#94736A" />
+
+    <FontFamily x:Key="RegisterPageHeadlineFontFamily">pack://application:,,,/DormitoryManagement.WPF;component/Assets/Fonts/PlusJakartaSans/#Plus Jakarta Sans</FontFamily>
+    <FontFamily x:Key="RegisterPageBodyFontFamily">pack://application:,,,/DormitoryManagement.WPF;component/Assets/Fonts/Inter/#Inter</FontFamily>
+
+    <system:Double x:Key="RegisterPageHeadlineLargeSize">32</system:Double>
+    <system:Double x:Key="RegisterPageHeadlineMediumSize">24</system:Double>
+    <system:Double x:Key="RegisterPageHeadlineSmallSize">18</system:Double>
+    <system:Double x:Key="RegisterPageBodyLargeSize">16</system:Double>
+    <system:Double x:Key="RegisterPageBodyMediumSize">14</system:Double>
+    <system:Double x:Key="RegisterPageLabelMediumSize">14</system:Double>
+    <system:Double x:Key="RegisterPageLabelSmallSize">12</system:Double>
+
+    <CornerRadius x:Key="RegisterPageControlCornerRadius">8</CornerRadius>
+    <CornerRadius x:Key="RegisterPageCardCornerRadius">12</CornerRadius>
+    <CornerRadius x:Key="RegisterPageHeroCardCornerRadius">16</CornerRadius>
+
+    <Thickness x:Key="RegisterPageInputPadding">40,12,14,12</Thickness>
+    <Thickness x:Key="RegisterPagePlainInputPadding">14,12</Thickness>
+
+    <Style x:Key="RegisterPageBrandTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource RegisterPageHeadlineSmallSize}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <Style x:Key="RegisterPageHeroTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource RegisterPageHeadlineLargeSize}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="LineHeight" Value="40" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="RegisterPageHeroBodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource RegisterPageBodyLargeSize}" />
+        <Setter Property="Foreground" Value="#EAF1FF" />
+        <Setter Property="LineHeight" Value="26" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="RegisterPageFormTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource RegisterPageHeadlineLargeSize}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource RegisterPageTextPrimaryBrush}" />
+        <Setter Property="LineHeight" Value="40" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="RegisterPageBodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource RegisterPageBodyMediumSize}" />
+        <Setter Property="Foreground" Value="{StaticResource RegisterPageTextSecondaryBrush}" />
+        <Setter Property="LineHeight" Value="22" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="RegisterPageLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource RegisterPageLabelSmallSize}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource RegisterPageTextPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="RegisterPageInlineMessageTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="LineHeight" Value="16" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="RegisterPageTextBoxStyle" TargetType="TextBox">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Foreground" Value="{StaticResource RegisterPageTextPrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource RegisterPageOutlineVariantBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="{StaticResource RegisterPageInputPadding}" />
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource RegisterPageBodyMediumSize}" />
+        <Setter Property="Height" Value="44" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{StaticResource RegisterPageControlCornerRadius}">
+                        <ScrollViewer x:Name="PART_ContentHost" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource RegisterPagePrimaryContainerBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource RegisterPagePrimaryBrush}" />
+                            <Setter TargetName="Border" Property="BorderThickness" Value="2" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource RegisterPageDisabledBackgroundBrush}" />
+                            <Setter Property="Foreground" Value="{StaticResource RegisterPageDisabledForegroundBrush}" />
+                            <Setter TargetName="Border" Property="Opacity" Value="0.88" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RegisterPagePlainTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource RegisterPageTextBoxStyle}">
+        <Setter Property="Padding" Value="{StaticResource RegisterPagePlainInputPadding}" />
+    </Style>
+
+    <Style x:Key="RegisterPagePasswordBoxStyle" TargetType="PasswordBox">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Foreground" Value="{StaticResource RegisterPageTextPrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource RegisterPageOutlineVariantBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="{StaticResource RegisterPageInputPadding}" />
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource RegisterPageBodyMediumSize}" />
+        <Setter Property="Height" Value="44" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="PasswordBox">
+                    <Border x:Name="Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{StaticResource RegisterPageControlCornerRadius}">
+                        <ScrollViewer x:Name="PART_ContentHost" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource RegisterPagePrimaryContainerBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource RegisterPagePrimaryBrush}" />
+                            <Setter TargetName="Border" Property="BorderThickness" Value="2" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource RegisterPageDisabledBackgroundBrush}" />
+                            <Setter Property="Foreground" Value="{StaticResource RegisterPageDisabledForegroundBrush}" />
+                            <Setter TargetName="Border" Property="Opacity" Value="0.88" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RegisterPageComboBoxStyle" TargetType="ComboBox">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Foreground" Value="{StaticResource RegisterPageTextPrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource RegisterPageOutlineVariantBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource RegisterPageBodyMediumSize}" />
+        <Setter Property="Height" Value="44" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{StaticResource RegisterPagePrimaryContainerBrush}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="{StaticResource RegisterPageDisabledBackgroundBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource RegisterPageDisabledForegroundBrush}" />
+                <Setter Property="Opacity" Value="0.88" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="RegisterPageDatePickerStyle" TargetType="DatePicker" BasedOn="{StaticResource {x:Type DatePicker}}">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="Foreground" Value="{StaticResource RegisterPageTextPrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource RegisterPageOutlineVariantBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource RegisterPageBodyMediumSize}" />
+        <Setter Property="Height" Value="44" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{StaticResource RegisterPagePrimaryContainerBrush}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Background" Value="{StaticResource RegisterPageDisabledBackgroundBrush}" />
+                <Setter Property="Foreground" Value="{StaticResource RegisterPageDisabledForegroundBrush}" />
+                <Setter Property="Opacity" Value="0.88" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="RegisterPagePrimaryButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource RegisterPagePrimaryContainerBrush}" />
+        <Setter Property="Foreground" Value="#5F1900" />
+        <Setter Property="BorderBrush" Value="{StaticResource RegisterPagePrimaryContainerBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="16,12" />
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource RegisterPageBodyLargeSize}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{StaticResource RegisterPageControlCornerRadius}">
+                        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Opacity" Value="0.92" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Border" Property="Opacity" Value="0.55" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RegisterPageSecondaryButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource RegisterPageSurfaceHighBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource RegisterPagePrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource RegisterPageSurfaceHighBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="14,12" />
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource RegisterPageBodyMediumSize}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{StaticResource RegisterPageControlCornerRadius}">
+                        <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource RegisterPagePrimaryContainerBrush}" />
+                            <Setter TargetName="Border" Property="Background" Value="#FFF3EE" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Border" Property="Opacity" Value="0.55" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RegisterPageLinkButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{StaticResource RegisterPagePrimaryBrush}" />
+        <Setter Property="FontFamily" Value="{StaticResource RegisterPageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource RegisterPageBodyMediumSize}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <ContentPresenter x:Name="ContentHost" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="{StaticResource RegisterPagePrimaryContainerBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.55" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

@@ -37,6 +37,17 @@ Use this file as a compact bootstrap for a fresh agent session. Keep `AGENTS.md`
 - If a task crossed the 80% threshold or resumed after compaction, save a final session summary after verification.
 - Recalled memory is advisory; verify against current files before editing.
 
+## Phase Handoff Workflow
+
+- When `tasks.md` is divided into explicit phases, treat the main session as the orchestrator.
+- Before Phase 1 execution, invoke `handoff` and create the initial handoff artifact for the
+  first phase.
+- The active phase subagent reads the latest handoff artifact, executes only that phase, then
+  invokes `handoff` again on completion or blocker.
+- Start the next phase only from the newest handoff artifact produced by the previous phase.
+- Do not merge multiple explicit phases into one subagent run unless the user has explicitly
+  approved that plan change.
+
 ## Layer Map
 
 - `src/DormitoryManagement.Domain`

@@ -28,6 +28,8 @@ public sealed class RegisterViewModel : ViewModelBase
     private string? _successMessage;
     private string? _otpMessage;
     private Guid? _pendingRegistrationId;
+    private bool _acceptsTerms;
+    private RegisterBusyAction _busyAction;
 
     public RegisterViewModel(
         IAccountRegistrationService registrationService,
@@ -37,10 +39,10 @@ public sealed class RegisterViewModel : ViewModelBase
         _registrationService = registrationService;
         _navigationService = navigationService;
         _loginPrefillState = loginPrefillState;
-        _registerCommand = new AsyncRelayCommand(RegisterAsync, () => !IsBusy && !IsOtpStep);
-        _verifyOtpCommand = new AsyncRelayCommand(VerifyOtpAsync, () => !IsBusy && IsOtpStep);
-        _resendOtpCommand = new AsyncRelayCommand(ResendOtpAsync, () => !IsBusy && IsOtpStep);
-        _backToLoginCommand = new RelayCommand(() => _navigationService.NavigateTo<LoginViewModel>(), () => !IsBusy);
+        _registerCommand = new AsyncRelayCommand(RegisterAsync, () => CanSubmitRegistration);
+        _verifyOtpCommand = new AsyncRelayCommand(VerifyOtpAsync, () => CanVerifyOtp);
+        _resendOtpCommand = new AsyncRelayCommand(ResendOtpAsync, () => CanResendOtp);
+        _backToLoginCommand = new RelayCommand(() => _navigationService.NavigateTo<LoginViewModel>(), () => CanNavigateBackToLogin);
         RegisterCommand = _registerCommand;
         VerifyOtpCommand = _verifyOtpCommand;
         ResendOtpCommand = _resendOtpCommand;
@@ -49,7 +51,7 @@ public sealed class RegisterViewModel : ViewModelBase
 
     public event EventHandler? ClearPasswordRequested;
 
-    public IReadOnlyList<string> GenderOptions { get; } = new[] { "Nam", "Nữ" };
+    public IReadOnlyList<string> GenderOptions { get; } = ["Nam", "Nữ", "Khác"];
     public ICommand RegisterCommand { get; }
     public ICommand VerifyOtpCommand { get; }
     public ICommand ResendOtpCommand { get; }
@@ -65,6 +67,34 @@ public sealed class RegisterViewModel : ViewModelBase
     public string Password { get => _password; set => SetProperty(ref _password, value); }
     public string ConfirmPassword { get => _confirmPassword; set => SetProperty(ref _confirmPassword, value); }
     public string OtpCode { get => _otpCode; set => SetProperty(ref _otpCode, value); }
+
+    public bool AcceptsTerms
+    {
+        get => _acceptsTerms;
+        set
+        {
+            if (SetProperty(ref _acceptsTerms, value))
+            {
+                RaisePresentationStateChanged();
+            }
+        }
+    }
+
+    public string PrimaryActionText => "Đăng ký ngay";
+    public string SendCodeActionText => _busyAction == RegisterBusyAction.SendingCode ? "Đang gửi mã..." : "Gửi mã";
+    public string VerifyActionText => _busyAction == RegisterBusyAction.VerifyingOtp ? "Đang xác minh..." : "Xác minh";
+    public string ResendActionText => _busyAction == RegisterBusyAction.ResendingOtp ? "Đang gửi lại..." : "Gửi lại";
+    public string OtpSectionTitle => _busyAction == RegisterBusyAction.VerifyingOtp ? "Đang xác minh email" : "Xác minh email";
+    public string OtpSectionDescription => _busyAction switch
+    {
+        RegisterBusyAction.VerifyingOtp => "Hệ thống đang xác minh mã của bạn trước khi hoàn tất tạo tài khoản.",
+        RegisterBusyAction.ResendingOtp => "Mã mới đang được gửi tới email của bạn. Vui lòng chờ trong giây lát.",
+        _ => "Nhập mã xác minh gồm 6 chữ số được gửi tới email của bạn để hoàn tất đăng ký."
+    };
+    public bool CanSubmitRegistration => !IsBusy && !IsOtpStep && AcceptsTerms;
+    public bool CanVerifyOtp => !IsBusy && IsOtpStep;
+    public bool CanResendOtp => !IsBusy && IsOtpStep;
+    public bool CanNavigateBackToLogin => !IsBusy;
 
     public string? SuccessMessage
     {
@@ -94,12 +124,20 @@ public sealed class RegisterViewModel : ViewModelBase
     public bool HasOtpMessage => !string.IsNullOrWhiteSpace(OtpMessage);
     public bool IsOtpStep => _pendingRegistrationId.HasValue;
     public bool IsFormLocked => IsOtpStep;
+    public bool ShowOtpSection => IsOtpStep;
 
     private async Task RegisterAsync()
     {
         ClearError();
         SuccessMessage = null;
         OtpMessage = null;
+
+        if (!AcceptsTerms)
+        {
+            SetError("Vui lòng đồng ý với điều khoản dịch vụ và chính sách bảo mật.");
+            return;
+        }
+
         var validationError = ValidateBasicFields();
         if (validationError is not null)
         {
@@ -108,7 +146,8 @@ public sealed class RegisterViewModel : ViewModelBase
         }
 
         IsBusy = true;
-        RaiseCanExecuteChanged();
+        _busyAction = RegisterBusyAction.SendingCode;
+        RaisePresentationStateChanged();
         try
         {
             var result = await _registrationService.StartStudentAccountRegistrationAsync(new RegisterAccountRequest
@@ -143,7 +182,8 @@ public sealed class RegisterViewModel : ViewModelBase
         finally
         {
             IsBusy = false;
-            RaiseCanExecuteChanged();
+            _busyAction = RegisterBusyAction.None;
+            RaisePresentationStateChanged();
         }
     }
 
@@ -164,7 +204,8 @@ public sealed class RegisterViewModel : ViewModelBase
         }
 
         IsBusy = true;
-        RaiseCanExecuteChanged();
+        _busyAction = RegisterBusyAction.VerifyingOtp;
+        RaisePresentationStateChanged();
         try
         {
             var result = await _registrationService.VerifyStudentAccountOtpAsync(_pendingRegistrationId.Value, OtpCode);
@@ -174,11 +215,14 @@ public sealed class RegisterViewModel : ViewModelBase
                 return;
             }
 
+            _pendingRegistrationId = null;
             Password = string.Empty;
             ConfirmPassword = string.Empty;
             OtpCode = string.Empty;
+            OtpMessage = null;
             ClearPasswordRequested?.Invoke(this, EventArgs.Empty);
             _loginPrefillState.SetEmail(Email);
+            RaiseStepChanged();
             SuccessMessage = "Tạo tài khoản thành công. Đang quay lại màn hình đăng nhập...";
             await Task.Delay(900);
             _navigationService.NavigateTo<LoginViewModel>();
@@ -190,7 +234,8 @@ public sealed class RegisterViewModel : ViewModelBase
         finally
         {
             IsBusy = false;
-            RaiseCanExecuteChanged();
+            _busyAction = RegisterBusyAction.None;
+            RaisePresentationStateChanged();
         }
     }
 
@@ -205,7 +250,8 @@ public sealed class RegisterViewModel : ViewModelBase
         }
 
         IsBusy = true;
-        RaiseCanExecuteChanged();
+        _busyAction = RegisterBusyAction.ResendingOtp;
+        RaisePresentationStateChanged();
         try
         {
             var result = await _registrationService.ResendStudentAccountOtpAsync(_pendingRegistrationId.Value);
@@ -218,6 +264,7 @@ public sealed class RegisterViewModel : ViewModelBase
             OtpCode = string.Empty;
             SuccessMessage = $"Mã xác minh mới đã được gửi tới {result.MaskedEmail}.";
             OtpMessage = FormatOtpMessage(result.ExpiresAtUtc, result.ResendAvailableAtUtc);
+            RaisePresentationStateChanged();
         }
         catch (Exception ex)
         {
@@ -226,16 +273,20 @@ public sealed class RegisterViewModel : ViewModelBase
         finally
         {
             IsBusy = false;
-            RaiseCanExecuteChanged();
+            _busyAction = RegisterBusyAction.None;
+            RaisePresentationStateChanged();
         }
     }
 
     private string? ValidateBasicFields()
     {
         if (string.IsNullOrWhiteSpace(FullName)) return "Vui lòng nhập họ và tên.";
-        if (string.IsNullOrWhiteSpace(Email)) return "Vui lòng nhập email.";
-        if (string.IsNullOrWhiteSpace(Username)) return "Vui lòng nhập tên đăng nhập.";
         if (string.IsNullOrWhiteSpace(StudentCode)) return "Vui lòng nhập mã sinh viên.";
+        if (string.IsNullOrWhiteSpace(Username)) return "Vui lòng nhập tên đăng nhập.";
+        if (!DateOfBirth.HasValue) return "Vui lòng chọn ngày sinh.";
+        if (string.IsNullOrWhiteSpace(SelectedGender)) return "Vui lòng chọn giới tính.";
+        if (string.IsNullOrWhiteSpace(PhoneNumber)) return "Vui lòng nhập số điện thoại.";
+        if (string.IsNullOrWhiteSpace(Email)) return "Vui lòng nhập email.";
         if (string.IsNullOrWhiteSpace(Password)) return "Vui lòng nhập mật khẩu.";
         if (Password.Length < 6) return "Mật khẩu phải có ít nhất 6 ký tự.";
         if (!string.Equals(Password, ConfirmPassword, StringComparison.Ordinal)) return "Mật khẩu xác nhận phải khớp với mật khẩu.";
@@ -260,6 +311,22 @@ public sealed class RegisterViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(IsOtpStep));
         OnPropertyChanged(nameof(IsFormLocked));
+        OnPropertyChanged(nameof(ShowOtpSection));
+        RaisePresentationStateChanged();
+    }
+
+    private void RaisePresentationStateChanged()
+    {
+        OnPropertyChanged(nameof(CanSubmitRegistration));
+        OnPropertyChanged(nameof(CanVerifyOtp));
+        OnPropertyChanged(nameof(CanResendOtp));
+        OnPropertyChanged(nameof(CanNavigateBackToLogin));
+        OnPropertyChanged(nameof(PrimaryActionText));
+        OnPropertyChanged(nameof(SendCodeActionText));
+        OnPropertyChanged(nameof(VerifyActionText));
+        OnPropertyChanged(nameof(ResendActionText));
+        OnPropertyChanged(nameof(OtpSectionTitle));
+        OnPropertyChanged(nameof(OtpSectionDescription));
         RaiseCanExecuteChanged();
     }
 
@@ -269,5 +336,13 @@ public sealed class RegisterViewModel : ViewModelBase
         _verifyOtpCommand.RaiseCanExecuteChanged();
         _resendOtpCommand.RaiseCanExecuteChanged();
         _backToLoginCommand.RaiseCanExecuteChanged();
+    }
+
+    private enum RegisterBusyAction
+    {
+        None,
+        SendingCode,
+        VerifyingOtp,
+        ResendingOtp
     }
 }
