@@ -101,29 +101,6 @@ internal static class SeedData
         public static readonly Guid Three = Guid.Parse("70000000-0000-0000-0000-000000000003");
     }
 
-    private static class ForumCategories
-    {
-        public static readonly Guid Announcements = Guid.Parse("a0000000-0000-0000-0000-000000000001");
-        public static readonly Guid Housing = Guid.Parse("a0000000-0000-0000-0000-000000000002");
-        public static readonly Guid Events = Guid.Parse("a0000000-0000-0000-0000-000000000003");
-        public static readonly Guid Support = Guid.Parse("a0000000-0000-0000-0000-000000000004");
-    }
-
-    private static class ForumTags
-    {
-        public static readonly Guid Maintenance = Guid.Parse("a1000000-0000-0000-0000-000000000001");
-        public static readonly Guid QuietStudy = Guid.Parse("a1000000-0000-0000-0000-000000000002");
-        public static readonly Guid MoveIn = Guid.Parse("a1000000-0000-0000-0000-000000000003");
-        public static readonly Guid Clubs = Guid.Parse("a1000000-0000-0000-0000-000000000004");
-    }
-
-    private static class ForumPosts
-    {
-        public static readonly Guid Campus = Guid.Parse("a2000000-0000-0000-0000-000000000001");
-        public static readonly Guid BuildingA = Guid.Parse("a2000000-0000-0000-0000-000000000002");
-        public static readonly Guid StudentRole = Guid.Parse("a2000000-0000-0000-0000-000000000003");
-    }
-
     private static class Payments
     {
         public static readonly Guid One = Guid.Parse("80000000-0000-0000-0000-000000000001");
@@ -139,7 +116,6 @@ internal static class SeedData
         SeedFees(modelBuilder);
         SeedInvoicesAndPayments(modelBuilder);
         SeedSupportTickets(modelBuilder);
-        SeedForum(modelBuilder);
     }
 
     private static void SeedRoles(ModelBuilder modelBuilder)
@@ -345,112 +321,5 @@ internal static class SeedData
         modelBuilder.Entity<SupportTicketResponse>().HasData(
             new SupportTicketResponse { Id = Guid.Parse("91000000-0000-0000-0000-000000000001"), SupportTicketId = ticketOneId, UserId = Users.Staff, Message = "Maintenance staff has been assigned.", RespondedAt = SeededAt, CreatedAt = SeededAt });
     }
-
-    private static void SeedForum(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<ForumCategory>().HasData(
-            ForumCategory(ForumCategories.Announcements, "announcements", "Announcements", "Official dormitory notices.", 1),
-            ForumCategory(ForumCategories.Housing, "housing", "Housing", "Room, facility, and move-in discussions.", 2),
-            ForumCategory(ForumCategories.Events, "events", "Events", "Student activities and campus events.", 3),
-            ForumCategory(ForumCategories.Support, "support", "Support", "Help, maintenance, and service updates.", 4));
-
-        modelBuilder.Entity<ForumTag>().HasData(
-            ForumTag(ForumTags.Maintenance, "Maintenance", "maintenance"),
-            ForumTag(ForumTags.QuietStudy, "Quiet Study", "quiet-study"),
-            ForumTag(ForumTags.MoveIn, "Move-in", "move-in"),
-            ForumTag(ForumTags.Clubs, "Clubs", "clubs"));
-
-        modelBuilder.Entity<ForumPost>().HasData(
-            new ForumPost
-            {
-                Id = ForumPosts.Campus,
-                Title = "Welcome to the dormitory forum",
-                Content = "Use this forum for official updates, housing discussions, and student support.",
-                CategoryId = ForumCategories.Announcements,
-                CreatedByUserId = Users.Admin,
-                VisibilityScope = ForumVisibilityScope.Campus,
-                Status = ForumPostStatus.Published,
-                PublishedAt = SeededAt,
-                CreatedAt = SeededAt,
-                IsDeleted = false
-            },
-            new ForumPost
-            {
-                Id = ForumPosts.BuildingA,
-                Title = "Building A maintenance window",
-                Content = "Building A has a short water maintenance window this weekend.",
-                CategoryId = ForumCategories.Support,
-                CreatedByUserId = Users.BuildingManager,
-                VisibilityScope = ForumVisibilityScope.Building,
-                BuildingId = Buildings.A,
-                Status = ForumPostStatus.Published,
-                PublishedAt = SeededAt,
-                CreatedAt = SeededAt,
-                IsDeleted = false
-            },
-            new ForumPost
-            {
-                Id = ForumPosts.StudentRole,
-                Title = "Quiet study room etiquette",
-                Content = "Please keep calls outside the quiet study rooms during exam week.",
-                CategoryId = ForumCategories.Housing,
-                CreatedByUserId = Users.StudentOne,
-                VisibilityScope = ForumVisibilityScope.Role,
-                TargetRoleName = RoleNames.Student,
-                Status = ForumPostStatus.Published,
-                PublishedAt = SeededAt,
-                CreatedAt = SeededAt,
-                IsDeleted = false
-            });
-
-        modelBuilder.Entity<ForumPostTag>().HasData(
-            ForumPostTag(Guid.Parse("a3000000-0000-0000-0000-000000000001"), ForumPosts.Campus, ForumTags.MoveIn),
-            ForumPostTag(Guid.Parse("a3000000-0000-0000-0000-000000000002"), ForumPosts.BuildingA, ForumTags.Maintenance),
-            ForumPostTag(Guid.Parse("a3000000-0000-0000-0000-000000000003"), ForumPosts.StudentRole, ForumTags.QuietStudy));
-
-        modelBuilder.Entity<ForumComment>().HasData(
-            new ForumComment
-            {
-                Id = Guid.Parse("a4000000-0000-0000-0000-000000000001"),
-                PostId = ForumPosts.Campus,
-                CreatedByUserId = Users.StudentOne,
-                Content = "Thanks for opening the forum.",
-                Status = ForumCommentStatus.Published,
-                CreatedAt = SeededAt,
-                IsDeleted = false
-            });
-    }
-
-    private static ForumCategory ForumCategory(Guid id, string code, string name, string description, int sortOrder) =>
-        new()
-        {
-            Id = id,
-            Code = code,
-            Name = name,
-            Description = description,
-            SortOrder = sortOrder,
-            IsActive = true,
-            CreatedAt = SeededAt,
-            IsDeleted = false
-        };
-
-    private static ForumTag ForumTag(Guid id, string name, string slug) =>
-        new()
-        {
-            Id = id,
-            Name = name,
-            Slug = slug,
-            IsActive = true,
-            CreatedAt = SeededAt,
-            IsDeleted = false
-        };
-
-    private static ForumPostTag ForumPostTag(Guid id, Guid postId, Guid tagId) =>
-        new()
-        {
-            Id = id,
-            PostId = postId,
-            TagId = tagId
-        };
 
 }

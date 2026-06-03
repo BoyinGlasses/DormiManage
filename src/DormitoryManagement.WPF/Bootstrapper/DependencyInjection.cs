@@ -5,7 +5,6 @@ using DormitoryManagement.Application.Services.Auth;
 using DormitoryManagement.Application.Services.Billing;
 using DormitoryManagement.Application.Services.Contracts;
 using DormitoryManagement.Application.Services.Dashboard;
-using DormitoryManagement.Application.Services.Forum;
 using DormitoryManagement.Application.Services.Payments;
 using DormitoryManagement.Application.Services.Registrations;
 using DormitoryManagement.Application.Services.Rooms;
@@ -63,7 +62,6 @@ public static class DependencyInjection
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IFeeTypeService, FeeTypeService>();
-        services.AddScoped<IForumService, ForumService>();
 
         services.AddSingleton<NavigationStore>();
         services.AddSingleton<SessionState>();

@@ -20,10 +20,4 @@ public static class PermissionNames
     public const string TicketsUpdate = "Tickets.Update";
     public const string DashboardAdmin = "Dashboard.Admin";
     public const string UsersManage = "Users.Manage";
-    public const string ForumPostsRead = "ForumPosts.Read";
-    public const string ForumPostsCreate = "ForumPosts.Create";
-    public const string ForumPostsUpdateOwn = "ForumPosts.UpdateOwn";
-    public const string ForumPostsDeleteOwn = "ForumPosts.DeleteOwn";
-    public const string ForumPostsModerate = "ForumPosts.Moderate";
-    public const string ForumPostsManageAll = "ForumPosts.ManageAll";
 }
