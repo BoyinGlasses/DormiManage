@@ -35,8 +35,14 @@
     <None Remove="Assets\Images\KTXB.png" />
     <Resource Include="Assets\Fonts\Inter\*.ttf" />
     <Resource Include="Assets\Fonts\PlusJakartaSans\*.ttf" />
-    <Resource Include="Assets\Images\ForumHome\*.png" />
-    <Resource Include="Assets\Images\ForumPostDetail\*.png" />
+    <Resource Include="Assets\Images\ForumHome\forum-home-author-lan-anh.png" />
+    <Resource Include="Assets\Images\ForumHome\forum-home-author-management.png" />
+    <Resource Include="Assets\Images\ForumHome\forum-home-author-volunteer.png" />
+    <Resource Include="Assets\Images\ForumHome\forum-home-avatar-student.png" />
+    <Resource Include="Assets\Images\ForumHome\forum-home-cover-club.png" />
+    <Resource Include="Assets\Images\ForumHome\forum-home-cover-safety.png" />
+    <Resource Include="Assets\Images\ForumHome\forum-home-cover-study.png" />
+    <Resource Include="Assets\Images\ForumPostDetail\forum-post-detail-hero.png" />
     <Resource Include="Assets\Images\KTXB.png" />
   </ItemGroup>
 

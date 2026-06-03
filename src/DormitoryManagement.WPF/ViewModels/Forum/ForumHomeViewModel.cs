@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using DormitoryManagement.Application.DTOs.Forum;
+using DormitoryManagement.Application.Services.Forum;
 using DormitoryManagement.WPF.Common;
 using DormitoryManagement.WPF.Navigation;
 
@@ -7,10 +9,12 @@ namespace DormitoryManagement.WPF.ViewModels.Forum;
 
 public sealed partial class ForumHomeViewModel : ViewModelBase
 {
-    private readonly IReadOnlyList<ForumHomePostCard> _allFeedCards;
+    private IReadOnlyList<ForumHomePostCard> _allFeedCards;
     private readonly IReadOnlyList<ForumHomeActivityItem> _allActivityItems;
     private readonly IReadOnlyList<ForumHomeEmergencyContactItem> _allEmergencyContacts;
     private readonly INavigationService? _navigationService;
+    private readonly IForumPostService? _forumPostService;
+    private readonly ForumNavigationState? _forumNavigationState;
     private readonly RelayCommand _resetFiltersCommand;
     private readonly RelayCommand _closePreviewPanelCommand;
     private readonly RelayCommand _dismissEmergencyContactPreviewCommand;
@@ -37,6 +41,7 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
     private bool _hasAppliedCategoryFilter;
     private bool _hasAppliedTagFilter;
     private bool _hasAppliedAreaFilter;
+    private bool _isUsingPreviewData;
 
     public ForumHomeViewModel()
         : this(null)
@@ -44,8 +49,23 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
     }
 
     public ForumHomeViewModel(INavigationService? navigationService)
+        : this(navigationService, null, null)
+    {
+    }
+
+    public ForumHomeViewModel(IForumPostService forumPostService, ForumNavigationState forumNavigationState)
+        : this(null, forumPostService, forumNavigationState)
+    {
+    }
+
+    public ForumHomeViewModel(
+        INavigationService? navigationService,
+        IForumPostService? forumPostService,
+        ForumNavigationState? forumNavigationState)
     {
         _navigationService = navigationService;
+        _forumPostService = forumPostService;
+        _forumNavigationState = forumNavigationState;
         var state = ForumHomePreviewFactory.CreateDefault();
         HeaderUserSummary = state.HeaderUserSummary;
         TopNavItems = new ObservableCollection<ForumHomeNavItem>(state.TopNavItems);
@@ -77,7 +97,7 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
         _searchPlaceholder = state.SearchPlaceholder;
 
         ComposePrompt = state.ComposePrompt;
-        IsUsingPreviewData = state.IsUsingPreviewData;
+        _isUsingPreviewData = state.IsUsingPreviewData;
         InitializeActivityDialogState();
 
         SelectTopNavCommand = new RelayCommand(SelectTopNav, parameter => parameter is ForumHomeNavItem);
@@ -112,6 +132,8 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
             ForumHomeComposeRequest.PendingOpen = false;
             ComposePlaceholder();
         }
+
+        _ = LoadServiceFeedAsync(null);
     }
 
     public ForumHomeUserSummary HeaderUserSummary { get; }
@@ -146,7 +168,11 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
     public ICommand ClosePreviewPanelCommand { get; }
     public ICommand DismissEmergencyContactPreviewCommand { get; }
     public string ComposePrompt { get; }
-    public bool IsUsingPreviewData { get; }
+    public bool IsUsingPreviewData
+    {
+        get => _isUsingPreviewData;
+        private set => SetProperty(ref _isUsingPreviewData, value);
+    }
     public string BrandText => _brandText;
     public string SearchPlaceholder => _searchPlaceholder;
     public bool HasActivePreviewFilters => HasSearchInput || _hasAppliedTopNavFilter || _hasAppliedCategoryFilter || _hasAppliedTagFilter || _hasAppliedAreaFilter;
@@ -230,7 +256,7 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
             if (SetProperty(ref _searchText, value))
             {
                 OnPropertyChanged(nameof(HasSearchInput));
-                RefreshPreviewContent(
+                RefreshForumContent(
                     HasSearchInput
                         ? $"Tìm kiếm: {SearchText.Trim()}."
                         : "Tìm kiếm đã xóa.");
@@ -302,7 +328,7 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
 
         SelectedTopNavKey = selectedItem.Key;
         _hasAppliedTopNavFilter = true;
-        RefreshPreviewContent($"Preview lane: {selectedItem.Label}.");
+        RefreshForumContent($"Preview lane: {selectedItem.Label}.");
     }
 
     private void SelectCategory(object? parameter)
@@ -319,7 +345,7 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
 
         SelectedCategoryKey = selectedItem.Key;
         _hasAppliedCategoryFilter = true;
-        RefreshPreviewContent($"Category: {selectedItem.Label}.");
+        RefreshForumContent($"Category: {selectedItem.Label}.");
     }
 
     private void SelectTag(object? parameter)
@@ -333,7 +359,7 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
 
         _hasAppliedTagFilter = TagChips.Any(item => item.IsSelected);
         SelectedTagKey = GetSelectedTagKeys().LastOrDefault() ?? string.Empty;
-        RefreshPreviewContent(selectedItem.IsSelected
+        RefreshForumContent(selectedItem.IsSelected
             ? $"Tag: {selectedItem.Text}."
             : $"Đã bỏ chọn tag: {selectedItem.Text}.");
     }
@@ -392,7 +418,7 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
 
         SelectedAreaKey = selectedItem.Key;
         _hasAppliedAreaFilter = true;
-        RefreshPreviewContent($"Area: {selectedItem.Title}.");
+        RefreshForumContent($"Area: {selectedItem.Title}.");
     }
 
     private void ResetComposeDialogState()
@@ -444,6 +470,12 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
 
     private void SubmitComposePreview()
     {
+        if (_forumPostService is not null)
+        {
+            _ = SubmitComposeAsync();
+            return;
+        }
+
         IsComposeDialogOpen = false;
         ResetComposeDialogState();
         StatusMessage = "Bài viết đã được lưu ở chế độ xem trước.";
@@ -510,7 +542,97 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
         }
 
         StatusMessage = $"Đang mở chi tiết bài viết: {postCard.Title}.";
+        if (_forumNavigationState is not null && Guid.TryParse(postCard.Id, out var postId))
+        {
+            _forumNavigationState.SelectedPostId = postId;
+        }
+
         _navigationService?.NavigateTo<ForumPostDetailViewModel>();
+    }
+
+    private void RefreshForumContent(string statusMessage)
+    {
+        if (_forumPostService is not null)
+        {
+            _ = LoadServiceFeedAsync(statusMessage);
+            return;
+        }
+
+        RefreshPreviewContent(statusMessage);
+    }
+
+    private async Task LoadServiceFeedAsync(string? statusMessage)
+    {
+        if (_forumPostService is null)
+        {
+            return;
+        }
+
+        try
+        {
+            var request = new ForumPostFilterRequest
+            {
+                SearchText = SearchText,
+                Category = _hasAppliedCategoryFilter ? ResolveCategoryLabel(SelectedCategoryKey) : null,
+                Tag = _hasAppliedTagFilter ? GetSelectedTagKeys().LastOrDefault() : null,
+                Area = _hasAppliedAreaFilter ? ResolveAreaLabel(SelectedAreaKey) : null,
+                SortBy = ForumPostSortOption.Newest,
+                PageNumber = 1,
+                PageSize = 20
+            };
+            var feed = await _forumPostService.GetFeedAsync(request);
+            if (feed.Items.Count == 0 && !HasActivePreviewFilters)
+            {
+                IsUsingPreviewData = true;
+                return;
+            }
+
+            _allFeedCards = feed.Items.Select(MapPostCard).ToArray();
+            ReplaceCollection(FeedCards, _allFeedCards);
+            HasEmptyResults = feed.Items.Count == 0;
+            IsUsingPreviewData = false;
+            StatusMessage = HasEmptyResults ? "Không tìm thấy bài viết phù hợp." : statusMessage;
+            OnPropertyChanged(nameof(HasActivePreviewFilters));
+            OnPropertyChanged(nameof(ShowFilterSummary));
+            _resetFiltersCommand.RaiseCanExecuteChanged();
+        }
+        catch (Exception)
+        {
+            IsUsingPreviewData = true;
+            RefreshPreviewContent(statusMessage ?? "Đang hiển thị dữ liệu xem trước.");
+        }
+    }
+
+    private async Task SubmitComposeAsync()
+    {
+        if (_forumPostService is null)
+        {
+            return;
+        }
+
+        var tags = ComposeTagChips
+            .Where(tag => tag.IsSelected)
+            .Select(tag => tag.Text)
+            .Concat((ComposeCustomTagsText ?? string.Empty).Split([',', ' ', ';'], StringSplitOptions.RemoveEmptyEntries))
+            .ToArray();
+        var result = await _forumPostService.CreateAsync(new CreateForumPostRequest
+        {
+            Title = ComposeTitleText,
+            Content = ComposeDraftText,
+            Category = ResolveCategoryLabel(_selectedComposeCategoryKey),
+            Tags = tags
+        });
+
+        if (!result.Succeeded)
+        {
+            StatusMessage = result.Error;
+            return;
+        }
+
+        IsComposeDialogOpen = false;
+        ResetComposeDialogState();
+        StatusMessage = "Bài viết đã được lưu.";
+        await LoadServiceFeedAsync(StatusMessage);
     }
 
     private void RefreshPreviewContent(string statusMessage)
@@ -620,7 +742,7 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
             DismissEmergencyContactPreview(updateStatusMessage: false);
         }
 
-        RefreshPreviewContent("Đã xóa bộ lọc xem trước.");
+        RefreshForumContent("Đã xóa bộ lọc xem trước.");
     }
 
     private IReadOnlyList<ForumHomeActivityItem> FilterActivityItems()
@@ -724,6 +846,81 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
     private static bool ContainsQuery(string? source, string query) =>
         !string.IsNullOrWhiteSpace(source)
         && source.Contains(query, StringComparison.CurrentCultureIgnoreCase);
+
+    private static ForumHomePostCard MapPostCard(ForumPostListItemDto post)
+    {
+        var badges = new List<ForumHomeBadge> { new(post.Category, "primary") };
+        badges.AddRange(post.Tags.Take(2).Select(tag => new ForumHomeBadge("#" + tag, "neutral")));
+
+        return new ForumHomePostCard(
+            id: post.Id.ToString(),
+            coverAssetPath: null,
+            useFallbackVisual: true,
+            overlayTitle: post.Area,
+            overlaySubtitle: post.Category,
+            priorityLabel: post.IsPinned ? "Pinned" : null,
+            badges: badges,
+            title: post.Title,
+            excerpt: post.Excerpt,
+            authorName: post.AuthorName,
+            authorAvatarLabel: CreateAvatarLabel(post.AuthorName),
+            authorSubtitle: string.IsNullOrWhiteSpace(post.AuthorRole) ? "Resident" : post.AuthorRole,
+            relativeTimeText: FormatRelativeTime(post.CreatedAt),
+            viewCountText: post.ViewCount.ToString(),
+            likeCountText: post.LikeCount.ToString(),
+            commentCountText: post.CommentCount.ToString(),
+            fallbackBadgeText: post.Category,
+            fallbackAccentTone: post.IsImportant ? "primary" : "secondary",
+            isLiked: post.IsLikedByCurrentUser,
+            areaLabelText: post.Area,
+            areaOverlayEmphasis: post.Area,
+            authorRoleText: post.AuthorRole,
+            isImportant: post.IsImportant,
+            fallbackVisualKey: post.Category);
+    }
+
+    private static string ResolveCategoryLabel(string key) => key switch
+    {
+        "events" => "Events",
+        "housing" => "Guides",
+        "market" => "General",
+        _ => "Announcements"
+    };
+
+    private static string? ResolveAreaLabel(string key) => key switch
+    {
+        "north-wing" => "Building B",
+        "front-desk" => "Front Desk",
+        "study-hall" => "Study Hall",
+        _ => null
+    };
+
+    private static string CreateAvatarLabel(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+        {
+            return "U";
+        }
+
+        return string.Concat(parts.Take(2).Select(part => char.ToUpperInvariant(part[0])));
+    }
+
+    private static string FormatRelativeTime(DateTime createdAt)
+    {
+        var elapsed = DateTime.UtcNow - createdAt;
+        if (elapsed.TotalMinutes < 60)
+        {
+            return Math.Max(1, (int)elapsed.TotalMinutes) + " minutes ago";
+        }
+
+        if (elapsed.TotalHours < 24)
+        {
+            return (int)elapsed.TotalHours + " hours ago";
+        }
+
+        return (int)elapsed.TotalDays + " days ago";
+    }
 
     private static IReadOnlyList<ForumHomePreviewPanel> CreateDefaultPreviewPanels(ForumHomeUserSummary userSummary) =>
     [

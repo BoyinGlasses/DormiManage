@@ -32,6 +32,8 @@ public sealed class DormitoryDbContext : DbContext
     public DbSet<VehicleRegistration> VehicleRegistrations => Set<VehicleRegistration>();
     public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
     public DbSet<SupportTicketResponse> SupportTicketResponses => Set<SupportTicketResponse>();
+    public DbSet<ForumPost> ForumPosts => Set<ForumPost>();
+    public DbSet<ForumPostTag> ForumPostTags => Set<ForumPostTag>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();

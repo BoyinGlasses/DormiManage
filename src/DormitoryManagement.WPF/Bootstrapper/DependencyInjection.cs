@@ -5,6 +5,7 @@ using DormitoryManagement.Application.Services.Auth;
 using DormitoryManagement.Application.Services.Billing;
 using DormitoryManagement.Application.Services.Contracts;
 using DormitoryManagement.Application.Services.Dashboard;
+using DormitoryManagement.Application.Services.Forum;
 using DormitoryManagement.Application.Services.Payments;
 using DormitoryManagement.Application.Services.Registrations;
 using DormitoryManagement.Application.Services.Rooms;
@@ -59,6 +60,7 @@ public static class DependencyInjection
         services.AddScoped<IPaymentExtensionService, PaymentExtensionService>();
         services.AddScoped<IVehicleService, VehicleService>();
         services.AddScoped<ISupportTicketService, SupportTicketService>();
+        services.AddScoped<IForumPostService, ForumPostService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IFeeTypeService, FeeTypeService>();
@@ -66,6 +68,7 @@ public static class DependencyInjection
         services.AddSingleton<NavigationStore>();
         services.AddSingleton<SessionState>();
         services.AddSingleton<PaymentNavigationState>();
+        services.AddSingleton<ForumNavigationState>();
         services.AddSingleton<ILoginPrefillState, LoginPrefillState>();
         services.AddSingleton<INavigationService, NavigationService>();
 
