@@ -1,0 +1,208 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <Color x:Key="ProfilePageColorCanvas">#F8F9FF</Color>
+    <Color x:Key="ProfilePageColorSurface">#FFFFFF</Color>
+    <Color x:Key="ProfilePageColorSurfaceLow">#EFF4FF</Color>
+    <Color x:Key="ProfilePageColorSurfaceContainer">#E5EEFF</Color>
+    <Color x:Key="ProfilePageColorSurfaceHigh">#DCE9FF</Color>
+    <Color x:Key="ProfilePageColorTextPrimary">#0B1C30</Color>
+    <Color x:Key="ProfilePageColorTextSecondary">#594139</Color>
+    <Color x:Key="ProfilePageColorPrimary">#AB3500</Color>
+    <Color x:Key="ProfilePageColorPrimaryContainer">#FF6B35</Color>
+    <Color x:Key="ProfilePageColorSecondary">#4648D4</Color>
+    <Color x:Key="ProfilePageColorOutlineVariant">#E1BFB5</Color>
+
+    <SolidColorBrush x:Key="ProfilePageCanvasBrush" Color="{StaticResource ProfilePageColorCanvas}" />
+    <SolidColorBrush x:Key="ProfilePageSurfaceBrush" Color="{StaticResource ProfilePageColorSurface}" />
+    <SolidColorBrush x:Key="ProfilePageSurfaceLowBrush" Color="{StaticResource ProfilePageColorSurfaceLow}" />
+    <SolidColorBrush x:Key="ProfilePageSurfaceContainerBrush" Color="{StaticResource ProfilePageColorSurfaceContainer}" />
+    <SolidColorBrush x:Key="ProfilePageSurfaceHighBrush" Color="{StaticResource ProfilePageColorSurfaceHigh}" />
+    <SolidColorBrush x:Key="ProfilePageTextPrimaryBrush" Color="{StaticResource ProfilePageColorTextPrimary}" />
+    <SolidColorBrush x:Key="ProfilePageTextSecondaryBrush" Color="{StaticResource ProfilePageColorTextSecondary}" />
+    <SolidColorBrush x:Key="ProfilePagePrimaryBrush" Color="{StaticResource ProfilePageColorPrimary}" />
+    <SolidColorBrush x:Key="ProfilePagePrimaryContainerBrush" Color="{StaticResource ProfilePageColorPrimaryContainer}" />
+    <SolidColorBrush x:Key="ProfilePageSecondaryBrush" Color="{StaticResource ProfilePageColorSecondary}" />
+    <SolidColorBrush x:Key="ProfilePageOutlineVariantBrush" Color="{StaticResource ProfilePageColorOutlineVariant}" />
+    <SolidColorBrush x:Key="ProfilePagePrimaryTintBrush" Color="#1AAB3500" />
+    <SolidColorBrush x:Key="ProfilePageSecondaryTintBrush" Color="#1A4648D4" />
+
+    <FontFamily x:Key="ProfilePageHeadlineFontFamily">pack://application:,,,/DormitoryManagement.WPF;component/Assets/Fonts/PlusJakartaSans/#Plus Jakarta Sans</FontFamily>
+    <FontFamily x:Key="ProfilePageBodyFontFamily">pack://application:,,,/DormitoryManagement.WPF;component/Assets/Fonts/Inter/#Inter</FontFamily>
+
+    <system:Double x:Key="ProfilePageTitleFontSize">32</system:Double>
+    <system:Double x:Key="ProfilePageHeadlineFontSize">24</system:Double>
+    <system:Double x:Key="ProfilePageBodyFontSize">14</system:Double>
+    <system:Double x:Key="ProfilePageFieldFontSize">16</system:Double>
+    <system:Double x:Key="ProfilePageCardShadowBlur">20</system:Double>
+    <system:Double x:Key="ProfilePageCardShadowDepth">2</system:Double>
+    <system:Double x:Key="ProfilePageCardShadowOpacity">0.04</system:Double>
+
+    <CornerRadius x:Key="ProfilePageCardCornerRadius">16</CornerRadius>
+    <CornerRadius x:Key="ProfilePageControlCornerRadius">10</CornerRadius>
+
+    <DropShadowEffect x:Key="ProfilePageCardShadowEffect"
+                      BlurRadius="{StaticResource ProfilePageCardShadowBlur}"
+                      ShadowDepth="{StaticResource ProfilePageCardShadowDepth}"
+                      Opacity="{StaticResource ProfilePageCardShadowOpacity}"
+                      Color="#000000" />
+
+    <Style x:Key="ProfilePageTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource ProfilePageHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource ProfilePageTitleFontSize}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource ProfilePageTextPrimaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="ProfilePageHeadlineTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource ProfilePageHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource ProfilePageTextPrimaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="ProfilePageSectionTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource ProfilePageHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource ProfilePageTextPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="ProfilePageBodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource ProfilePageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource ProfilePageBodyFontSize}" />
+        <Setter Property="Foreground" Value="{StaticResource ProfilePageTextSecondaryBrush}" />
+        <Setter Property="LineHeight" Value="20" />
+    </Style>
+
+    <Style x:Key="ProfilePageMutedBodyTextStyle" TargetType="TextBlock" BasedOn="{StaticResource ProfilePageBodyTextStyle}">
+        <Setter Property="FontSize" Value="13" />
+    </Style>
+
+    <Style x:Key="ProfilePageBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource ProfilePageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{StaticResource ProfilePageTextSecondaryBrush}" />
+    </Style>
+
+    <Style x:Key="ProfilePageFieldLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource ProfilePageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource ProfilePageTextSecondaryBrush}" />
+        <Setter Property="Margin" Value="0,0,0,4" />
+    </Style>
+
+    <Style x:Key="ProfilePageFieldValueTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource ProfilePageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource ProfilePageFieldFontSize}" />
+        <Setter Property="Foreground" Value="{StaticResource ProfilePageTextPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="ProfilePageTileLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource ProfilePageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{StaticResource ProfilePageTextSecondaryBrush}" />
+    </Style>
+
+    <Style x:Key="ProfilePageTileValueTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource ProfilePageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource ProfilePageTextPrimaryBrush}" />
+        <Setter Property="Margin" Value="0,2,0,0" />
+    </Style>
+
+    <Style x:Key="ProfilePageStatusTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource ProfilePageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource ProfilePagePrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="ProfilePageSettingLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource ProfilePageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{StaticResource ProfilePageTextPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="ProfilePageTrailingValueTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource ProfilePageBodyFontFamily}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{StaticResource ProfilePageTextSecondaryBrush}" />
+    </Style>
+
+    <Style x:Key="ProfilePageCardBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource ProfilePageSurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource ProfilePageSurfaceHighBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource ProfilePageCardCornerRadius}" />
+        <Setter Property="Padding" Value="24" />
+        <Setter Property="Effect" Value="{StaticResource ProfilePageCardShadowEffect}" />
+    </Style>
+
+    <Style x:Key="ProfilePageSummaryTileStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource ProfilePageSurfaceLowBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource ProfilePageSurfaceContainerBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="14,12" />
+    </Style>
+
+    <Style x:Key="ProfilePageGhostButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Foreground" Value="{StaticResource ProfilePagePrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="ProfilePageFloatingIconButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource ProfilePagePrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource ProfilePagePrimaryBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}"
+                            CornerRadius="20">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ProfilePageSettingsButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{StaticResource ProfilePageOutlineVariantBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+        <Setter Property="Padding" Value="0,18" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="Transparent"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

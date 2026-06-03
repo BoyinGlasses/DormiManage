@@ -3,7 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:controls="clr-namespace:DormitoryManagement.WPF.Controls"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-             Loaded="OnLoaded">
+             Loaded="OnLoaded"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextHintingMode="Fixed"
+             TextOptions.TextRenderingMode="ClearType">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -17,8 +22,8 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <Grid HorizontalAlignment="Center"
-                  MaxWidth="1440"
-                  Margin="32">
+                  MaxWidth="{StaticResource VehicleRegistrationPageMaxWidth}"
+                  Margin="{StaticResource VehicleRegistrationPageOuterMargin}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -27,7 +32,7 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0"
-                            Margin="0,0,0,24">
+                            Margin="{StaticResource VehicleRegistrationTitleBlockMargin}">
                     <TextBlock Text="{Binding RegistrationTitle}"
                                Style="{StaticResource VehicleRegistrationPageTitleTextStyle}" />
                     <TextBlock Text="Chọn thời hạn, nhập biển số xe máy, và quét mã QR để hoàn tất thanh toán gửi xe tháng này."
@@ -40,7 +45,7 @@
                                      Title="Không thể đăng ký giữ xe"
                                      Message="{Binding ErrorMessage}"
                                      Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}"
-                                     Margin="0,0,0,24" />
+                                     Margin="{StaticResource VehicleRegistrationFeedbackMargin}" />
 
                 <Border Grid.Row="1"
                         Background="#FFF3E8"
@@ -48,7 +53,7 @@
                         BorderThickness="1"
                         CornerRadius="8"
                         Padding="12"
-                        Margin="0,0,0,24"
+                        Margin="{StaticResource VehicleRegistrationFeedbackMargin}"
                         Visibility="{Binding HasSuccessMessage, Converter={StaticResource BoolToVisibility}}">
                     <TextBlock Text="{Binding SuccessMessage}"
                                Foreground="{StaticResource VehicleRegistrationPrimaryBrush}"
@@ -59,11 +64,11 @@
                 </Border>
 
                 <Grid Grid.Row="2"
-                      Margin="0,0,0,24">
+                      Margin="{StaticResource VehicleRegistrationTopCardsMargin}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="24" />
-                        <ColumnDefinition Width="360" />
+                        <ColumnDefinition Width="{StaticResource VehicleRegistrationPaymentColumnWidth}" />
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0"
@@ -73,7 +78,7 @@
                                        Style="{StaticResource VehicleRegistrationSectionTitleTextStyle}" />
                             <Border Background="{StaticResource VehicleRegistrationSurfaceHighBrush}"
                                     Height="1"
-                                    Margin="0,16,0,24" />
+                                    Margin="{StaticResource VehicleRegistrationSectionDividerMargin}" />
 
                             <StackPanel>
                                 <TextBlock Text="{Binding LicensePlateLabel}"
@@ -88,13 +93,13 @@
                                             AutomationProperties.Name="Biển số xe" />
                                 <TextBlock Text="{Binding LicensePlateHelperText}"
                                            Style="{StaticResource VehicleRegistrationHelperTextStyle}"
-                                           Margin="0,8,0,0" />
+                                           Margin="0,6,0,0" />
                                 <TextBlock Text="{Binding LicensePlateError}"
                                            Style="{StaticResource FieldErrorStyle}"
                                            Visibility="{Binding HasLicensePlateError, Converter={StaticResource BoolToVisibility}}" />
                             </StackPanel>
 
-                            <StackPanel Margin="0,20,0,0">
+                            <StackPanel Margin="0,18,0,0">
                                 <TextBlock Text="{Binding DurationLabel}"
                                            Style="{StaticResource VehicleRegistrationFieldLabelTextStyle}"
                                            Margin="0,0,0,12" />
@@ -121,8 +126,8 @@
                                     BorderBrush="{StaticResource VehicleRegistrationSurfaceContainerBrush}"
                                     BorderThickness="1"
                                     CornerRadius="8"
-                                    Padding="20"
-                                    Margin="0,12,0,0">
+                                    Padding="18"
+                                    Margin="{StaticResource VehicleRegistrationSubtotalMargin}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
@@ -141,22 +146,14 @@
                             <Button Content="{Binding PrimaryActionLabel}"
                                     Command="{Binding SubmitCommand}"
                                     Style="{StaticResource VehicleRegistrationPrimaryButtonStyle}"
-                                    MinWidth="128"
-                                    Height="{StaticResource VehicleRegistrationPrimaryButtonHeight}"
                                     HorizontalAlignment="Left"
-                                    Margin="0,20,0,0" />
+                                    Margin="{StaticResource VehicleRegistrationPrimaryButtonMargin}" />
                         </StackPanel>
                     </Border>
 
                     <Border Grid.Column="2"
                             Style="{StaticResource VehicleRegistrationCardStyle}">
                         <Grid>
-                            <Ellipse Width="128"
-                                     Height="132"
-                                     Fill="#33FFB59D"
-                                     HorizontalAlignment="Right"
-                                     VerticalAlignment="Top"
-                                     Margin="0,-48,-48,0" />
                             <StackPanel HorizontalAlignment="Center"
                                         VerticalAlignment="Center">
                                 <TextBlock Text="{Binding PaymentTitle}"
@@ -167,7 +164,7 @@
                                 <TextBlock Text="{Binding PaymentSupportingText}"
                                            Style="{StaticResource VehicleRegistrationHelperTextStyle}"
                                            TextAlignment="Center"
-                                           Margin="0,8,0,0" />
+                                           Margin="0,6,0,0" />
 
                                 <Border Width="{StaticResource VehicleRegistrationQrFrameSize}"
                                         Height="{StaticResource VehicleRegistrationQrFrameSize}"
@@ -175,7 +172,7 @@
                                         BorderBrush="{StaticResource VehicleRegistrationOutlineVariantBrush}"
                                         BorderThickness="1"
                                         CornerRadius="12"
-                                        Margin="0,20,0,0">
+                                        Margin="0,16,0,0">
                                     <Grid>
                                         <Border Width="{StaticResource VehicleRegistrationQrCodeSize}"
                                                 Height="{StaticResource VehicleRegistrationQrCodeSize}"
@@ -183,35 +180,35 @@
                                                 CornerRadius="8"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center">
-                                            <Canvas Width="128"
-                                                    Height="112"
+                                            <Canvas Width="{StaticResource VehicleRegistrationQrCanvasWidth}"
+                                                    Height="{StaticResource VehicleRegistrationQrCanvasHeight}"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center">
-                                                <Border Width="28" Height="28" BorderBrush="#FF0B1C30" BorderThickness="4" Canvas.Left="0" Canvas.Top="0">
-                                                    <Border Margin="6" Background="#FF0B1C30" />
+                                                <Border Width="24" Height="24" BorderBrush="#FF0B1C30" BorderThickness="4" Canvas.Left="0" Canvas.Top="0">
+                                                    <Border Margin="5" Background="#FF0B1C30" />
                                                 </Border>
-                                                <Border Width="28" Height="28" BorderBrush="#FF0B1C30" BorderThickness="4" Canvas.Left="84" Canvas.Top="0">
-                                                    <Border Margin="6" Background="#FF0B1C30" />
+                                                <Border Width="24" Height="24" BorderBrush="#FF0B1C30" BorderThickness="4" Canvas.Left="72" Canvas.Top="0">
+                                                    <Border Margin="5" Background="#FF0B1C30" />
                                                 </Border>
-                                                <Border Width="28" Height="28" BorderBrush="#FF0B1C30" BorderThickness="4" Canvas.Left="0" Canvas.Top="84">
-                                                    <Border Margin="6" Background="#FF0B1C30" />
+                                                <Border Width="24" Height="24" BorderBrush="#FF0B1C30" BorderThickness="4" Canvas.Left="0" Canvas.Top="72">
+                                                    <Border Margin="5" Background="#FF0B1C30" />
                                                 </Border>
 
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="42" Canvas.Top="10" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="56" Canvas.Top="10" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="70" Canvas.Top="24" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="42" Canvas.Top="38" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="56" Canvas.Top="38" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="70" Canvas.Top="38" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="42" Canvas.Top="52" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="28" Canvas.Top="66" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="42" Canvas.Top="66" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="56" Canvas.Top="66" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="84" Canvas.Top="52" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="84" Canvas.Top="66" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="56" Canvas.Top="84" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="70" Canvas.Top="84" />
-                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="84" Canvas.Top="98" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="36" Canvas.Top="8" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="50" Canvas.Top="8" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="64" Canvas.Top="20" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="36" Canvas.Top="32" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="50" Canvas.Top="32" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="64" Canvas.Top="32" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="36" Canvas.Top="44" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="24" Canvas.Top="56" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="36" Canvas.Top="56" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="50" Canvas.Top="56" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="72" Canvas.Top="44" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="72" Canvas.Top="56" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="50" Canvas.Top="72" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="64" Canvas.Top="72" />
+                                                <Rectangle Width="8" Height="8" Fill="#FF0B1C30" Canvas.Left="72" Canvas.Top="84" />
                                             </Canvas>
                                         </Border>
                                     </Grid>
@@ -219,9 +216,9 @@
 
                                 <Border Background="#4D6FFBBE"
                                         CornerRadius="999"
-                                        Padding="12,6"
-                                        Margin="0,20,0,0"
-                                        MaxWidth="236">
+                                        Padding="{StaticResource VehicleRegistrationVerifiedBadgePadding}"
+                                        Margin="{StaticResource VehicleRegistrationVerifiedBadgeMargin}"
+                                        MaxWidth="{StaticResource VehicleRegistrationVerifiedBadgeMaxWidth}">
                                     <Grid HorizontalAlignment="Center">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
@@ -229,14 +226,14 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="&#xE73E;"
                                                    FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="14"
+                                                   FontSize="{StaticResource VehicleRegistrationVerifiedBadgeIconSize}"
                                                    Foreground="{StaticResource VehicleRegistrationTertiaryBrush}"
                                                    Margin="0,1,6,0"
                                                    VerticalAlignment="Top" />
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding PaymentVerifiedBadgeText}"
                                                    FontFamily="{StaticResource VehicleRegistrationBodyFontFamily}"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource VehicleRegistrationVerifiedBadgeTextSize}"
                                                    Foreground="{StaticResource VehicleRegistrationTertiaryBrush}"
                                                    TextWrapping="Wrap"
                                                    TextAlignment="Left" />
@@ -251,7 +248,7 @@
                         Style="{StaticResource VehicleRegistrationCardStyle}"
                         Grid.IsSharedSizeScope="True">
                     <StackPanel>
-                        <Grid Margin="0,0,0,24">
+                        <Grid Margin="{StaticResource VehicleRegistrationHistoryTitleRowMargin}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
@@ -393,7 +390,7 @@
                                                         </Ellipse>
                                                         <TextBlock Text="{Binding StatusLabel}"
                                                                    FontFamily="{StaticResource VehicleRegistrationBodyFontFamily}"
-                                                                   FontSize="12"
+                                                                   FontSize="{StaticResource VehicleRegistrationVerifiedBadgeTextSize}"
                                                                    FontWeight="SemiBold"
                                                                    VerticalAlignment="Center">
                                                             <TextBlock.Style>
@@ -460,6 +457,12 @@
                                  Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
     </Grid>
 </UserControl>
+
+
+
+
+
+
 
 
 

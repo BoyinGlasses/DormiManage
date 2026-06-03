@@ -307,30 +307,29 @@
                                                     HorizontalAlignment="Center" />
                     </Button>
 
-                    <Button Command="{Binding OpenProfileCommand}"
-        Style="{StaticResource StudentDashboardHeaderIconButtonStyle}"
-        ToolTip="Profile"
-        Width="36"
-        Height="36"
-        Margin="12,0,0,0"
-        Padding="0">
-    <Ellipse Width="36"
-             Height="36"
-             Stroke="{StaticResource StudentDashboardSurfaceHighestBrush}"
-             StrokeThickness="2"
-             IsHitTestVisible="False">
-        <Ellipse.Fill>
-            <ImageBrush ImageSource="pack://application:,,,/DormitoryManagement.WPF;component/Assets/Images/ForumHome/forum-home-avatar-student.png"
-                        Stretch="UniformToFill" />
-        </Ellipse.Fill>
-    </Ellipse>
-</Button>
+                    <Button Command="{Binding NavigateCommand}"
+                            CommandParameter="StudentProfile"
+                            ToolTip="Hồ sơ cá nhân"
+                            Cursor="Hand"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            Margin="12,0,0,0">
+                        <Ellipse Width="36"
+                                 Height="36"
+                                 Stroke="{StaticResource StudentDashboardSurfaceHighestBrush}"
+                                 StrokeThickness="2">
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="pack://application:,,,/DormitoryManagement.WPF;component/Assets/Images/ForumHome/forum-home-avatar-student.png"
+                                            Stretch="UniformToFill" />
+                            </Ellipse.Fill>
+                        </Ellipse>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
     </Grid>
 </UserControl>
-
 
 
 

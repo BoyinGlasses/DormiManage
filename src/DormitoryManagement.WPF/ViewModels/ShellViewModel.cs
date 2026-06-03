@@ -114,7 +114,7 @@ public sealed class ShellViewModel : ViewModelBase
     public string UnreadNotificationText => UnreadNotificationCount > 99 ? "99+" : UnreadNotificationCount.ToString();
     public bool HasNotifications => Notifications.Count > 0;
     public bool IsForumHomeChrome => CurrentViewModel is ForumHomeViewModel or ForumPostDetailViewModel;
-    public bool IsStudentDashboardChrome => CurrentViewModel is StudentDashboardViewModel;
+    public bool IsStudentDashboardChrome => CurrentViewModel is StudentDashboardViewModel or StudentProfileViewModel;
     public bool IsVehicleRegistrationChrome => false;
     public bool IsDefaultTopBarChrome => false;
     public bool IsSharedTopBarChrome => IsTopBarVisible;
@@ -134,6 +134,7 @@ public sealed class ShellViewModel : ViewModelBase
     private bool CanNavigate(string? key) =>
         key == "Login"
         || key == "Payments" && IsAuthenticated
+        || key == "StudentProfile" && IsAuthenticated
         || (key is not null && MenuItems.Any(item => item.Key == key));
 
     private void NavigateByKey(string? key)
@@ -143,13 +144,14 @@ public sealed class ShellViewModel : ViewModelBase
             return;
         }
 
+        var menuKey = ResolveMenuActivationKey(key);
         if (IsCurrentMenuTarget(key))
         {
-            ActivateMenu(key);
+            ActivateMenu(menuKey);
             return;
         }
 
-        ActivateMenu(key);
+        ActivateMenu(menuKey);
         switch (key)
         {
             case "Login":
@@ -160,6 +162,9 @@ public sealed class ShellViewModel : ViewModelBase
                 break;
             case "StudentDashboard":
                 Navigate<StudentDashboardViewModel>("Dashboard");
+                break;
+            case "StudentProfile":
+                Navigate<StudentProfileViewModel>("Hồ sơ cá nhân");
                 break;
             case "Students":
                 Navigate<StudentListViewModel>("Students");
@@ -186,7 +191,7 @@ public sealed class ShellViewModel : ViewModelBase
                 Navigate<AuditLogListViewModel>("Audit logs");
                 break;
             case "Vehicles":
-                Navigate<VehicleRegistrationViewModel>("Vehicle registration");
+                Navigate<VehicleRegistrationViewModel>("Đăng ký gửi xe");
                 break;
             case "Tickets":
                 Navigate<SupportTicketListViewModel>("Support tickets");
@@ -212,6 +217,7 @@ public sealed class ShellViewModel : ViewModelBase
             "Login" => CurrentViewModel is LoginViewModel,
             "AdminDashboard" => CurrentViewModel is AdminDashboardViewModel,
             "StudentDashboard" => CurrentViewModel is StudentDashboardViewModel,
+            "StudentProfile" => CurrentViewModel is StudentProfileViewModel,
             "Students" => CurrentViewModel is StudentListViewModel,
             "Rooms" => CurrentViewModel is RoomListViewModel,
             "RoomRegistration" => CurrentViewModel is RoomRegistrationViewModel,
@@ -229,6 +235,8 @@ public sealed class ShellViewModel : ViewModelBase
             _ => false
         };
 
+    private static string ResolveMenuActivationKey(string key) => key == "StudentProfile" ? "StudentDashboard" : key;
+
     private void OpenProfile()
     {
         if (!IsAuthenticated)
@@ -236,8 +244,8 @@ public sealed class ShellViewModel : ViewModelBase
             return;
         }
 
-        CurrentPageTitle = "Profile";
-        _navigationService.NavigateTo<ProfileViewModel>();
+        CurrentPageTitle = "Hồ sơ cá nhân";
+        _navigationService.NavigateTo<StudentProfileViewModel>();
     }
 
     private async Task LogoutAsync()
@@ -339,6 +347,7 @@ public sealed class ShellViewModel : ViewModelBase
             {
                 LoginViewModel => "Đăng nhập",
                 StudentDashboardViewModel => "Dashboard",
+                StudentProfileViewModel => "Hồ sơ cá nhân",
                 AdminDashboardViewModel => "Dashboard",
                 StudentListViewModel => "Students",
                 RoomListViewModel => "Rooms",
@@ -355,13 +364,14 @@ public sealed class ShellViewModel : ViewModelBase
                 ProfileViewModel => "Profile",
                 UserManagementViewModel => "Settings",
                 FeeTypeViewModel => "Fee types",
-                VehicleRegistrationViewModel => "Vehicle registration",
+                VehicleRegistrationViewModel => "Đăng ký gửi xe",
                 _ => CurrentPageTitle
             };
             ActivateMenu(CurrentViewModel switch
             {
                 LoginViewModel => "Login",
                 StudentDashboardViewModel => "StudentDashboard",
+                StudentProfileViewModel => "StudentDashboard",
                 AdminDashboardViewModel => "AdminDashboard",
                 StudentListViewModel => "Students",
                 RoomListViewModel => "Rooms",
@@ -479,6 +489,7 @@ public sealed class ShellNotificationItem
     public bool IsRead { get; }
     public DateTime CreatedAt { get; }
 }
+
 
 
 

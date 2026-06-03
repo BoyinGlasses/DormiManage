@@ -22,7 +22,6 @@ using DormitoryManagement.WPF.ViewModels.Auth;
 using DormitoryManagement.WPF.ViewModels.Billing;
 using DormitoryManagement.WPF.ViewModels.Dashboard;
 using DormitoryManagement.WPF.ViewModels.Forum;
-using DormitoryManagement.WPF.ViewModels.Profile;
 using DormitoryManagement.WPF.ViewModels.Registrations;
 using DormitoryManagement.WPF.ViewModels.Rooms;
 using DormitoryManagement.WPF.ViewModels.Settings;
@@ -82,6 +81,7 @@ public static class DependencyInjection
         services.AddTransient<StudentDashboardViewModel>();
         services.AddTransient<StudentListViewModel>();
         services.AddTransient<StudentDetailViewModel>();
+        services.AddTransient<StudentProfileViewModel>();
         services.AddTransient<RoomListViewModel>();
         services.AddTransient<RoomDetailViewModel>();
         services.AddTransient<RoomRegistrationViewModel>();
@@ -95,7 +95,6 @@ public static class DependencyInjection
         services.AddTransient<SupportTicketDetailViewModel>();
         services.AddTransient<ForumHomeViewModel>();
         services.AddTransient<ForumPostDetailViewModel>();
-        services.AddTransient<ProfileViewModel>();
         services.AddTransient<UserManagementViewModel>();
         services.AddTransient<RoleManagementViewModel>();
         services.AddTransient<FeeTypeViewModel>();

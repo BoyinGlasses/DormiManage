@@ -1,6 +1,9 @@
 using DormitoryManagement.Application.Abstractions.Auth;
+using DormitoryManagement.Application.Common;
 using DormitoryManagement.Application.DTOs.Auth;
+using DormitoryManagement.Application.DTOs.Students;
 using DormitoryManagement.Application.DTOs.Vehicles;
+using DormitoryManagement.Application.Services.Students;
 using DormitoryManagement.Application.Services.Vehicles;
 using DormitoryManagement.Domain.Constants;
 using DormitoryManagement.WPF.Common;
@@ -9,7 +12,7 @@ using DormitoryManagement.WPF.ViewModels;
 using DormitoryManagement.WPF.ViewModels.Billing;
 using DormitoryManagement.WPF.ViewModels.Dashboard;
 using DormitoryManagement.WPF.ViewModels.Forum;
-using DormitoryManagement.WPF.ViewModels.Profile;
+using DormitoryManagement.WPF.ViewModels.Students;
 using DormitoryManagement.WPF.ViewModels.Vehicles;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -78,6 +81,45 @@ public sealed class ShellViewModelTests
     }
 
     [Fact]
+    public void Student_profile_navigation_key_routes_to_student_profile_view_model()
+    {
+        var navigation = new RecordingNavigationService();
+        var shell = new ShellViewModel(
+            new NavigationStore(),
+            navigation,
+            StudentUser(),
+            new StubSessionService(),
+            new StubRememberedLoginService(),
+            new ThrowingScopeFactory(),
+            new SessionState());
+
+        shell.NavigateCommand.Execute("StudentProfile");
+
+        Assert.Equal(typeof(StudentProfileViewModel), navigation.LastViewModelType);
+    }
+
+    [Fact]
+    public void Student_profile_route_keeps_student_chrome_and_dashboard_menu_context()
+    {
+        var navigationStore = new NavigationStore();
+        var shell = new ShellViewModel(
+            navigationStore,
+            new RecordingNavigationService(),
+            StudentUser(),
+            new StubSessionService(),
+            new StubRememberedLoginService(),
+            new ThrowingScopeFactory(),
+            new SessionState());
+
+        navigationStore.CurrentViewModel = new StudentProfileViewModel(new StubStudentService());
+
+        Assert.True(shell.IsStudentDashboardChrome);
+        Assert.True(shell.IsTopBarVisible);
+        Assert.Equal("Hồ sơ cá nhân", shell.CurrentPageTitle);
+        Assert.Contains(shell.MenuItems, item => item.Key == "StudentDashboard" && item.IsActive);
+    }
+
+    [Fact]
     public void Vehicle_registration_route_uses_shared_dashboard_top_bar_chrome()
     {
         var navigationStore = new NavigationStore();
@@ -97,7 +139,7 @@ public sealed class ShellViewModelTests
         Assert.False(shell.IsDefaultTopBarChrome);
         Assert.True(shell.IsSharedTopBarChrome);
         Assert.True(shell.IsTopBarVisible);
-        Assert.Equal("Vehicle registration", shell.CurrentPageTitle);
+        Assert.Equal("Đăng ký gửi xe", shell.CurrentPageTitle);
         Assert.Contains(shell.MenuItems, item => item.Key == "Vehicles" && item.IsActive);
     }
 
@@ -182,8 +224,8 @@ public sealed class ShellViewModelTests
         shell.NavigateCommand.Execute("Vehicles");
         shell.OpenProfileCommand.Execute(null);
 
-        Assert.Equal(typeof(ProfileViewModel), navigation.LastViewModelType);
-        Assert.Equal("Profile", shell.CurrentPageTitle);
+        Assert.Equal(typeof(StudentProfileViewModel), navigation.LastViewModelType);
+        Assert.Equal("Hồ sơ cá nhân", shell.CurrentPageTitle);
         Assert.Contains(shell.MenuItems, item => item.Key == "Vehicles" && item.IsActive);
     }
     private static ICurrentUserService StudentUser() => new StubCurrentUser(RoleNames.Student, Guid.NewGuid());
@@ -233,6 +275,16 @@ public sealed class ShellViewModelTests
         public Task CancelVehicleAsync(Guid registrationId, CancellationToken ct = default) => Task.CompletedTask;
     }
 
+    private sealed class StubStudentService : IStudentService
+    {
+        public Task<PagedResult<StudentDto>> GetStudentsAsync(int pageNumber = 1, int pageSize = 20, CancellationToken ct = default) => throw new NotSupportedException();
+        public Task<StudentDto?> GetStudentByIdAsync(Guid id, CancellationToken ct = default) => throw new NotSupportedException();
+        public Task<StudentProfileDto> GetCurrentStudentProfileAsync(CancellationToken ct = default) => Task.FromResult(new StudentProfileDto { FullName = "Nguyễn Văn A", StudentCode = "24521111" });
+        public Task<StudentDto> CreateStudentAsync(CreateStudentRequest request, CancellationToken ct = default) => throw new NotSupportedException();
+        public Task<StudentDto> UpdateStudentAsync(UpdateStudentRequest request, CancellationToken ct = default) => throw new NotSupportedException();
+        public Task DeactivateStudentAsync(Guid id, CancellationToken ct = default) => throw new NotSupportedException();
+    }
+
     private sealed class StubCurrentUser : ICurrentUserService
     {
         public StubCurrentUser(string roleName, Guid studentId)
@@ -258,6 +310,7 @@ public sealed class ShellViewModelTests
         public bool IsInRole(string roleName) => Roles.Contains(roleName, StringComparer.OrdinalIgnoreCase);
     }
 }
+
 
 
 
