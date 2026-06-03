@@ -35,11 +35,6 @@ public sealed class DormitoryDbContext : DbContext
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
-    public DbSet<ForumCategory> ForumCategories => Set<ForumCategory>();
-    public DbSet<ForumTag> ForumTags => Set<ForumTag>();
-    public DbSet<ForumPost> ForumPosts => Set<ForumPost>();
-    public DbSet<ForumPostTag> ForumPostTags => Set<ForumPostTag>();
-    public DbSet<ForumComment> ForumComments => Set<ForumComment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

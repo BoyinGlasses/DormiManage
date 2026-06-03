@@ -36,32 +36,18 @@ public sealed class PermissionService : IPermissionService
                 or PermissionNames.TicketsRead
                 or PermissionNames.TicketsCreate
                 or PermissionNames.TicketsAssign
-                or PermissionNames.TicketsUpdate
-                or PermissionNames.ForumPostsRead
-                or PermissionNames.ForumPostsCreate
-                or PermissionNames.ForumPostsUpdateOwn
-                or PermissionNames.ForumPostsDeleteOwn
-                or PermissionNames.ForumPostsModerate when _currentUser.IsInRole(RoleNames.Manager)
+                or PermissionNames.TicketsUpdate when _currentUser.IsInRole(RoleNames.Manager)
                     || _currentUser.IsInRole(RoleNames.BuildingManager) => true,
             PermissionNames.TicketsRead
                 or PermissionNames.TicketsCreate
                 or PermissionNames.TicketsAssign
-                or PermissionNames.TicketsUpdate
-                or PermissionNames.ForumPostsRead
-                or PermissionNames.ForumPostsCreate
-                or PermissionNames.ForumPostsUpdateOwn
-                or PermissionNames.ForumPostsDeleteOwn
-                or PermissionNames.ForumPostsModerate when _currentUser.IsInRole(RoleNames.Staff) => true,
+                or PermissionNames.TicketsUpdate when _currentUser.IsInRole(RoleNames.Staff) => true,
             PermissionNames.RoomsRead
                 or PermissionNames.RoomRegistrationCreate
                 or PermissionNames.BillingRead
                 or PermissionNames.PaymentsCreate
                 or PermissionNames.TicketsRead
-                or PermissionNames.TicketsCreate
-                or PermissionNames.ForumPostsRead
-                or PermissionNames.ForumPostsCreate
-                or PermissionNames.ForumPostsUpdateOwn
-                or PermissionNames.ForumPostsDeleteOwn when _currentUser.IsInRole(RoleNames.Student) => true,
+                or PermissionNames.TicketsCreate when _currentUser.IsInRole(RoleNames.Student) => true,
             _ => false
         };
 
