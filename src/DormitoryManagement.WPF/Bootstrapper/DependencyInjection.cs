@@ -61,6 +61,8 @@ public static class DependencyInjection
         services.AddScoped<IVehicleService, VehicleService>();
         services.AddScoped<ISupportTicketService, SupportTicketService>();
         services.AddScoped<IForumPostService, ForumPostService>();
+        services.AddScoped<IForumCommentService, ForumCommentService>();
+        services.AddScoped<IForumReactionService, ForumReactionService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<IFeeTypeService, FeeTypeService>();

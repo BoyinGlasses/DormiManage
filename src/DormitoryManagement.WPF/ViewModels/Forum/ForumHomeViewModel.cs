@@ -14,6 +14,7 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
     private readonly IReadOnlyList<ForumHomeEmergencyContactItem> _allEmergencyContacts;
     private readonly INavigationService? _navigationService;
     private readonly IForumPostService? _forumPostService;
+    private readonly IForumReactionService? _forumReactionService;
     private readonly ForumNavigationState? _forumNavigationState;
     private readonly RelayCommand _resetFiltersCommand;
     private readonly RelayCommand _closePreviewPanelCommand;
@@ -49,12 +50,12 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
     }
 
     public ForumHomeViewModel(INavigationService? navigationService)
-        : this(navigationService, null, null)
+        : this(navigationService, null, null, null)
     {
     }
 
     public ForumHomeViewModel(IForumPostService forumPostService, ForumNavigationState forumNavigationState)
-        : this(null, forumPostService, forumNavigationState)
+        : this(null, forumPostService, null, forumNavigationState)
     {
     }
 
@@ -62,9 +63,19 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
         INavigationService? navigationService,
         IForumPostService? forumPostService,
         ForumNavigationState? forumNavigationState)
+        : this(navigationService, forumPostService, null, forumNavigationState)
+    {
+    }
+
+    public ForumHomeViewModel(
+        INavigationService? navigationService,
+        IForumPostService? forumPostService,
+        IForumReactionService? forumReactionService,
+        ForumNavigationState? forumNavigationState)
     {
         _navigationService = navigationService;
         _forumPostService = forumPostService;
+        _forumReactionService = forumReactionService;
         _forumNavigationState = forumNavigationState;
         var state = ForumHomePreviewFactory.CreateDefault();
         HeaderUserSummary = state.HeaderUserSummary;
@@ -530,6 +541,12 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
             return;
         }
 
+        if (_forumReactionService is not null && Guid.TryParse(postCard.Id, out var postId))
+        {
+            _ = TogglePostLikeAsync(postId);
+            return;
+        }
+
         postCard.IsLiked = !postCard.IsLiked;
         StatusMessage = postCard.IsLiked ? "Post saved in preview mode." : "Preview like removed.";
     }
@@ -601,6 +618,23 @@ public sealed partial class ForumHomeViewModel : ViewModelBase
             IsUsingPreviewData = true;
             RefreshPreviewContent(statusMessage ?? "Đang hiển thị dữ liệu xem trước.");
         }
+    }
+
+    private async Task TogglePostLikeAsync(Guid postId)
+    {
+        if (_forumReactionService is null)
+        {
+            return;
+        }
+
+        var result = await _forumReactionService.TogglePostLikeAsync(postId);
+        if (!result.Succeeded)
+        {
+            StatusMessage = result.Error;
+            return;
+        }
+
+        await LoadServiceFeedAsync("Post like updated.");
     }
 
     private async Task SubmitComposeAsync()

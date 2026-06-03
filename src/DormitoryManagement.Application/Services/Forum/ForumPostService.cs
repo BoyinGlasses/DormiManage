@@ -284,18 +284,18 @@ public sealed class ForumPostService : IForumPostService
         {
             Content = post.Content
         };
-        ApplyListFields(dto, post);
+        ApplyListFields(dto, post, _currentUser.UserId);
         return dto;
     }
 
     private ForumPostListItemDto MapListItem(ForumPost post)
     {
         var dto = new ForumPostListItemDto();
-        ApplyListFields(dto, post);
+        ApplyListFields(dto, post, _currentUser.UserId);
         return dto;
     }
 
-    private static void ApplyListFields(ForumPostListItemDto dto, ForumPost post)
+    private static void ApplyListFields(ForumPostListItemDto dto, ForumPost post, Guid? currentUserId)
     {
         dto.Id = post.Id;
         dto.Title = post.Title;
@@ -305,9 +305,9 @@ public sealed class ForumPostService : IForumPostService
         dto.IsPinned = post.IsPinned;
         dto.IsImportant = post.IsImportant;
         dto.ViewCount = post.ViewCount;
-        dto.LikeCount = 0;
-        dto.CommentCount = 0;
-        dto.IsLikedByCurrentUser = false;
+        dto.LikeCount = post.Reactions.Count;
+        dto.CommentCount = post.Comments.Count(comment => comment.Status == ForumCommentStatus.Published);
+        dto.IsLikedByCurrentUser = currentUserId.HasValue && post.Reactions.Any(reaction => reaction.UserId == currentUserId.Value);
         dto.AuthorUserId = post.AuthorUserId;
         dto.AuthorName = post.AuthorUser?.FullName ?? post.AuthorUser?.Username ?? "User";
         dto.AuthorRole = post.AuthorUser?.Role?.Name ?? string.Empty;

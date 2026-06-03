@@ -22,6 +22,8 @@ public sealed class ForumPostRepository : IForumPostRepository
     public Task<ForumPost?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default) =>
         _dbContext.ForumPosts
             .Include(post => post.Tags)
+            .Include(post => post.Comments)
+            .Include(post => post.Reactions)
             .Include(post => post.AuthorUser)
             .ThenInclude(user => user!.Role)
             .FirstOrDefaultAsync(post => post.Id == id, ct);
@@ -33,6 +35,8 @@ public sealed class ForumPostRepository : IForumPostRepository
         var query = _dbContext.ForumPosts
             .AsNoTracking()
             .Include(post => post.Tags)
+            .Include(post => post.Comments)
+            .Include(post => post.Reactions)
             .Include(post => post.AuthorUser)
             .ThenInclude(user => user!.Role)
             .Where(post => post.Status == ForumPostStatus.Published);

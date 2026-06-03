@@ -11,14 +11,17 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
 {
     private readonly INavigationService? _navigationService;
     private readonly IForumPostService? _forumPostService;
+    private readonly IForumCommentService? _forumCommentService;
+    private readonly IForumReactionService? _forumReactionService;
     private readonly ForumNavigationState? _forumNavigationState;
     private ForumPostDetailArticle _article;
     private ForumPostDetailComposer _composer;
     private string? _statusMessage;
     private bool _isUsingPreviewData;
+    private Guid? _replyParentCommentId;
 
     public ForumPostDetailViewModel()
-        : this(null, null, null, null)
+        : this(null, null, null, null, null, null)
     {
     }
 
@@ -28,12 +31,31 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
     }
 
     public ForumPostDetailViewModel(INavigationService? navigationService, string? selectedPostId)
-        : this(navigationService, null, null, selectedPostId)
+        : this(navigationService, null, null, null, null, selectedPostId)
     {
     }
 
     public ForumPostDetailViewModel(IForumPostService forumPostService, ForumNavigationState forumNavigationState)
-        : this(null, forumPostService, forumNavigationState, null)
+        : this(null, forumPostService, null, null, forumNavigationState, null)
+    {
+    }
+
+    public ForumPostDetailViewModel(
+        IForumPostService forumPostService,
+        IForumCommentService forumCommentService,
+        IForumReactionService forumReactionService,
+        ForumNavigationState forumNavigationState)
+        : this(null, forumPostService, forumCommentService, forumReactionService, forumNavigationState, null)
+    {
+    }
+
+    public ForumPostDetailViewModel(
+        INavigationService navigationService,
+        IForumPostService forumPostService,
+        IForumCommentService forumCommentService,
+        IForumReactionService forumReactionService,
+        ForumNavigationState forumNavigationState)
+        : this(navigationService, forumPostService, forumCommentService, forumReactionService, forumNavigationState, null)
     {
     }
 
@@ -41,19 +63,24 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
         INavigationService? navigationService,
         IForumPostService? forumPostService,
         ForumNavigationState? forumNavigationState)
-        : this(navigationService, forumPostService, forumNavigationState, null)
+        : this(navigationService, forumPostService, null, null, forumNavigationState, null)
     {
     }
 
     private ForumPostDetailViewModel(
         INavigationService? navigationService,
         IForumPostService? forumPostService,
+        IForumCommentService? forumCommentService,
+        IForumReactionService? forumReactionService,
         ForumNavigationState? forumNavigationState,
         string? selectedPostId)
     {
         _navigationService = navigationService;
         _forumPostService = forumPostService;
+        _forumCommentService = forumCommentService;
+        _forumReactionService = forumReactionService;
         _forumNavigationState = forumNavigationState;
+
         var state = ForumPostDetailPreviewFactory.CreateForPostId(selectedPostId);
         BrandText = state.BrandText;
         SearchPlaceholder = state.SearchPlaceholder;
@@ -72,7 +99,7 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
         OpenRelatedPostCommand = new RelayCommand(OpenRelatedPost, parameter => parameter is ForumPostDetailRelatedPostItem);
         OpenCategoryCommand = new RelayCommand(OpenCategory, parameter => parameter is ForumPostDetailCategoryItem);
         OpenTrendingTagCommand = new RelayCommand(OpenTrendingTag, parameter => parameter is ForumPostDetailTrendingTagItem);
-        ToggleLikeCommand = new RelayCommand(ToggleLike, parameter => parameter is ForumPostDetailArticle);
+        ToggleLikeCommand = new RelayCommand(ToggleLike, parameter => parameter is ForumPostDetailArticle or ForumPostDetailCommentItem);
         ReplyCommand = new RelayCommand(Reply, parameter => parameter is ForumPostDetailCommentItem);
         ReportCommand = new RelayCommand(Report, parameter => parameter is ForumPostDetailCommentItem);
         SubmitCommentDraftCommand = new RelayCommand(SubmitCommentDraft);
@@ -89,11 +116,13 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
     public ObservableCollection<ForumPostDetailCategoryItem> Categories { get; }
     public ObservableCollection<ForumPostDetailRelatedPostItem> RelatedPosts { get; }
     public ObservableCollection<ForumPostDetailTrendingTagItem> TrendingTags { get; }
+
     public bool IsUsingPreviewData
     {
         get => _isUsingPreviewData;
         private set => SetProperty(ref _isUsingPreviewData, value);
     }
+
     public ICommand BackToForumCommand { get; }
     public ICommand OpenRelatedPostCommand { get; }
     public ICommand OpenCategoryCommand { get; }
@@ -115,12 +144,8 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
 
     private void BackToForum()
     {
-        if (_navigationService is not null)
-        {
-            _navigationService.NavigateTo<ForumHomeViewModel>();
-        }
-
-        StatusMessage = "Đã quay lại luồng diễn đàn xem trước.";
+        _navigationService?.NavigateTo<ForumHomeViewModel>();
+        StatusMessage = "Returned to forum.";
     }
 
     private void OpenRelatedPost(object? parameter)
@@ -138,38 +163,44 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
         }
 
         ApplyState(ForumPostDetailPreviewFactory.CreateForPostId(relatedPost.Id));
-        StatusMessage = $"Đang xem bài liên quan: {relatedPost.Title}.";
+        StatusMessage = $"Viewing related post: {relatedPost.Title}.";
     }
 
     private void OpenCategory(object? parameter)
     {
-        if (parameter is not ForumPostDetailCategoryItem category)
+        if (parameter is ForumPostDetailCategoryItem category)
         {
-            return;
+            StatusMessage = $"Preview category: {category.Text}.";
         }
-
-        StatusMessage = $"Điều hướng xem trước tới danh mục: {category.Text}.";
     }
 
     private void OpenTrendingTag(object? parameter)
     {
-        if (parameter is not ForumPostDetailTrendingTagItem tag)
+        if (parameter is ForumPostDetailTrendingTagItem tag)
         {
-            return;
+            StatusMessage = $"Preview tag: {tag.Text}.";
         }
-
-        StatusMessage = $"Điều hướng xem trước tới tag: {tag.Text}.";
     }
 
     private void ToggleLike(object? parameter)
     {
-        if (parameter is not ForumPostDetailArticle article)
+        if (parameter is ForumPostDetailArticle article)
         {
+            if (_forumReactionService is not null && _forumNavigationState?.SelectedPostId is { } postId)
+            {
+                _ = TogglePostLikeAsync(postId);
+                return;
+            }
+
+            article.IsLiked = !article.IsLiked;
+            StatusMessage = article.IsLiked ? "Preview like saved." : "Preview like removed.";
             return;
         }
 
-        article.IsLiked = !article.IsLiked;
-        StatusMessage = article.IsLiked ? "Đã lưu lượt thích trong bản xem trước." : "Đã bỏ lượt thích trong bản xem trước.";
+        if (parameter is ForumPostDetailCommentItem comment && _forumReactionService is not null && Guid.TryParse(comment.Id, out var commentId))
+        {
+            _ = ToggleCommentLikeAsync(commentId);
+        }
     }
 
     private void Reply(object? parameter)
@@ -179,17 +210,21 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
             return;
         }
 
-        StatusMessage = $"Đang mở trả lời cục bộ cho: {comment.Author}.";
+        _replyParentCommentId = Guid.TryParse(comment.Id, out var commentId) ? commentId : null;
+        if (string.IsNullOrWhiteSpace(Composer.DraftText))
+        {
+            Composer.DraftText = $"@{comment.Author} ";
+        }
+
+        StatusMessage = $"Replying to {comment.Author}.";
     }
 
     private void Report(object? parameter)
     {
-        if (parameter is not ForumPostDetailCommentItem comment)
+        if (parameter is ForumPostDetailCommentItem comment)
         {
-            return;
+            StatusMessage = $"Preview report recorded for {comment.Author}.";
         }
-
-        StatusMessage = $"Đã ghi nhận báo cáo xem trước cho bình luận của {comment.Author}.";
     }
 
     private void OpenCreatePost()
@@ -200,13 +235,19 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
             _navigationService.NavigateTo<ForumHomeViewModel>();
         }
 
-        StatusMessage = "Đang chuyển sang luồng tạo bài viết xem trước.";
+        StatusMessage = "Opening create post flow.";
     }
 
     private void SubmitCommentDraft()
     {
+        if (_forumCommentService is not null && _forumNavigationState?.SelectedPostId is { } postId)
+        {
+            _ = SubmitCommentDraftAsync(postId);
+            return;
+        }
+
         Composer.DraftText = string.Empty;
-        StatusMessage = "Bình luận đã được lưu ở chế độ xem trước.";
+        StatusMessage = "Preview comment saved.";
     }
 
     private async Task LoadSelectedPostAsync()
@@ -226,6 +267,7 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
             }
 
             ApplyPost(result.Value);
+            await LoadCommentsAsync(postId);
             IsUsingPreviewData = false;
             StatusMessage = null;
         }
@@ -248,12 +290,82 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
         ReplaceCollection(RelatedPosts, Array.Empty<ForumPostDetailRelatedPostItem>());
         ReplaceCollection(TrendingTags, post.Tags.Select(tag => new ForumPostDetailTrendingTagItem("#" + tag)).ToArray());
         _article = MapArticle(post);
-        _composer = new ForumPostDetailComposer(
-            HeaderUserSummary.AvatarLabel,
-            "Add to the discussion...",
-            "Post");
+        _composer = new ForumPostDetailComposer(HeaderUserSummary.AvatarLabel, "Add to the discussion...", "Post");
         OnPropertyChanged(nameof(Article));
         OnPropertyChanged(nameof(Composer));
+    }
+
+    private async Task LoadCommentsAsync(Guid postId)
+    {
+        if (_forumCommentService is null)
+        {
+            return;
+        }
+
+        var comments = await _forumCommentService.GetPostCommentsAsync(postId);
+        ReplaceCollection(Comments, FlattenComments(comments));
+    }
+
+    private async Task SubmitCommentDraftAsync(Guid postId)
+    {
+        if (_forumCommentService is null)
+        {
+            return;
+        }
+
+        var result = await _forumCommentService.CreateAsync(new CreateForumCommentRequest
+        {
+            ForumPostId = postId,
+            ParentCommentId = _replyParentCommentId,
+            Content = Composer.DraftText
+        });
+
+        if (!result.Succeeded)
+        {
+            StatusMessage = result.Error;
+            return;
+        }
+
+        Composer.DraftText = string.Empty;
+        _replyParentCommentId = null;
+        await LoadSelectedPostAsync();
+        StatusMessage = "Comment saved.";
+    }
+
+    private async Task TogglePostLikeAsync(Guid postId)
+    {
+        if (_forumReactionService is null)
+        {
+            return;
+        }
+
+        var result = await _forumReactionService.TogglePostLikeAsync(postId);
+        if (!result.Succeeded)
+        {
+            StatusMessage = result.Error;
+            return;
+        }
+
+        await LoadSelectedPostAsync();
+        StatusMessage = "Post like updated.";
+    }
+
+    private async Task ToggleCommentLikeAsync(Guid commentId)
+    {
+        if (_forumReactionService is null || _forumNavigationState?.SelectedPostId is not { } postId)
+        {
+            return;
+        }
+
+        var result = await _forumReactionService.ToggleCommentLikeAsync(commentId);
+        if (!result.Succeeded)
+        {
+            StatusMessage = result.Error;
+            return;
+        }
+
+        await LoadCommentsAsync(postId);
+        StatusMessage = "Comment like updated.";
     }
 
     private static IReadOnlyList<ForumPostDetailCategoryItem> CreateCategoryItems(string selectedCategory)
@@ -286,6 +398,38 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
             signatureText: string.IsNullOrWhiteSpace(post.AuthorName) ? string.Empty : post.AuthorName,
             isLiked: post.IsLikedByCurrentUser);
 
+    private static IReadOnlyList<ForumPostDetailCommentItem> FlattenComments(IReadOnlyList<ForumCommentDto> comments)
+    {
+        var items = new List<ForumPostDetailCommentItem>();
+        foreach (var comment in comments)
+        {
+            AddComment(items, comment, isReply: false);
+        }
+
+        return items;
+    }
+
+    private static void AddComment(ICollection<ForumPostDetailCommentItem> target, ForumCommentDto comment, bool isReply)
+    {
+        target.Add(new ForumPostDetailCommentItem(
+            id: comment.Id.ToString(),
+            author: comment.AuthorName,
+            avatarLabel: CreateAvatarLabel(comment.AuthorName),
+            relativeTimeText: FormatRelativeTime(comment.CreatedAt),
+            message: comment.Content,
+            likeCountText: comment.LikeCount.ToString(),
+            replyLabel: "Reply",
+            reportLabel: "Report",
+            isVerified: string.Equals(comment.AuthorRole, "Admin", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(comment.AuthorRole, "Manager", StringComparison.OrdinalIgnoreCase),
+            isReply: isReply));
+
+        foreach (var reply in comment.Replies)
+        {
+            AddComment(target, reply, isReply: true);
+        }
+    }
+
     private static IReadOnlyList<string> SplitParagraphs(string content) =>
         content
             .Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries)
@@ -310,6 +454,17 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
         return (int)elapsed.TotalDays + " days ago";
     }
 
+    private static string CreateAvatarLabel(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+        {
+            return "U";
+        }
+
+        return string.Concat(parts.Take(2).Select(part => char.ToUpperInvariant(part[0])));
+    }
+
     private void ApplyState(ForumPostDetailPreviewState state)
     {
         ReplaceCollection(BreadcrumbItems, state.BreadcrumbItems);
@@ -332,4 +487,3 @@ public sealed class ForumPostDetailViewModel : ViewModelBase
         }
     }
 }
-

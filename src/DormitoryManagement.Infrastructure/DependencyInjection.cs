@@ -33,6 +33,8 @@ public static class DependencyInjection
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<ISupportTicketRepository, SupportTicketRepository>();
         services.AddScoped<IForumPostRepository, ForumPostRepository>();
+        services.AddScoped<IForumCommentRepository, ForumCommentRepository>();
+        services.AddScoped<IForumReactionRepository, ForumReactionRepository>();
         services.AddSingleton<IPasswordHasher, PasswordHasherService>();
         services.AddSingleton<SessionService>();
         services.AddSingleton<ISessionService>(sp => sp.GetRequiredService<SessionService>());
