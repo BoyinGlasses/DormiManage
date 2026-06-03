@@ -76,6 +76,7 @@ public static class DependencyInjection
         services.AddTransient<StudentDashboardViewModel>();
         services.AddTransient<StudentListViewModel>();
         services.AddTransient<StudentDetailViewModel>();
+        services.AddTransient<StudentProfileViewModel>();
         services.AddTransient<RoomListViewModel>();
         services.AddTransient<RoomDetailViewModel>();
         services.AddTransient<RoomRegistrationViewModel>();
@@ -99,4 +100,6 @@ public static class DependencyInjection
         return services;
     }
 }
+
+
 

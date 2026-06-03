@@ -17,6 +17,7 @@ using DormitoryManagement.WPF.ViewModels.Dashboard;
 using DormitoryManagement.WPF.ViewModels.Forum;
 using DormitoryManagement.WPF.ViewModels.Registrations;
 using DormitoryManagement.WPF.ViewModels.SupportTickets;
+using DormitoryManagement.WPF.ViewModels.Students;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DormitoryManagement.WPF.Tests;
@@ -372,3 +373,7 @@ public sealed class StudentDashboardViewModelTests
         public bool IsInRole(string roleName) => Roles.Contains(roleName, StringComparer.OrdinalIgnoreCase);
     }
 }
+
+
+
+

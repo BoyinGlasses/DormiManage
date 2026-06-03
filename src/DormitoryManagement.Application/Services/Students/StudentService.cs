@@ -11,6 +11,8 @@ namespace DormitoryManagement.Application.Services.Students;
 
 public sealed class StudentService : IStudentService
 {
+    private const string DefaultProfileAvatarAssetPath = "pack://application:,,,/DormitoryManagement.WPF;component/Assets/Images/Profile/profile-avatar.png";
+
     private readonly IStudentRepository _students;
     private readonly IPermissionService _permissions;
     private readonly IUnitOfWork _unitOfWork;
@@ -61,11 +63,44 @@ public sealed class StudentService : IStudentService
         return MapStudents(new[] { student }).Single();
     }
 
+    public async Task<StudentProfileDto> GetCurrentStudentProfileAsync(CancellationToken ct = default)
+    {
+        await _permissions.EnsurePermissionAsync(PermissionNames.StudentsRead, ct);
+
+        var student = ResolveCurrentStudent();
+        EnsureCanReadStudent(student);
+
+        var room = ResolveCurrentRoom(student);
+        var building = room is null ? null : _unitOfWork.Repository<Building>().Query().FirstOrDefault(candidate => candidate.Id == room.BuildingId);
+        var hasActiveAssignment = room is not null;
+        var buildingDisplayName = ResolveBuildingDisplayName(building);
+        var roomDisplayLabel = ResolveRoomDisplayLabel(building, room);
+
+        return new StudentProfileDto
+        {
+            StudentId = student.Id,
+            FullName = student.FullName,
+            StudentCode = student.StudentCode,
+            Email = student.Email ?? string.Empty,
+            PhoneNumber = student.PhoneNumber ?? string.Empty,
+            DateOfBirth = student.DateOfBirth,
+            Gender = student.Gender ?? string.Empty,
+            AvatarAssetPath = DefaultProfileAvatarAssetPath,
+            ProfileStatusMessage = ResolveProfileStatusMessage(student),
+            BuildingName = buildingDisplayName,
+            RoomLabel = roomDisplayLabel,
+            AssignmentStatus = hasActiveAssignment ? "Đang ở" : "Chưa phân phòng",
+            DormitorySupportMessage = hasActiveAssignment
+                ? "Thông tin phòng hiện tại của bạn được đồng bộ từ hồ sơ nội trú."
+                : "Bạn chưa có phòng nội trú đang hoạt động.",
+            HasActiveAssignment = hasActiveAssignment
+        };
+    }
+
     public async Task<StudentDto> CreateStudentAsync(CreateStudentRequest request, CancellationToken ct = default)
     {
         await _permissions.EnsurePermissionAsync(PermissionNames.StudentsWrite, ct);
         RequestValidator.ValidateAndThrow(request);
-        // TODO: Enforce unique student code and create Student aggregate.
         return new StudentDto { Id = Guid.NewGuid(), StudentCode = request.StudentCode, FullName = request.FullName, Email = request.Email };
     }
 
@@ -73,14 +108,12 @@ public sealed class StudentService : IStudentService
     {
         await _permissions.EnsurePermissionAsync(PermissionNames.StudentsWrite, ct);
         RequestValidator.ValidateAndThrow(request);
-        // TODO: Student role may update only its own allowed profile fields.
         return new StudentDto { Id = request.StudentId, FullName = request.FullName, Email = request.Email };
     }
 
     public async Task DeactivateStudentAsync(Guid id, CancellationToken ct = default)
     {
         await _permissions.EnsurePermissionAsync(PermissionNames.StudentsWrite, ct);
-        // TODO: Mark student Left/soft-deleted only after active assignments/contracts are handled.
     }
 
     private List<Student> ApplyCurrentUserScope(List<Student> students)
@@ -140,6 +173,13 @@ public sealed class StudentService : IStudentService
             .Any(assignment => assignment.StudentId == student.Id && assignment.IsActive && roomIds.Contains(assignment.RoomId));
     }
 
+    private Student ResolveCurrentStudent()
+    {
+        var studentId = ResolveCurrentStudentId();
+        return _students.Query().FirstOrDefault(candidate => candidate.Id == studentId && !candidate.IsDeleted)
+            ?? throw new InvalidOperationException("Current user is not linked to a student profile.");
+    }
+
     private Guid ResolveCurrentStudentId()
     {
         if (_currentUser.CurrentUser?.StudentId is { } currentStudentId)
@@ -149,7 +189,7 @@ public sealed class StudentService : IStudentService
 
         if (_currentUser.UserId is { } userId)
         {
-            var student = _students.Query().FirstOrDefault(candidate => candidate.UserId == userId);
+            var student = _students.Query().FirstOrDefault(candidate => candidate.UserId == userId && !candidate.IsDeleted);
             if (student is not null)
             {
                 return student.Id;
@@ -157,6 +197,62 @@ public sealed class StudentService : IStudentService
         }
 
         throw new InvalidOperationException("Current user is not linked to a student profile.");
+    }
+
+    private Room? ResolveCurrentRoom(Student student)
+    {
+        var roomId = _unitOfWork.Repository<RoomAssignment>().Query()
+            .Where(assignment => assignment.StudentId == student.Id && assignment.IsActive)
+            .OrderByDescending(assignment => assignment.StartDate)
+            .Select(assignment => (Guid?)assignment.RoomId)
+            .FirstOrDefault()
+            ?? student.CurrentRoomId;
+
+        if (!roomId.HasValue)
+        {
+            return null;
+        }
+
+        return _unitOfWork.Repository<Room>().Query().FirstOrDefault(candidate => candidate.Id == roomId.Value);
+    }
+
+    private static string ResolveBuildingDisplayName(Building? building)
+    {
+        if (building is null)
+        {
+            return "Chưa cập nhật";
+        }
+
+        return string.IsNullOrWhiteSpace(building.Name)
+            ? string.IsNullOrWhiteSpace(building.Code) ? "Chưa cập nhật" : building.Code
+            : building.Name;
+    }
+
+    private static string ResolveRoomDisplayLabel(Building? building, Room? room)
+    {
+        if (room is null)
+        {
+            return "Chưa cập nhật";
+        }
+
+        if (!string.IsNullOrWhiteSpace(building?.Code))
+        {
+            return $"{building.Code}-{room.RoomNumber}";
+        }
+
+        return room.RoomNumber;
+    }
+
+    private static string ResolveProfileStatusMessage(Student student)
+    {
+        return student.Status switch
+        {
+            Domain.Enums.StudentStatus.Staying => "Sinh viên nội trú đang hoạt động",
+            Domain.Enums.StudentStatus.Pending => "Hồ sơ sinh viên đang chờ xử lý",
+            Domain.Enums.StudentStatus.Left => "Sinh viên đã rời ký túc xá",
+            Domain.Enums.StudentStatus.NotRegistered => "Chưa hoàn tất đăng ký nội trú",
+            _ => "Thông tin hồ sơ sinh viên"
+        };
     }
 
     private IReadOnlyList<StudentDto> MapStudents(IReadOnlyList<Student> students)

@@ -109,7 +109,7 @@ public sealed class ShellViewModel : ViewModelBase
     public string UnreadNotificationText => UnreadNotificationCount > 99 ? "99+" : UnreadNotificationCount.ToString();
     public bool HasNotifications => Notifications.Count > 0;
     public bool IsForumHomeChrome => CurrentViewModel is ForumHomeViewModel or ForumPostDetailViewModel;
-    public bool IsStudentDashboardChrome => CurrentViewModel is StudentDashboardViewModel;
+    public bool IsStudentDashboardChrome => CurrentViewModel is StudentDashboardViewModel or StudentProfileViewModel;
     public bool IsVehicleRegistrationChrome => CurrentViewModel is VehicleRegistrationViewModel;
     public bool IsDefaultTopBarChrome => IsTopBarVisible && !IsStudentDashboardChrome && !IsVehicleRegistrationChrome;
     public bool IsTopBarVisible => !IsForumHomeChrome;
@@ -128,6 +128,7 @@ public sealed class ShellViewModel : ViewModelBase
     private bool CanNavigate(string? key) =>
         key == "Login"
         || key == "Payments" && IsAuthenticated
+        || key == "StudentProfile" && IsAuthenticated
         || (key is not null && MenuItems.Any(item => item.Key == key));
 
     private void NavigateByKey(string? key)
@@ -137,13 +138,14 @@ public sealed class ShellViewModel : ViewModelBase
             return;
         }
 
+        var menuKey = ResolveMenuActivationKey(key);
         if (IsCurrentMenuTarget(key))
         {
-            ActivateMenu(key);
+            ActivateMenu(menuKey);
             return;
         }
 
-        ActivateMenu(key);
+        ActivateMenu(menuKey);
         switch (key)
         {
             case "Login":
@@ -154,6 +156,9 @@ public sealed class ShellViewModel : ViewModelBase
                 break;
             case "StudentDashboard":
                 Navigate<StudentDashboardViewModel>("Dashboard");
+                break;
+            case "StudentProfile":
+                Navigate<StudentProfileViewModel>("Hồ sơ cá nhân");
                 break;
             case "Students":
                 Navigate<StudentListViewModel>("Students");
@@ -206,6 +211,7 @@ public sealed class ShellViewModel : ViewModelBase
             "Login" => CurrentViewModel is LoginViewModel,
             "AdminDashboard" => CurrentViewModel is AdminDashboardViewModel,
             "StudentDashboard" => CurrentViewModel is StudentDashboardViewModel,
+            "StudentProfile" => CurrentViewModel is StudentProfileViewModel,
             "Students" => CurrentViewModel is StudentListViewModel,
             "Rooms" => CurrentViewModel is RoomListViewModel,
             "RoomRegistration" => CurrentViewModel is RoomRegistrationViewModel,
@@ -222,6 +228,8 @@ public sealed class ShellViewModel : ViewModelBase
             "FeeTypes" => CurrentViewModel is FeeTypeViewModel,
             _ => false
         };
+
+    private static string ResolveMenuActivationKey(string key) => key == "StudentProfile" ? "StudentDashboard" : key;
 
     private async Task LogoutAsync()
     {
@@ -329,6 +337,7 @@ public sealed class ShellViewModel : ViewModelBase
             {
                 LoginViewModel => "Đăng nhập",
                 StudentDashboardViewModel => "Dashboard",
+                StudentProfileViewModel => "Hồ sơ cá nhân",
                 AdminDashboardViewModel => "Dashboard",
                 StudentListViewModel => "Students",
                 RoomListViewModel => "Rooms",
@@ -351,6 +360,7 @@ public sealed class ShellViewModel : ViewModelBase
             {
                 LoginViewModel => "Login",
                 StudentDashboardViewModel => "StudentDashboard",
+                StudentProfileViewModel => "StudentDashboard",
                 AdminDashboardViewModel => "AdminDashboard",
                 StudentListViewModel => "Students",
                 RoomListViewModel => "Rooms",
@@ -465,7 +475,3 @@ public sealed class ShellNotificationItem
     public bool IsRead { get; }
     public DateTime CreatedAt { get; }
 }
-
-
-
-

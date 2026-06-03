@@ -1906,6 +1906,23 @@ public sealed class WpfResourceTests
         return XDocument.Load(viewPath);
     }
 
+    [Fact]
+    public void Student_dashboard_top_bar_avatar_navigates_to_profile_route()
+    {
+        var document = LoadTopBarDocument();
+
+        var avatarButton = document.Root!
+            .Descendants(WpfNamespace + "Button")
+            .FirstOrDefault(button =>
+                string.Equals(button.Attribute("CommandParameter")?.Value, "StudentProfile", StringComparison.Ordinal)
+                && string.Equals(button.Attribute("Command")?.Value, "{Binding NavigateCommand}", StringComparison.Ordinal)
+                && button.Descendants(WpfNamespace + "ImageBrush")
+                    .Any(image => (image.Attribute("ImageSource")?.Value ?? string.Empty)
+                        .Contains("forum-home-avatar-student.png", StringComparison.Ordinal)));
+
+        Assert.NotNull(avatarButton);
+    }
+
 
     [Fact]
     public void Compiled_resources_include_login_view_and_tokens()
@@ -2225,6 +2242,15 @@ public sealed class WpfResourceTests
         Assert.True(File.Exists(resourcePath), $"Expected student-dashboard resource dictionary '{resourcePath}' to exist.");
         return XDocument.Load(resourcePath);
     }
+
+    private static XDocument LoadTopBarDocument()
+    {
+        var repoRoot = FindRepositoryRoot();
+        var viewPath = Path.Combine(repoRoot, "src", "DormitoryManagement.WPF", "Views", "Shared", "TopBar.xaml");
+
+        Assert.True(File.Exists(viewPath), $"Expected top-bar view '{viewPath}' to exist.");
+        return XDocument.Load(viewPath);
+    }
     [Fact]
     public void Register_view_reflows_without_horizontal_overflow_at_narrower_desktop_width()
     {
@@ -2367,6 +2393,23 @@ public sealed class WpfResourceTests
         }
     }
 
+    private static XDocument LoadProfilePageResourceDocument()
+    {
+        var repoRoot = FindRepositoryRoot();
+        var resourcePath = Path.Combine(repoRoot, "src", "DormitoryManagement.WPF", "Resources", "ProfilePage.xaml");
+
+        Assert.True(File.Exists(resourcePath), $"Expected profile-page resource '{resourcePath}' to exist.");
+        return XDocument.Load(resourcePath);
+    }
+
+    private static XDocument LoadStudentProfileViewDocument()
+    {
+        var repoRoot = FindRepositoryRoot();
+        var viewPath = Path.Combine(repoRoot, "src", "DormitoryManagement.WPF", "Views", "Students", "StudentProfileView.xaml");
+
+        Assert.True(File.Exists(viewPath), $"Expected student-profile view '{viewPath}' to exist.");
+        return XDocument.Load(viewPath);
+    }
     private static XDocument LoadForumHomeResourceDocument()
     {
         var repoRoot = FindRepositoryRoot();
@@ -2818,6 +2861,7 @@ public sealed class WpfResourceTests
     private static readonly XNamespace WpfNamespace = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
     private static readonly XNamespace XamlNamespace = "http://schemas.microsoft.com/winfx/2006/xaml";
 }
+
 
 
 

@@ -33,12 +33,14 @@
     <None Remove="Assets\Images\ForumHome\*.png" />
     <None Remove="Assets\Images\ForumPostDetail\*.png" />
     <None Remove="Assets\Images\KTXB.png" />
+    <None Remove="Assets\Images\Profile\*.png" />
     <None Remove="Assets\Images\Register\*.png" />
     <Resource Include="Assets\Fonts\Inter\*.ttf" />
     <Resource Include="Assets\Fonts\PlusJakartaSans\*.ttf" />
     <Resource Include="Assets\Images\ForumHome\*.png" />
     <Resource Include="Assets\Images\ForumPostDetail\*.png" />
     <Resource Include="Assets\Images\KTXB.png" />
+    <Resource Include="Assets\Images\Profile\*.png" />
     <Resource Include="Assets\Images\Register\*.png" />
   </ItemGroup>
 

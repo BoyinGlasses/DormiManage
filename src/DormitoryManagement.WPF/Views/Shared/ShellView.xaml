@@ -32,7 +32,7 @@
         <DataTemplate DataType="{x:Type vmDash:AdminDashboardViewModel}"><dash:AdminDashboardView /></DataTemplate>
         <DataTemplate DataType="{x:Type vmDash:StudentDashboardViewModel}"><dash:StudentDashboardView /></DataTemplate>
         <DataTemplate DataType="{x:Type vmStudents:StudentListViewModel}"><students:StudentListView /></DataTemplate>
-        <DataTemplate DataType="{x:Type vmStudents:StudentDetailViewModel}"><students:StudentDetailView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vmStudents:StudentDetailViewModel}"><students:StudentDetailView /></DataTemplate>        <DataTemplate DataType="{x:Type vmStudents:StudentProfileViewModel}"><students:StudentProfileView /></DataTemplate>
         <DataTemplate DataType="{x:Type vmRooms:RoomListViewModel}"><rooms:RoomListView /></DataTemplate>
         <DataTemplate DataType="{x:Type vmRooms:RoomDetailViewModel}"><rooms:RoomDetailView /></DataTemplate>
         <DataTemplate DataType="{x:Type vmRegistrations:RoomRegistrationViewModel}"><registrations:RoomRegistrationView /></DataTemplate>
@@ -212,6 +212,8 @@
         </Grid>
     </Grid>
 </UserControl>
+
+
 
 
 

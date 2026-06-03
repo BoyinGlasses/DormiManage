@@ -8,6 +8,7 @@ using DormitoryManagement.WPF.Navigation;
 using DormitoryManagement.WPF.ViewModels.Billing;
 using DormitoryManagement.WPF.ViewModels.Forum;
 using DormitoryManagement.WPF.ViewModels.Registrations;
+using DormitoryManagement.WPF.ViewModels.Students;
 using DormitoryManagement.WPF.ViewModels.SupportTickets;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -45,6 +46,7 @@ public sealed class StudentDashboardViewModel : ViewModelBase
         _closeRoomRegistrationPopupCommand = new RelayCommand(CloseRoomRegistrationPopup, () => IsRoomRegistrationPopupOpen);
         CloseRoomRegistrationPopupCommand = _closeRoomRegistrationPopupCommand;
         RegisterRoomCommand = new RelayCommand(() => _navigationService.NavigateTo<RoomRegistrationViewModel>());
+        OpenProfileCommand = new RelayCommand(() => _navigationService.NavigateTo<StudentProfileViewModel>());
         PayInvoiceCommand = new RelayCommand(() => _navigationService.NavigateTo<PaymentViewModel>());
         CreateTicketCommand = new RelayCommand(() => _navigationService.NavigateTo<SupportTicketListViewModel>());
         OpenForumCommand = new RelayCommand(() => _navigationService.NavigateTo<ForumHomeViewModel>());
@@ -54,6 +56,7 @@ public sealed class StudentDashboardViewModel : ViewModelBase
     public ICommand OpenRoomRegistrationPopupCommand { get; }
     public ICommand CloseRoomRegistrationPopupCommand { get; }
     public ICommand RegisterRoomCommand { get; }
+    public ICommand OpenProfileCommand { get; }
     public ICommand PayInvoiceCommand { get; }
     public ICommand CreateTicketCommand { get; }
     public ICommand OpenForumCommand { get; }
