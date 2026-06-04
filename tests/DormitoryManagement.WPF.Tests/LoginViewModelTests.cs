@@ -6,6 +6,7 @@ using DormitoryManagement.Domain.Constants;
 using DormitoryManagement.WPF.Common;
 using DormitoryManagement.WPF.Navigation;
 using DormitoryManagement.WPF.ViewModels.Auth;
+using DormitoryManagement.WPF.ViewModels.Dashboard;
 
 namespace DormitoryManagement.WPF.Tests;
 
@@ -85,6 +86,29 @@ public sealed class LoginViewModelTests
         Assert.Equal("Mã sinh viên hoặc email không tồn tại.", viewModel.AccountError);
         Assert.Equal(string.Empty, viewModel.Password);
     }
+
+    [Fact]
+    public void Successful_student_login_navigates_to_student_dashboard_and_persists_remembered_credentials()
+    {
+        var auth = new StubAuthService();
+        var navigation = new RecordingNavigationService();
+        var remembered = new StubRememberedLoginService();
+        var viewModel = CreateViewModel(auth: auth, navigation: navigation, remembered: remembered);
+        viewModel.EmailOrStudentCode = "student01";
+        viewModel.Password = "123456";
+        viewModel.RememberMe = true;
+
+        viewModel.LoginCommand.Execute(null);
+
+        WaitUntil(() => !viewModel.IsLoading);
+        Assert.True(auth.LoginCalled);
+        Assert.Equal(typeof(StudentDashboardViewModel), navigation.LastViewModelType);
+        Assert.Equal("student01@ktx.local", remembered.State.EmailOrStudentCode);
+        Assert.Equal("123456", remembered.State.Password);
+        Assert.True(remembered.State.HasPassword);
+    }
+
+
     private static LoginViewModel CreateViewModel(
         StubAuthService? auth = null,
         RecordingNavigationService? navigation = null,
@@ -167,3 +191,7 @@ public sealed class LoginViewModelTests
         }
     }
 }
+
+
+
+

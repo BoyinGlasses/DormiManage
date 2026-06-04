@@ -12,6 +12,7 @@ public partial class LoginView : UserControl
     private const double CompactLayoutThreshold = 980;
     private LoginViewModel? _viewModel;
     private bool _isPasswordVisible;
+    private bool _isSynchronizingPasswordInputs;
 
     public LoginView()
     {
@@ -25,7 +26,6 @@ public partial class LoginView : UserControl
         LoadHeroImage();
         ApplyViewModelToInputs();
         SyncPasswordVisualState();
-        UpdateStudentIdPlaceholder();
     }
 
     private void UserControl_OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -33,13 +33,31 @@ public partial class LoginView : UserControl
         UpdateResponsiveLayout();
     }
 
-    private void StudentIdInput_OnTextChanged(object sender, TextChangedEventArgs e)
-    {
-        UpdateStudentIdPlaceholder();
-    }
-
     private void VisiblePasswordInput_OnTextChanged(object sender, TextChangedEventArgs e)
     {
+        if (_isSynchronizingPasswordInputs || sender is not TextBox visiblePasswordInput)
+        {
+            return;
+        }
+
+        try
+        {
+            _isSynchronizingPasswordInputs = true;
+            if (DataContext is LoginViewModel viewModel)
+            {
+                viewModel.Password = visiblePasswordInput.Text;
+            }
+
+            if (!string.Equals(PasswordInput.Password, visiblePasswordInput.Text, StringComparison.Ordinal))
+            {
+                PasswordInput.Password = visiblePasswordInput.Text;
+            }
+        }
+        finally
+        {
+            _isSynchronizingPasswordInputs = false;
+        }
+
         SyncPasswordVisualState();
     }
 
@@ -47,6 +65,17 @@ public partial class LoginView : UserControl
     {
         _isPasswordVisible = !_isPasswordVisible;
         SyncPasswordVisualState();
+
+        if (_isPasswordVisible)
+        {
+            VisiblePasswordInput.Focus();
+            VisiblePasswordInput.CaretIndex = VisiblePasswordInput.Text.Length;
+        }
+        else
+        {
+            PasswordInput.Focus();
+        }
+
         e.Handled = true;
     }
 
@@ -58,15 +87,27 @@ public partial class LoginView : UserControl
 
     private void PasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)
     {
-        if (DataContext is LoginViewModel viewModel && sender is PasswordBox passwordBox)
+        if (_isSynchronizingPasswordInputs || sender is not PasswordBox passwordBox)
         {
-            viewModel.Password = passwordBox.Password;
+            return;
+        }
 
-            var visiblePasswordInput = FindElement<TextBox>("VisiblePasswordInput");
-            if (visiblePasswordInput is not null && !string.Equals(visiblePasswordInput.Text, passwordBox.Password, StringComparison.Ordinal))
+        try
+        {
+            _isSynchronizingPasswordInputs = true;
+            if (DataContext is LoginViewModel viewModel)
             {
-                visiblePasswordInput.Text = passwordBox.Password;
+                viewModel.Password = passwordBox.Password;
             }
+
+            if (!string.Equals(VisiblePasswordInput.Text, passwordBox.Password, StringComparison.Ordinal))
+            {
+                VisiblePasswordInput.Text = passwordBox.Password;
+            }
+        }
+        finally
+        {
+            _isSynchronizingPasswordInputs = false;
         }
 
         SyncPasswordVisualState();
@@ -92,31 +133,26 @@ public partial class LoginView : UserControl
 
         ApplyViewModelToInputs();
         SyncPasswordVisualState();
-        UpdateStudentIdPlaceholder();
     }
 
     private void ApplyViewModelToInputs()
     {
-        var visiblePasswordInput = FindElement<TextBox>("VisiblePasswordInput");
         if (_viewModel is not null)
         {
             PasswordInput.Password = _viewModel.Password;
-            if (visiblePasswordInput is not null)
-            {
-                visiblePasswordInput.Text = _viewModel.Password;
-            }
+            VisiblePasswordInput.Text = _viewModel.Password;
         }
         else
         {
             PasswordInput.Clear();
-            visiblePasswordInput?.Clear();
+            VisiblePasswordInput.Clear();
         }
     }
 
     private void ViewModel_OnClearPasswordRequested(object? sender, EventArgs e)
     {
         PasswordInput.Clear();
-        FindElement<TextBox>("VisiblePasswordInput")?.Clear();
+        VisiblePasswordInput.Clear();
         SyncPasswordVisualState();
     }
 
@@ -166,42 +202,11 @@ public partial class LoginView : UserControl
         return null;
     }
 
-    private void UpdateStudentIdPlaceholder()
-    {
-        var studentIdInput = FindElement<TextBox>("StudentIdInput");
-        var studentIdPlaceholder = FindElement<TextBlock>("StudentIdPlaceholder");
-        if (studentIdInput is null || studentIdPlaceholder is null)
-        {
-            return;
-        }
-
-        studentIdPlaceholder.Visibility = string.IsNullOrWhiteSpace(studentIdInput.Text)
-            ? Visibility.Visible
-            : Visibility.Collapsed;
-    }
-
     private void SyncPasswordVisualState()
     {
-        var visiblePasswordInput = FindElement<TextBox>("VisiblePasswordInput");
-        var passwordPlaceholder = FindElement<TextBlock>("PasswordPlaceholder");
-        var passwordVisibilityToggleButton = FindElement<Button>("PasswordVisibilityToggleButton");
-        if (visiblePasswordInput is null || passwordPlaceholder is null || passwordVisibilityToggleButton is null)
-        {
-            return;
-        }
-
-        var password = PasswordInput.Password;
-        if (!string.Equals(visiblePasswordInput.Text, password, StringComparison.Ordinal))
-        {
-            visiblePasswordInput.Text = password;
-        }
-
         PasswordInput.Visibility = _isPasswordVisible ? Visibility.Collapsed : Visibility.Visible;
-        visiblePasswordInput.Visibility = _isPasswordVisible ? Visibility.Visible : Visibility.Collapsed;
-        passwordVisibilityToggleButton.Content = _isPasswordVisible ? "" : "";
-        passwordPlaceholder.Visibility = string.IsNullOrEmpty(password)
-            ? Visibility.Visible
-            : Visibility.Collapsed;
+        VisiblePasswordInput.Visibility = _isPasswordVisible ? Visibility.Visible : Visibility.Collapsed;
+        PasswordVisibilityToggleButton.Content = _isPasswordVisible ? "" : "";
     }
 
     private void UpdateResponsiveLayout()
