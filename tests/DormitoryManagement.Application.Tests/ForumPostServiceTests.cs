@@ -12,7 +12,7 @@ namespace DormitoryManagement.Application.Tests;
 public sealed class ForumPostServiceTests
 {
     [Fact]
-    public async Task CreateAsync_NormalizesTagsAndCreatesPublishedPost()
+    public async Task CreateAsync_WhenStudent_NormalizesTagsAndCreatesPendingPost()
     {
         var unitOfWork = new InMemoryUnitOfWork();
         var repository = new InMemoryForumPostRepository(unitOfWork);
@@ -29,10 +29,31 @@ public sealed class ForumPostServiceTests
 
         Assert.True(result.Succeeded);
         var post = Assert.Single(unitOfWork.Set<ForumPost>().Items);
-        Assert.Equal(ForumPostStatus.Published, post.Status);
+        Assert.Equal(ForumPostStatus.Pending, post.Status);
         Assert.Equal("Wi-Fi Guide", post.Title);
         Assert.Equal(new[] { "wifi", "guide" }, post.Tags.Select(tag => tag.Name).ToArray());
         Assert.Equal(1, unitOfWork.SaveChangesCount);
+    }
+
+    [Fact]
+    public async Task CreateAsync_WhenManager_CreatesPublishedPost()
+    {
+        var unitOfWork = new InMemoryUnitOfWork();
+        var service = CreateService(
+            new InMemoryForumPostRepository(unitOfWork),
+            unitOfWork,
+            new TestCurrentUser(RoleNames.Manager));
+
+        var result = await service.CreateAsync(new CreateForumPostRequest
+        {
+            Title = "Maintenance notice",
+            Content = "Maintenance starts at 8 AM.",
+            Category = "Announcements",
+            Tags = ["maintenance"]
+        });
+
+        Assert.True(result.Succeeded, result.ErrorMessage);
+        Assert.Equal(ForumPostStatus.Published, Assert.Single(unitOfWork.Set<ForumPost>().Items).Status);
     }
 
     [Fact]
@@ -179,6 +200,41 @@ public sealed class ForumPostServiceTests
         Assert.Equal("Updated", post.Title);
     }
 
+    [Fact]
+    public async Task ApproveAsync_WhenManager_ApprovesPendingPost()
+    {
+        var unitOfWork = new InMemoryUnitOfWork();
+        var post = CreatePost(Guid.NewGuid(), status: ForumPostStatus.Pending);
+        unitOfWork.Set<ForumPost>().Items.Add(post);
+        var service = CreateService(
+            new InMemoryForumPostRepository(unitOfWork),
+            unitOfWork,
+            new TestCurrentUser(RoleNames.Manager));
+
+        var result = await service.ApproveAsync(post.Id);
+
+        Assert.True(result.Succeeded, result.ErrorMessage);
+        Assert.Equal(ForumPostStatus.Published, post.Status);
+        Assert.Equal(1, unitOfWork.SaveChangesCount);
+    }
+
+    [Fact]
+    public async Task ApproveAsync_WhenStudent_ReturnsFailure()
+    {
+        var unitOfWork = new InMemoryUnitOfWork();
+        var post = CreatePost(Guid.NewGuid(), status: ForumPostStatus.Pending);
+        unitOfWork.Set<ForumPost>().Items.Add(post);
+        var service = CreateService(
+            new InMemoryForumPostRepository(unitOfWork),
+            unitOfWork,
+            new TestCurrentUser(RoleNames.Student));
+
+        var result = await service.ApproveAsync(post.Id);
+
+        Assert.False(result.Succeeded);
+        Assert.Equal(ForumPostStatus.Pending, post.Status);
+    }
+
     private static ForumPostService CreateService(
         IForumPostRepository repository,
         InMemoryUnitOfWork unitOfWork,
@@ -196,7 +252,8 @@ public sealed class ForumPostServiceTests
         ForumVisibilityScope visibilityScope = ForumVisibilityScope.Dormitory,
         Guid? buildingId = null,
         Guid? roomId = null,
-        string? roleName = null) =>
+        string? roleName = null,
+        ForumPostStatus status = ForumPostStatus.Published) =>
         new()
         {
             Id = Guid.NewGuid(),
@@ -206,7 +263,7 @@ public sealed class ForumPostServiceTests
             Content = title + " content",
             Excerpt = title,
             Category = category,
-            Status = ForumPostStatus.Published,
+            Status = status,
             VisibilityScope = visibilityScope,
             VisibilityBuildingId = buildingId,
             VisibilityRoomId = roomId,

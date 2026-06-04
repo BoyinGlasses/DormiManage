@@ -44,6 +44,21 @@ public sealed class ForumPostService : IForumPostService
             feed.PageSize);
     }
 
+    public async Task<IReadOnlyList<ForumPostListItemDto>> GetPendingAsync(CancellationToken ct = default)
+    {
+        if (!await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct))
+        {
+            return Array.Empty<ForumPostListItemDto>();
+        }
+
+        return _posts.Query()
+            .Where(post => post.Status == ForumPostStatus.Pending)
+            .OrderBy(post => post.CreatedAt)
+            .ToArray()
+            .Select(MapListItem)
+            .ToArray();
+    }
+
     public async Task<Result<ForumPostDto>> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         var post = await _posts.GetByIdWithDetailsAsync(id, ct);
@@ -99,7 +114,9 @@ public sealed class ForumPostService : IForumPostService
             VisibilityBuildingId = request.VisibilityScope == ForumVisibilityScope.Building ? request.VisibilityBuildingId : null,
             VisibilityRoomId = request.VisibilityScope == ForumVisibilityScope.Room ? request.VisibilityRoomId : null,
             VisibilityRoleName = request.VisibilityScope == ForumVisibilityScope.Role ? NormalizeRoleName(request.VisibilityRoleName) : null,
-            Status = ForumPostStatus.Published,
+            Status = await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct)
+                ? ForumPostStatus.Published
+                : ForumPostStatus.Pending,
             IsPinned = request.IsPinned,
             IsImportant = request.IsImportant,
             CreatedAt = DateTime.UtcNow,
@@ -155,6 +172,32 @@ public sealed class ForumPostService : IForumPostService
         _posts.Update(post);
         await _unitOfWork.SaveChangesAsync(ct);
         return Result<ForumPostDto>.Success(MapDetail(post));
+    }
+
+    public async Task<Result> ApproveAsync(Guid id, CancellationToken ct = default)
+    {
+        var post = await _posts.GetByIdWithDetailsAsync(id, ct);
+        if (post is null)
+        {
+            return Result.Failure("Forum post was not found.");
+        }
+
+        if (!await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct))
+        {
+            return Result.Failure("Only Admin or Manager can approve posts.");
+        }
+
+        if (post.Status != ForumPostStatus.Pending)
+        {
+            return Result.Failure("Only pending posts can be approved.");
+        }
+
+        post.Status = ForumPostStatus.Published;
+        post.UpdatedAt = DateTime.UtcNow;
+        post.UpdatedBy = _currentUser.UserName;
+        _posts.Update(post);
+        await _unitOfWork.SaveChangesAsync(ct);
+        return Result.Success();
     }
 
     public async Task<Result> DeleteAsync(Guid id, CancellationToken ct = default)
@@ -237,6 +280,11 @@ public sealed class ForumPostService : IForumPostService
         if (await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct))
         {
             return true;
+        }
+
+        if (_currentUser.UserId == post.AuthorUserId && post.Status == ForumPostStatus.Pending)
+        {
+            return await _permissions.HasPermissionAsync(PermissionNames.ForumManageOwn, ct);
         }
 
         return post.Status == ForumPostStatus.Published && post.VisibilityScope switch
@@ -384,6 +432,7 @@ public sealed class ForumPostService : IForumPostService
         dto.Excerpt = post.Excerpt;
         dto.Category = post.Category;
         dto.Area = post.Area;
+        dto.Status = post.Status;
         dto.VisibilityScope = post.VisibilityScope;
         dto.VisibilityBuildingId = post.VisibilityBuildingId;
         dto.VisibilityRoomId = post.VisibilityRoomId;

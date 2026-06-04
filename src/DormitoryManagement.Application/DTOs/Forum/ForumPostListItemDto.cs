@@ -9,6 +9,7 @@ public class ForumPostListItemDto
     public string Excerpt { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;
     public string? Area { get; set; }
+    public ForumPostStatus Status { get; set; }
     public ForumVisibilityScope VisibilityScope { get; set; }
     public Guid? VisibilityBuildingId { get; set; }
     public Guid? VisibilityRoomId { get; set; }
