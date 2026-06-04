@@ -122,8 +122,11 @@ public sealed class PaymentService : IPaymentService
 
     public async Task<InvoicePaymentQrDto> GenerateInvoiceQrAsync(Guid invoiceId, CancellationToken ct = default)
     {
-        await _permissions.EnsurePermissionAsync(PermissionNames.BillingWrite, ct);
+        await _permissions.EnsurePermissionAsync(
+            _currentUser.IsInRole(RoleNames.Student) ? PermissionNames.BillingRead : PermissionNames.BillingWrite,
+            ct);
         var invoice = GetPayableInvoiceForQr(invoiceId);
+        EnsureInvoiceAccess(invoice);
         if (HasActivePayOsQr(invoice))
         {
             return MapInvoicePaymentQr(invoice);

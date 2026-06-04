@@ -585,10 +585,16 @@ public sealed class PaymentViewModel : ViewModelBase
         }
 
         var qr = await _service.GetInvoicePaymentQrAsync(SelectedInvoice.Id);
+        if (string.IsNullOrWhiteSpace(qr.TransferContent) || string.IsNullOrWhiteSpace(qr.QrDataUrl))
+        {
+            QrStatusMessage = "Generating PayOS payment code...";
+            qr = await _service.GenerateInvoiceQrAsync(SelectedInvoice.Id);
+        }
+
         SelectedInvoiceQr = qr;
         QrStatusMessage = HasQrPaymentDetails
-            ? "Scan the QR code or copy the transfer content exactly."
-            : "QR payment details are not ready for this invoice.";
+            ? "Scan the PayOS QR code or copy the transfer content exactly."
+            : "PayOS payment details are not ready for this invoice.";
     }
 
     private void NotifyQrState()
