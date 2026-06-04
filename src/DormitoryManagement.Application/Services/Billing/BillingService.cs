@@ -419,12 +419,51 @@ public sealed class BillingService : IBillingService
     public async Task AdjustInvoiceAsync(Guid invoiceId, decimal amount, string reason, CancellationToken ct = default)
     {
         await _permissions.EnsurePermissionAsync(PermissionNames.BillingWrite, ct);
+        if (amount == 0m)
+        {
+            throw new InvalidOperationException("Adjustment amount must be different from zero.");
+        }
+
+        reason = reason.Trim();
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            throw new InvalidOperationException("Adjustment reason is required.");
+        }
+
         await using var tx = await _unitOfWork.BeginTransactionAsync(ct);
         try
         {
-            // TODO: Add adjustment, recalculate total, audit create/edit/cancel invoice action.
+            var invoice = await _unitOfWork.Repository<Invoice>().GetByIdAsync(invoiceId, ct)
+                ?? throw new InvalidOperationException("Invoice was not found.");
+            if (invoice.Status == InvoiceStatus.Cancelled)
+            {
+                throw new InvalidOperationException("Cancelled invoices cannot be adjusted.");
+            }
+
+            EnsureCanViewInvoice(invoice);
+            var adjustedTotal = invoice.TotalAmount + amount;
+            if (adjustedTotal < 0m)
+            {
+                throw new InvalidOperationException("Adjustment cannot make invoice total negative.");
+            }
+
+            var adjustment = new InvoiceAdjustment
+            {
+                Id = Guid.NewGuid(),
+                InvoiceId = invoice.Id,
+                Amount = amount,
+                Reason = reason,
+                CreatedByUserId = _currentUser.UserId,
+                CreatedAt = DateTime.UtcNow
+            };
+            invoice.Adjustments.Add(adjustment);
+            invoice.TotalAmount = Math.Round(adjustedTotal, 2);
+            invoice.Status = CalculateInvoiceStatus(invoice, DateTime.UtcNow.Date);
+
+            await _unitOfWork.Repository<InvoiceAdjustment>().AddAsync(adjustment, ct);
+            _unitOfWork.Repository<Invoice>().Update(invoice);
             await _unitOfWork.SaveChangesAsync(ct);
-            await _auditLog.WriteAsync("Invoice.Adjusted", "Invoice", invoiceId, reason, ct);
+            await _auditLog.WriteAsync("Invoice.Adjusted", "Invoice", invoiceId, $"{reason} Amount={amount:N2}; Total={invoice.TotalAmount:N2}", ct);
             await tx.CommitAsync(ct);
         }
         catch
@@ -620,6 +659,21 @@ public sealed class BillingService : IBillingService
         var room = _unitOfWork.Repository<Room>().GetByIdAsync(invoice.RoomId).GetAwaiter().GetResult()
             ?? throw new InvalidOperationException("Room was not found.");
         EnsureCanManageRoom(room);
+    }
+
+    private static InvoiceStatus CalculateInvoiceStatus(Invoice invoice, DateTime asOfDate)
+    {
+        if (invoice.PaidAmount >= invoice.TotalAmount)
+        {
+            return InvoiceStatus.Paid;
+        }
+
+        if (invoice.PaidAmount > 0m)
+        {
+            return invoice.DueDate.Date < asOfDate.Date ? InvoiceStatus.Overdue : InvoiceStatus.Partial;
+        }
+
+        return invoice.DueDate.Date < asOfDate.Date ? InvoiceStatus.Overdue : InvoiceStatus.Unpaid;
     }
 
     private static DateTime ParseBillingPeriod(string billingPeriod)
