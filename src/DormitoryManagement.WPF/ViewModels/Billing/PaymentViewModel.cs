@@ -25,7 +25,7 @@ public sealed class PaymentViewModel : ViewModelBase
     private InvoicePaymentQrDto? _selectedInvoiceQr;
     private PaymentDto? _selectedPendingPayment;
     private decimal _amount;
-    private PaymentMethod _method = PaymentMethod.MockGateway;
+    private PaymentMethod _method = PaymentMethod.QrBanking;
     private string _confirmationReference = string.Empty;
     private DateTime? _extensionRequestedDueDate;
     private DateTime? _extensionMaxDueDate;
@@ -76,9 +76,8 @@ public sealed class PaymentViewModel : ViewModelBase
     public bool IsPendingPaymentsEmpty => _hasLoaded && !IsBusy && IsAdmin && Payments.Count == 0;
     public bool CanCreatePayment => IsStudent
         && SelectedInvoice is not null
+        && Amount == SelectedInvoice.RemainingAmount
         && Amount > 0m
-        && Amount <= SelectedInvoice.RemainingAmount
-        && (SelectedInvoice.InvoiceKind != InvoiceKind.ContractPrepayment || Amount == SelectedInvoice.RemainingAmount)
         && !IsBusy;
     public bool CanConfirmPayment => IsAdmin && SelectedPendingPayment is not null && !IsBusy;
     public bool CanRefreshQrStatus => IsStudent && SelectedInvoice is not null && !IsBusy;
@@ -381,14 +380,9 @@ public sealed class PaymentViewModel : ViewModelBase
             AmountError = "Payment amount must be greater than zero.";
         }
 
-        if (Amount > SelectedInvoice.RemainingAmount)
+        if (Amount != SelectedInvoice.RemainingAmount)
         {
-            AmountError = "Payment amount cannot exceed selected invoice balance.";
-        }
-
-        if (SelectedInvoice.InvoiceKind == InvoiceKind.ContractPrepayment && Amount != SelectedInvoice.RemainingAmount)
-        {
-            AmountError = "Contract prepayment must match the full remaining amount.";
+            AmountError = "Payment amount must match the full invoice balance.";
         }
 
         if (HasAmountError)
@@ -400,7 +394,7 @@ public sealed class PaymentViewModel : ViewModelBase
         NotifyUiState();
         try
         {
-            var payment = await _service.CreateMockPaymentAsync(new CreatePaymentRequest
+            var payment = await _service.CreatePaymentAsync(new CreatePaymentRequest
             {
                 InvoiceId = SelectedInvoice.Id,
                 Amount = Amount,
@@ -591,10 +585,16 @@ public sealed class PaymentViewModel : ViewModelBase
         }
 
         var qr = await _service.GetInvoicePaymentQrAsync(SelectedInvoice.Id);
+        if (string.IsNullOrWhiteSpace(qr.TransferContent) || string.IsNullOrWhiteSpace(qr.QrDataUrl))
+        {
+            QrStatusMessage = "Generating PayOS payment code...";
+            qr = await _service.GenerateInvoiceQrAsync(SelectedInvoice.Id);
+        }
+
         SelectedInvoiceQr = qr;
         QrStatusMessage = HasQrPaymentDetails
-            ? "Scan the QR code or copy the transfer content exactly."
-            : "QR payment details are not ready for this invoice.";
+            ? "Scan the PayOS QR code or copy the transfer content exactly."
+            : "PayOS payment details are not ready for this invoice.";
     }
 
     private void NotifyQrState()

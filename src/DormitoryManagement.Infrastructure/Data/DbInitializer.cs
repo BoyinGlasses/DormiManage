@@ -326,11 +326,11 @@ public sealed class DbInitializer
         var invoices = new[]
         {
             new DemoInvoice($"INV-{period}-001", "SV001", "A-101", 950000m, 950000m, InvoiceStatus.Paid, today.AddDays(6)),
-            new DemoInvoice($"INV-{period}-002", "SV002", "A-102", 900000m, 500000m, InvoiceStatus.Partial, today.AddDays(-4)),
+            new DemoInvoice($"INV-{period}-002", "SV002", "A-102", 900000m, 900000m, InvoiceStatus.Paid, today.AddDays(-4)),
             new DemoInvoice($"INV-{period}-003", "SV003", "B-101", 850000m, 0m, InvoiceStatus.Unpaid, today.AddDays(-6)),
             new DemoInvoice($"INV-{period}-004", "SV004", "A-101", 920000m, 0m, InvoiceStatus.Overdue, today.AddDays(-7)),
             new DemoInvoice($"INV-{period}-005", "SV007", "A-102", 880000m, 880000m, InvoiceStatus.Paid, today.AddDays(4)),
-            new DemoInvoice($"INV-{period}-006", "SV010", "A-201", 720000m, 300000m, InvoiceStatus.Partial, today.AddDays(8)),
+            new DemoInvoice($"INV-{period}-006", "SV010", "A-201", 720000m, 0m, InvoiceStatus.Unpaid, today.AddDays(8)),
             new DemoInvoice($"INV-{period}-007", "SV015", "B-101", 810000m, 0m, InvoiceStatus.Unpaid, today.AddDays(10)),
             new DemoInvoice($"INV-{period}-008", "SV018", "B-201", 700000m, 700000m, InvoiceStatus.Paid, today.AddDays(7)),
             new DemoInvoice($"INV-{period}-009", "SV001", "B-101", 780000m, 0m, InvoiceStatus.Unpaid, today.AddDays(9))
@@ -355,14 +355,19 @@ public sealed class DbInitializer
             invoice.Status = demo.Status;
         }
 
-        await EnsurePaymentAsync($"PAY-{period}-001", students["SV001"], 950000m, PaymentMethod.MockGateway, today.AddDays(-3), ct);
-        await EnsurePaymentAsync($"PAY-{period}-002", students["SV002"], 500000m, PaymentMethod.BankTransfer, today.AddDays(-2), ct);
-        await EnsurePaymentAsync($"PAY-{period}-003", students["SV007"], 880000m, PaymentMethod.Cash, today.AddDays(-1), ct);
-        await EnsurePaymentAsync($"PAY-{period}-004", students["SV018"], 700000m, PaymentMethod.MockGateway, today.AddHours(-6), ct);
-        await EnsurePendingPaymentAsync($"PAY-{period}-P01", students["SV002"], 200000m, PaymentMethod.BankTransfer, today.AddHours(-10), ct);
-        await EnsurePendingPaymentAsync($"PAY-{period}-P02", students["SV003"], 300000m, PaymentMethod.MockGateway, today.AddHours(-4), ct);
-        await EnsurePendingPaymentAsync($"PAY-{period}-P03", students["SV015"], 250000m, PaymentMethod.BankTransfer, today.AddHours(-3), ct);
-        await EnsurePendingPaymentAsync($"PAY-{period}-P04", students["SV010"], 200000m, PaymentMethod.MockGateway, today.AddHours(-2), ct);
+        await _dbContext.SaveChangesAsync(ct);
+        var invoiceByNumber = await _dbContext.Invoices
+            .Where(x => x.BillingPeriod == period)
+            .ToDictionaryAsync(x => x.InvoiceNumber, ct);
+
+        await EnsurePaymentAsync($"PAY-{period}-001", invoiceByNumber[$"INV-{period}-001"], PaymentMethod.QrBanking, today.AddDays(-3), ct);
+        await EnsurePaymentAsync($"PAY-{period}-002", invoiceByNumber[$"INV-{period}-002"], PaymentMethod.QrBanking, today.AddDays(-2), ct);
+        await EnsurePaymentAsync($"PAY-{period}-003", invoiceByNumber[$"INV-{period}-005"], PaymentMethod.Cash, today.AddDays(-1), ct);
+        await EnsurePaymentAsync($"PAY-{period}-004", invoiceByNumber[$"INV-{period}-008"], PaymentMethod.QrBanking, today.AddHours(-6), ct);
+        await EnsurePendingPaymentAsync($"PAY-{period}-P01", invoiceByNumber[$"INV-{period}-003"], PaymentMethod.QrBanking, today.AddHours(-10), ct);
+        await EnsurePendingPaymentAsync($"PAY-{period}-P02", invoiceByNumber[$"INV-{period}-004"], PaymentMethod.QrBanking, today.AddHours(-4), ct);
+        await EnsurePendingPaymentAsync($"PAY-{period}-P03", invoiceByNumber[$"INV-{period}-007"], PaymentMethod.QrBanking, today.AddHours(-3), ct);
+        await EnsurePendingPaymentAsync($"PAY-{period}-P04", invoiceByNumber[$"INV-{period}-006"], PaymentMethod.Cash, today.AddHours(-2), ct);
 
         await EnsureTicketAsync("Light bulb replacement", students["SV001"], users.GetValueOrDefault("student01") ?? admin, staff, "Room A101 needs a light bulb replacement.", SupportTicketCategory.Maintenance, SupportTicketStatus.InProgress, PriorityLevel.Medium, DateTime.UtcNow.AddHours(-18), ct);
         await EnsureTicketAsync("Invoice clarification", students["SV002"], users.GetValueOrDefault("student02") ?? admin, null, "Please review the water charge for May.", SupportTicketCategory.Billing, SupportTicketStatus.New, PriorityLevel.Low, DateTime.UtcNow.AddHours(-12), ct);
@@ -730,7 +735,7 @@ public sealed class DbInitializer
         contract.UpdatedAt = DateTime.UtcNow;
     }
 
-    private async Task EnsurePaymentAsync(string code, Student student, decimal amount, PaymentMethod method, DateTime paidAt, CancellationToken ct)
+    private async Task EnsurePaymentAsync(string code, Invoice invoice, PaymentMethod method, DateTime paidAt, CancellationToken ct)
     {
         var payment = await _dbContext.Payments.FirstOrDefaultAsync(x => x.PaymentCode == code, ct);
         if (payment is null)
@@ -739,15 +744,16 @@ public sealed class DbInitializer
             _dbContext.Payments.Add(payment);
         }
 
-        payment.StudentId = student.Id;
-        payment.Amount = amount;
+        payment.StudentId = invoice.StudentId;
+        payment.InvoiceId = invoice.Id;
+        payment.Amount = invoice.TotalAmount;
         payment.Method = method;
         payment.Status = PaymentStatus.Success;
         payment.TransactionRef = "DEMO-" + code;
         payment.PaidAt = paidAt;
     }
 
-    private async Task EnsurePendingPaymentAsync(string code, Student student, decimal amount, PaymentMethod method, DateTime createdAt, CancellationToken ct)
+    private async Task EnsurePendingPaymentAsync(string code, Invoice invoice, PaymentMethod method, DateTime createdAt, CancellationToken ct)
     {
         var payment = await _dbContext.Payments.FirstOrDefaultAsync(x => x.PaymentCode == code, ct);
         if (payment is null)
@@ -767,8 +773,9 @@ public sealed class DbInitializer
             return;
         }
 
-        payment.StudentId = student.Id;
-        payment.Amount = amount;
+        payment.StudentId = invoice.StudentId;
+        payment.InvoiceId = invoice.Id;
+        payment.Amount = invoice.TotalAmount - invoice.PaidAmount;
         payment.Method = method;
         payment.TransactionRef = null;
         payment.PaidAt = null;

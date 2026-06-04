@@ -4,6 +4,7 @@ using DormitoryManagement.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DormitoryManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(DormitoryDbContext))]
-    partial class DormitoryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260604033757_SimplifyPaymentsAndInvoices")]
+    partial class SimplifyPaymentsAndInvoices
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -716,83 +719,6 @@ namespace DormitoryManagement.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("DormitoryManagement.Domain.Entities.ForumReport", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Details")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<Guid?>("ForumCommentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ForumPostId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid>("ReporterUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ResolutionAction")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("ResolutionNote")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<DateTime?>("ReviewedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("ReviewedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("TargetType")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ForumCommentId");
-
-                    b.HasIndex("ForumPostId");
-
-                    b.HasIndex("ReviewedByUserId");
-
-                    b.HasIndex("Status", "CreatedAt");
-
-                    b.HasIndex("ReporterUserId", "ForumCommentId", "Status");
-
-                    b.HasIndex("ReporterUserId", "ForumPostId", "Status");
-
-                    b.ToTable("forum_reports", (string)null);
-                });
-
             modelBuilder.Entity("DormitoryManagement.Domain.Entities.Invoice", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1336,7 +1262,7 @@ namespace DormitoryManagement.Infrastructure.Migrations
                             PaymentCode = "PAY-2026-05-001",
                             Status = "Success",
                             StudentId = new Guid("50000000-0000-0000-0000-000000000001"),
-                            TransactionRef = "QR-TXN-202605-001"
+                            TransactionRef = "MOCK-TXN-202605-001"
                         },
                         new
                         {
@@ -2614,38 +2540,6 @@ namespace DormitoryManagement.Infrastructure.Migrations
                     b.Navigation("ForumPost");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("DormitoryManagement.Domain.Entities.ForumReport", b =>
-                {
-                    b.HasOne("DormitoryManagement.Domain.Entities.ForumComment", "ForumComment")
-                        .WithMany()
-                        .HasForeignKey("ForumCommentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("DormitoryManagement.Domain.Entities.ForumPost", "ForumPost")
-                        .WithMany()
-                        .HasForeignKey("ForumPostId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("DormitoryManagement.Domain.Entities.User", "ReporterUser")
-                        .WithMany()
-                        .HasForeignKey("ReporterUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("DormitoryManagement.Domain.Entities.User", "ReviewedByUser")
-                        .WithMany()
-                        .HasForeignKey("ReviewedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ForumComment");
-
-                    b.Navigation("ForumPost");
-
-                    b.Navigation("ReporterUser");
-
-                    b.Navigation("ReviewedByUser");
                 });
 
             modelBuilder.Entity("DormitoryManagement.Domain.Entities.Invoice", b =>

@@ -24,6 +24,6 @@ public class Invoice : AuditableEntity
     public string? BankTransactionId { get; set; }
     public ICollection<InvoiceItem> Items { get; set; } = new List<InvoiceItem>();
     public ICollection<InvoiceAdjustment> Adjustments { get; set; } = new List<InvoiceAdjustment>();
-    public ICollection<PaymentAllocation> PaymentAllocations { get; set; } = new List<PaymentAllocation>();
+    public ICollection<Payment> Payments { get; set; } = new List<Payment>();
     public ICollection<PaymentExtension> PaymentExtensions { get; set; } = new List<PaymentExtension>();
 }

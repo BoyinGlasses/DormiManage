@@ -144,7 +144,7 @@
                                 <TextBlock Text="Manual payment request" Style="{StaticResource SectionTitle}" />
 
                                 <TextBlock Text="Amount" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6" />
-                                <TextBox Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Payment amount" />
+                                <TextBox Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="True" AutomationProperties.Name="Payment amount" />
                                 <TextBlock Text="{Binding AmountError}"
                                            Style="{StaticResource FieldErrorStyle}"
                                            Visibility="{Binding HasAmountError, Converter={StaticResource BoolToVisibility}}" />
@@ -237,7 +237,7 @@
                             </Grid.RowDefinitions>
                             <DockPanel Margin="0,0,0,12">
                                 <TextBlock Text="Pending payments" Style="{StaticResource SectionTitle}" DockPanel.Dock="Left" Margin="0" />
-                                <controls:StatusBadge Status="Info" Text="Mock gateway ready" DockPanel.Dock="Right" />
+                                <controls:StatusBadge Status="Info" Text="Manual review ready" DockPanel.Dock="Right" />
                             </DockPanel>
                             <DataGrid Grid.Row="1"
                                       ItemsSource="{Binding Payments}"

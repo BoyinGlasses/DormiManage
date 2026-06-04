@@ -19,7 +19,7 @@ public sealed class PaymentService : IPaymentService
     private readonly ICurrentUserService _currentUser;
     private readonly INotificationService? _notifications;
     private readonly IPayOsService? _payOsService;
-    private static readonly InvoiceStatus[] PayableStatuses = [InvoiceStatus.Unpaid, InvoiceStatus.Partial, InvoiceStatus.Overdue];
+    private static readonly InvoiceStatus[] PayableStatuses = [InvoiceStatus.Unpaid, InvoiceStatus.Overdue];
 
     public PaymentService(
         IPermissionService permissions,
@@ -79,7 +79,7 @@ public sealed class PaymentService : IPaymentService
         return MapPayments(payments);
     }
 
-    public async Task<PaymentDto> CreateMockPaymentAsync(CreatePaymentRequest request, CancellationToken ct = default)
+    public async Task<PaymentDto> CreatePaymentAsync(CreatePaymentRequest request, CancellationToken ct = default)
     {
         await _permissions.EnsurePermissionAsync(PermissionNames.PaymentsCreate, ct);
         RequestValidator.ValidateAndThrow(request);
@@ -91,29 +91,24 @@ public sealed class PaymentService : IPaymentService
             throw new InvalidOperationException("Student is required.");
         }
 
-        var targetInvoice = request.InvoiceId.HasValue
-            ? GetPayableInvoice(request.InvoiceId.Value, studentId)
-            : null;
-        if (targetInvoice is not null)
+        var invoice = GetPayableInvoice(request.InvoiceId, studentId);
+        var amountDue = invoice.TotalAmount - invoice.PaidAmount;
+        if (request.Amount != amountDue)
         {
-            var remaining = targetInvoice.TotalAmount - targetInvoice.PaidAmount;
-            if (request.Amount > remaining)
-            {
-                throw new InvalidOperationException("Payment amount exceeds selected invoice balance.");
-            }
+            throw new InvalidOperationException("Payment must cover the full invoice amount.");
+        }
 
-            if (targetInvoice.InvoiceKind == InvoiceKind.ContractPrepayment && request.Amount != remaining)
-            {
-                throw new InvalidOperationException("Contract prepayment must be paid in full.");
-            }
+        if (HasSuccessfulPayment(invoice.Id))
+        {
+            throw new InvalidOperationException("Invoice has already been paid.");
         }
 
         var payment = new Payment
         {
             Id = Guid.NewGuid(),
             StudentId = studentId,
-            TargetInvoiceId = targetInvoice?.Id,
-            Amount = request.Amount,
+            InvoiceId = invoice.Id,
+            Amount = amountDue,
             Method = request.Method,
             Status = PaymentStatus.Pending,
             PaymentCode = GeneratePaymentCode()
@@ -127,8 +122,11 @@ public sealed class PaymentService : IPaymentService
 
     public async Task<InvoicePaymentQrDto> GenerateInvoiceQrAsync(Guid invoiceId, CancellationToken ct = default)
     {
-        await _permissions.EnsurePermissionAsync(PermissionNames.BillingWrite, ct);
+        await _permissions.EnsurePermissionAsync(
+            _currentUser.IsInRole(RoleNames.Student) ? PermissionNames.BillingRead : PermissionNames.BillingWrite,
+            ct);
         var invoice = GetPayableInvoiceForQr(invoiceId);
+        EnsureInvoiceAccess(invoice);
         if (HasActivePayOsQr(invoice))
         {
             return MapInvoicePaymentQr(invoice);
@@ -188,7 +186,7 @@ public sealed class PaymentService : IPaymentService
             {
                 Matched = false,
                 Duplicate = true,
-                InvoiceId = duplicatePayment.TargetInvoiceId,
+                InvoiceId = duplicatePayment.InvoiceId,
                 PaymentId = duplicatePayment.Id,
                 Status = "Duplicate",
                 Message = "Bank transaction was already processed."
@@ -199,7 +197,7 @@ public sealed class PaymentService : IPaymentService
             .Where(invoice => invoice.TransferContent != null
                 && invoice.TransferContent != string.Empty
                 && invoice.TotalAmount - invoice.PaidAmount == notification.Amount
-                && (invoice.Status == InvoiceStatus.Unpaid || invoice.Status == InvoiceStatus.Partial || invoice.Status == InvoiceStatus.Overdue))
+                && (invoice.Status == InvoiceStatus.Unpaid || invoice.Status == InvoiceStatus.Overdue))
             .ToList()
             .Where(invoice => description.Contains(invoice.TransferContent!, StringComparison.OrdinalIgnoreCase))
             .ToList();
@@ -223,39 +221,31 @@ public sealed class PaymentService : IPaymentService
         await using var tx = await _unitOfWork.BeginTransactionAsync(ct);
         try
         {
+            if (HasSuccessfulPayment(invoice.Id))
+            {
+                throw new InvalidOperationException("Invoice has already been paid.");
+            }
+
             var paidAt = notification.TransactionDate == default ? DateTime.UtcNow : notification.TransactionDate;
             var payment = new Payment
             {
                 Id = Guid.NewGuid(),
                 StudentId = invoice.StudentId,
-                TargetInvoiceId = invoice.Id,
-                Amount = notification.Amount,
+                InvoiceId = invoice.Id,
+                Amount = invoice.TotalAmount - invoice.PaidAmount,
                 Method = PaymentMethod.QrBanking,
                 Status = PaymentStatus.Success,
                 PaymentCode = GeneratePaymentCode(),
                 TransactionRef = transactionId,
                 PaidAt = paidAt
             };
-            var allocation = new PaymentAllocation
-            {
-                Id = Guid.NewGuid(),
-                PaymentId = payment.Id,
-                InvoiceId = invoice.Id,
-                Amount = notification.Amount
-            };
 
             await _unitOfWork.Repository<Payment>().AddAsync(payment, ct);
-            await _unitOfWork.Repository<PaymentAllocation>().AddAsync(allocation, ct);
-            invoice.PaidAmount += notification.Amount;
-            invoice.Status = invoice.PaidAmount >= invoice.TotalAmount ? InvoiceStatus.Paid : InvoiceStatus.Partial;
+            MarkInvoicePaid(invoice, paidAt);
             invoice.BankTransactionId = transactionId;
             _unitOfWork.Repository<Invoice>().Update(invoice);
-            if (invoice.Status == InvoiceStatus.Paid)
-            {
-                MarkVehicleRegistrationPaid(invoice, paidAt);
-            }
 
-            if (invoice.Status == InvoiceStatus.Paid && invoice.InvoiceKind == InvoiceKind.ContractPrepayment)
+            if (invoice.InvoiceKind == InvoiceKind.ContractPrepayment)
             {
                 await ActivateContractPrepaymentAsync(invoice, ct);
             }
@@ -295,61 +285,30 @@ public sealed class PaymentService : IPaymentService
                 throw new InvalidOperationException("Only pending payments can be confirmed.");
             }
 
-            var invoices = GetInvoicesForPayment(payment);
-            var outstandingTotal = invoices.Sum(invoice => invoice.TotalAmount - invoice.PaidAmount);
-            if (outstandingTotal <= 0m)
+            var invoice = GetPayableInvoice(payment.InvoiceId, payment.StudentId);
+            var amountDue = invoice.TotalAmount - invoice.PaidAmount;
+            if (payment.Amount != amountDue)
             {
-                throw new InvalidOperationException("Student has no outstanding invoice balance.");
+                throw new InvalidOperationException("Payment must cover the full invoice amount.");
             }
 
-            if (payment.Amount > outstandingTotal)
+            if (HasSuccessfulPayment(invoice.Id, payment.Id))
             {
-                throw new InvalidOperationException("Payment amount exceeds outstanding invoice balance.");
+                throw new InvalidOperationException("Invoice has already been paid.");
             }
 
             var paidAt = DateTime.UtcNow;
-            var remaining = payment.Amount;
-            foreach (var invoice in invoices)
+            MarkInvoicePaid(invoice, paidAt);
+            _unitOfWork.Repository<Invoice>().Update(invoice);
+
+            if (invoice.InvoiceKind == InvoiceKind.ContractPrepayment)
             {
-                if (remaining <= 0m)
-                {
-                    break;
-                }
-
-                var invoiceRemaining = invoice.TotalAmount - invoice.PaidAmount;
-                var allocationAmount = Math.Min(invoiceRemaining, remaining);
-                if (invoice.InvoiceKind == InvoiceKind.ContractPrepayment && allocationAmount != invoiceRemaining)
-                {
-                    throw new InvalidOperationException("Contract prepayment must be paid in full.");
-                }
-
-                var allocation = new PaymentAllocation
-                {
-                    Id = Guid.NewGuid(),
-                    PaymentId = payment.Id,
-                    InvoiceId = invoice.Id,
-                    Amount = allocationAmount
-                };
-                await _unitOfWork.Repository<PaymentAllocation>().AddAsync(allocation, ct);
-                invoice.PaidAmount += allocationAmount;
-                invoice.Status = invoice.PaidAmount >= invoice.TotalAmount ? InvoiceStatus.Paid : InvoiceStatus.Partial;
-                _unitOfWork.Repository<Invoice>().Update(invoice);
-                if (invoice.Status == InvoiceStatus.Paid)
-                {
-                    MarkVehicleRegistrationPaid(invoice, paidAt);
-                }
-
-                if (invoice.Status == InvoiceStatus.Paid && invoice.InvoiceKind == InvoiceKind.ContractPrepayment)
-                {
-                    await ActivateContractPrepaymentAsync(invoice, ct);
-                }
-
-                remaining -= allocationAmount;
+                await ActivateContractPrepaymentAsync(invoice, ct);
             }
 
             payment.Status = PaymentStatus.Success;
             payment.TransactionRef = string.IsNullOrWhiteSpace(request.TransactionRef)
-                ? $"MOCK-TXN-{DateTime.UtcNow:yyyyMMddHHmmss}"
+                ? $"MANUAL-TXN-{DateTime.UtcNow:yyyyMMddHHmmss}"
                 : request.TransactionRef.Trim();
             payment.PaidAt = paidAt;
             _unitOfWork.Repository<Payment>().Update(payment);
@@ -364,46 +323,6 @@ public sealed class PaymentService : IPaymentService
             await tx.RollbackAsync(ct);
             throw;
         }
-    }
-
-    public async Task AllocatePaymentAsync(Guid paymentId, Guid invoiceId, decimal amount, CancellationToken ct = default)
-    {
-        await _permissions.EnsurePermissionAsync(PermissionNames.PaymentsConfirm, ct);
-        if (amount <= 0m)
-        {
-            throw new InvalidOperationException("Allocation amount must be greater than zero.");
-        }
-
-        var payment = _unitOfWork.Repository<Payment>().GetByIdAsync(paymentId, ct).GetAwaiter().GetResult()
-            ?? throw new InvalidOperationException("Payment was not found.");
-        var invoice = _unitOfWork.Repository<Invoice>().GetByIdAsync(invoiceId, ct).GetAwaiter().GetResult()
-            ?? throw new InvalidOperationException("Invoice was not found.");
-        var allocatedPaymentAmount = _unitOfWork.Repository<PaymentAllocation>().Query()
-            .Where(allocation => allocation.PaymentId == paymentId)
-            .Sum(allocation => allocation.Amount);
-        var paymentRemaining = payment.Amount - allocatedPaymentAmount;
-        var invoiceRemaining = invoice.TotalAmount - invoice.PaidAmount;
-        if (amount > paymentRemaining || amount > invoiceRemaining)
-        {
-            throw new InvalidOperationException("Allocation exceeds remaining payment or invoice balance.");
-        }
-
-        await _unitOfWork.Repository<PaymentAllocation>().AddAsync(new PaymentAllocation
-        {
-            Id = Guid.NewGuid(),
-            PaymentId = paymentId,
-            InvoiceId = invoiceId,
-            Amount = amount
-        }, ct);
-        invoice.PaidAmount += amount;
-        invoice.Status = invoice.PaidAmount >= invoice.TotalAmount ? InvoiceStatus.Paid : InvoiceStatus.Partial;
-        _unitOfWork.Repository<Invoice>().Update(invoice);
-        if (invoice.Status == InvoiceStatus.Paid)
-        {
-            MarkVehicleRegistrationPaid(invoice, DateTime.UtcNow);
-        }
-
-        await _unitOfWork.SaveChangesAsync(ct);
     }
 
     public async Task CancelPaymentAsync(Guid paymentId, string reason, CancellationToken ct = default)
@@ -503,13 +422,26 @@ public sealed class PaymentService : IPaymentService
     private static bool IsPayableInvoice(Invoice invoice) =>
         PayableStatuses.Contains(invoice.Status) && invoice.TotalAmount > invoice.PaidAmount;
 
+    private bool HasSuccessfulPayment(Guid invoiceId, Guid? excludingPaymentId = null) =>
+        _unitOfWork.Repository<Payment>().Query()
+            .Any(payment => payment.InvoiceId == invoiceId
+                && payment.Status == PaymentStatus.Success
+                && (!excludingPaymentId.HasValue || payment.Id != excludingPaymentId.Value));
+
+    private void MarkInvoicePaid(Invoice invoice, DateTime paidAt)
+    {
+        invoice.PaidAmount = invoice.TotalAmount;
+        invoice.Status = InvoiceStatus.Paid;
+        MarkVehicleRegistrationPaid(invoice, paidAt);
+    }
+
     private Student? GetStudent(Guid studentId) =>
         _unitOfWork.Repository<Student>().Query().FirstOrDefault(student => student.Id == studentId);
 
     private InvoicePaymentQrDto MapInvoicePaymentQr(Invoice invoice, PayOsPaymentLinkDto? paymentLink = null)
     {
         var paidAt = _unitOfWork.Repository<Payment>().Query()
-            .Where(payment => payment.TargetInvoiceId == invoice.Id && payment.Status == PaymentStatus.Success)
+            .Where(payment => payment.InvoiceId == invoice.Id && payment.Status == PaymentStatus.Success)
             .OrderByDescending(payment => payment.PaidAt)
             .Select(payment => payment.PaidAt)
             .FirstOrDefault();
@@ -528,23 +460,6 @@ public sealed class PaymentService : IPaymentService
             DueDate = invoice.DueDate,
             PaidAt = paidAt
         };
-    }
-
-    private List<Invoice> GetInvoicesForPayment(Payment payment)
-    {
-        if (payment.TargetInvoiceId.HasValue)
-        {
-            var invoice = GetPayableInvoice(payment.TargetInvoiceId.Value, payment.StudentId);
-            return new List<Invoice> { invoice };
-        }
-
-        return _unitOfWork.Repository<Invoice>().Query()
-            .Where(invoice => invoice.StudentId == payment.StudentId
-                && PayableStatuses.Contains(invoice.Status)
-                && invoice.TotalAmount > invoice.PaidAmount)
-            .OrderBy(invoice => invoice.DueDate)
-            .ThenBy(invoice => invoice.IssueDate)
-            .ToList();
     }
 
     private void MarkVehicleRegistrationPaid(Invoice invoice, DateTime paidAt)
@@ -662,9 +577,7 @@ public sealed class PaymentService : IPaymentService
         return payments.Select(payment =>
         {
             students.TryGetValue(payment.StudentId, out var student);
-            var targetInvoice = payment.TargetInvoiceId.HasValue
-                ? _unitOfWork.Repository<Invoice>().Query().FirstOrDefault(invoice => invoice.Id == payment.TargetInvoiceId.Value)
-                : null;
+            var invoice = _unitOfWork.Repository<Invoice>().Query().FirstOrDefault(candidate => candidate.Id == payment.InvoiceId);
             return new PaymentDto
             {
                 Id = payment.Id,
@@ -672,8 +585,8 @@ public sealed class PaymentService : IPaymentService
                 StudentId = payment.StudentId,
                 StudentCode = student?.StudentCode ?? string.Empty,
                 StudentName = student?.FullName ?? string.Empty,
-                TargetInvoiceId = payment.TargetInvoiceId,
-                TargetInvoiceNumber = targetInvoice?.InvoiceNumber,
+                InvoiceId = payment.InvoiceId,
+                InvoiceNumber = invoice?.InvoiceNumber ?? string.Empty,
                 Amount = payment.Amount,
                 Method = payment.Method,
                 Status = payment.Status,

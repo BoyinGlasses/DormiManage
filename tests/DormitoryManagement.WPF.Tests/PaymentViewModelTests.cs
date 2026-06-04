@@ -156,9 +156,9 @@ public sealed class PaymentViewModelTests
             BillingPeriod = "2026-06",
             DueDate = new DateTime(2026, 6, 10),
             TotalAmount = 178500m,
-            PaidAmount = 50000m,
-            RemainingAmount = 128500m,
-            Status = InvoiceStatus.Partial
+            PaidAmount = 0m,
+            RemainingAmount = 178500m,
+            Status = InvoiceStatus.Unpaid
         };
         var viewModel = new PaymentViewModel(new StubPaymentService(new[] { invoice }), StudentUser(), new StubPaymentExtensionService());
 
@@ -206,9 +206,9 @@ public sealed class PaymentViewModelTests
             BillingPeriod = "2026-06",
             DueDate = new DateTime(2026, 6, 10),
             TotalAmount = 178500m,
-            PaidAmount = 50000m,
-            RemainingAmount = 128500m,
-            Status = InvoiceStatus.Partial
+            PaidAmount = 0m,
+            RemainingAmount = 178500m,
+            Status = InvoiceStatus.Unpaid
         };
         var state = new PaymentNavigationState();
         state.SetPaymentContext(CreatePaymentNavigationContext(invoice));
@@ -281,7 +281,7 @@ public sealed class PaymentViewModelTests
         public Task<IReadOnlyList<PaymentDto>> GetPendingPaymentsAsync(CancellationToken ct = default) =>
             Task.FromResult<IReadOnlyList<PaymentDto>>(Array.Empty<PaymentDto>());
 
-        public Task<PaymentDto> CreateMockPaymentAsync(CreatePaymentRequest request, CancellationToken ct = default) =>
+        public Task<PaymentDto> CreatePaymentAsync(CreatePaymentRequest request, CancellationToken ct = default) =>
             Task.FromResult(new PaymentDto { Id = Guid.NewGuid(), PaymentCode = "PAY-1", Status = PaymentStatus.Pending });
 
         public Task<InvoicePaymentQrDto> GenerateInvoiceQrAsync(Guid invoiceId, CancellationToken ct = default) =>
@@ -302,9 +302,6 @@ public sealed class PaymentViewModelTests
 
         public Task<PaymentDto> ConfirmPaymentAsync(ConfirmPaymentRequest request, CancellationToken ct = default) =>
             Task.FromResult(new PaymentDto { Id = request.PaymentId, PaymentCode = "PAY-1", Status = PaymentStatus.Success });
-
-        public Task AllocatePaymentAsync(Guid paymentId, Guid invoiceId, decimal amount, CancellationToken ct = default) =>
-            Task.CompletedTask;
 
         public Task CancelPaymentAsync(Guid paymentId, string reason, CancellationToken ct = default) =>
             Task.CompletedTask;

@@ -26,7 +26,6 @@ public sealed class DormitoryDbContext : DbContext
     public DbSet<InvoiceItem> InvoiceItems => Set<InvoiceItem>();
     public DbSet<InvoiceAdjustment> InvoiceAdjustments => Set<InvoiceAdjustment>();
     public DbSet<Payment> Payments => Set<Payment>();
-    public DbSet<PaymentAllocation> PaymentAllocations => Set<PaymentAllocation>();
     public DbSet<PaymentExtension> PaymentExtensions => Set<PaymentExtension>();
     public DbSet<UtilityReading> UtilityReadings => Set<UtilityReading>();
     public DbSet<VehicleRegistration> VehicleRegistrations => Set<VehicleRegistration>();

@@ -306,7 +306,7 @@ public sealed class BillingService : IBillingService
 
         var overdueInvoices = query
             .Where(invoice => invoice.DueDate.Date < DateTime.UtcNow.Date
-                && (invoice.Status == InvoiceStatus.Unpaid || invoice.Status == InvoiceStatus.Partial))
+                && invoice.Status == InvoiceStatus.Unpaid)
             .ToList();
         foreach (var invoice in overdueInvoices)
         {
@@ -404,7 +404,7 @@ public sealed class BillingService : IBillingService
         await _permissions.EnsurePermissionAsync(PermissionNames.BillingWrite, ct);
         var invoices = _unitOfWork.Repository<Invoice>().Query()
             .Where(invoice => invoice.DueDate.Date < asOfDate.Date
-                && (invoice.Status == InvoiceStatus.Unpaid || invoice.Status == InvoiceStatus.Partial))
+                && invoice.Status == InvoiceStatus.Unpaid)
             .ToList();
         foreach (var invoice in invoices)
         {
@@ -663,14 +663,14 @@ public sealed class BillingService : IBillingService
 
     private static InvoiceStatus CalculateInvoiceStatus(Invoice invoice, DateTime asOfDate)
     {
+        if (invoice.Status == InvoiceStatus.Cancelled)
+        {
+            return InvoiceStatus.Cancelled;
+        }
+
         if (invoice.PaidAmount >= invoice.TotalAmount)
         {
             return InvoiceStatus.Paid;
-        }
-
-        if (invoice.PaidAmount > 0m)
-        {
-            return invoice.DueDate.Date < asOfDate.Date ? InvoiceStatus.Overdue : InvoiceStatus.Partial;
         }
 
         return invoice.DueDate.Date < asOfDate.Date ? InvoiceStatus.Overdue : InvoiceStatus.Unpaid;

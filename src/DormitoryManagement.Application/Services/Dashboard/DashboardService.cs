@@ -124,7 +124,7 @@ public sealed class DashboardService : IDashboardService
                 : "Yêu cầu đăng ký đang chờ xử lí.";
         }
 
-        var dueStatuses = new[] { InvoiceStatus.Unpaid, InvoiceStatus.Partial, InvoiceStatus.Overdue };
+        var dueStatuses = new[] { InvoiceStatus.Unpaid, InvoiceStatus.Overdue };
         var openTicketStatuses = new[] { SupportTicketStatus.New, SupportTicketStatus.Assigned, SupportTicketStatus.InProgress };
         var unreadNotifications = student.UserId.HasValue
             ? _unitOfWork.Repository<UserNotification>().Query().Count(row => row.UserId == student.UserId.Value && !row.IsRead)
@@ -234,7 +234,7 @@ public sealed class DashboardService : IDashboardService
     public Task<DebtSummaryDto> GetDebtSummaryAsync(CancellationToken ct = default)
     {
         var today = DateTime.Today;
-        var dueStatuses = new[] { InvoiceStatus.Unpaid, InvoiceStatus.Partial, InvoiceStatus.Overdue };
+        var dueStatuses = new[] { InvoiceStatus.Unpaid, InvoiceStatus.Overdue };
         var invoices = _invoices.Query()
             .Where(invoice => dueStatuses.Contains(invoice.Status) && invoice.TotalAmount > invoice.PaidAmount)
             .Select(invoice => new
