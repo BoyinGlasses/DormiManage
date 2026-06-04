@@ -281,7 +281,7 @@ public sealed class PaymentViewModelTests
         public Task<IReadOnlyList<PaymentDto>> GetPendingPaymentsAsync(CancellationToken ct = default) =>
             Task.FromResult<IReadOnlyList<PaymentDto>>(Array.Empty<PaymentDto>());
 
-        public Task<PaymentDto> CreateMockPaymentAsync(CreatePaymentRequest request, CancellationToken ct = default) =>
+        public Task<PaymentDto> CreatePaymentAsync(CreatePaymentRequest request, CancellationToken ct = default) =>
             Task.FromResult(new PaymentDto { Id = Guid.NewGuid(), PaymentCode = "PAY-1", Status = PaymentStatus.Pending });
 
         public Task<InvoicePaymentQrDto> GenerateInvoiceQrAsync(Guid invoiceId, CancellationToken ct = default) =>

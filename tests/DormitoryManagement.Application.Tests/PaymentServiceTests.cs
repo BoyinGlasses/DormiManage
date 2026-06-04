@@ -172,7 +172,7 @@ public sealed class PaymentServiceTests
     }
 
     [Fact]
-    public async Task CreateMockPaymentAsync_as_student_creates_pending_payment_for_current_student()
+    public async Task CreatePaymentAsync_as_student_creates_pending_payment_for_current_student()
     {
         var student = new Student { Id = Guid.NewGuid(), StudentCode = "SV001", FullName = "Nguyen Van An" };
         var invoice = Invoice(student.Id, "INV-PREPAY", new DateTime(2026, 6, 1), 4500000m, 0m, InvoiceStatus.Unpaid);
@@ -187,7 +187,7 @@ public sealed class PaymentServiceTests
             audit,
             new TestCurrentUser(RoleNames.Student, studentId: student.Id));
 
-        var payment = await service.CreateMockPaymentAsync(new CreatePaymentRequest
+        var payment = await service.CreatePaymentAsync(new CreatePaymentRequest
         {
             InvoiceId = invoice.Id,
             Amount = 4500000m,
@@ -204,7 +204,7 @@ public sealed class PaymentServiceTests
     }
 
     [Fact]
-    public async Task CreateMockPaymentAsync_rejects_partial_contract_prepayment()
+    public async Task CreatePaymentAsync_rejects_partial_invoice_payment()
     {
         var student = new Student { Id = Guid.NewGuid(), StudentCode = "SV001", FullName = "Nguyen Van An" };
         var invoice = Invoice(student.Id, "INV-PREPAY", new DateTime(2026, 6, 1), 4500000m, 0m, InvoiceStatus.Unpaid);
@@ -218,7 +218,7 @@ public sealed class PaymentServiceTests
             new RecordingAuditLogService(),
             new TestCurrentUser(RoleNames.Student, studentId: student.Id));
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => service.CreateMockPaymentAsync(new CreatePaymentRequest
+        await Assert.ThrowsAsync<InvalidOperationException>(() => service.CreatePaymentAsync(new CreatePaymentRequest
         {
             InvoiceId = invoice.Id,
             Amount = 1000000m,

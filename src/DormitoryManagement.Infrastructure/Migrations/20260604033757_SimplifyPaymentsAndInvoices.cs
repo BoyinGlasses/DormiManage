@@ -133,8 +133,8 @@ namespace DormitoryManagement.Infrastructure.Migrations
                 table: "payments",
                 keyColumn: "Id",
                 keyValue: new Guid("80000000-0000-0000-0000-000000000001"),
-                columns: new[] { "InvoiceId", "Method" },
-                values: new object[] { new Guid("70000000-0000-0000-0000-000000000001"), "QrBanking" });
+                columns: new[] { "InvoiceId", "Method", "TransactionRef" },
+                values: new object[] { new Guid("70000000-0000-0000-0000-000000000001"), "QrBanking", "QR-TXN-202605-001" });
 
             migrationBuilder.UpdateData(
                 table: "payments",

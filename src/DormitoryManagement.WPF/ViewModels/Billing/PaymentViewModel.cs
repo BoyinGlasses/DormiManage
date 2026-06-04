@@ -394,7 +394,7 @@ public sealed class PaymentViewModel : ViewModelBase
         NotifyUiState();
         try
         {
-            var payment = await _service.CreateMockPaymentAsync(new CreatePaymentRequest
+            var payment = await _service.CreatePaymentAsync(new CreatePaymentRequest
             {
                 InvoiceId = SelectedInvoice.Id,
                 Amount = Amount,

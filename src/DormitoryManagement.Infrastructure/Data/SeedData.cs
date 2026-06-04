@@ -267,7 +267,7 @@ internal static class SeedData
             InvoiceItem(Guid.Parse("71000000-0000-0000-0000-000000000009"), Invoices.Three, FeeTypes.Parking, "Parking May 2026", 1m, 100000m));
 
         modelBuilder.Entity<Payment>().HasData(
-            new Payment { Id = Payments.One, PaymentCode = "PAY-2026-05-001", StudentId = Students.One, InvoiceId = Invoices.One, Amount = 950000m, Method = PaymentMethod.QrBanking, Status = PaymentStatus.Success, TransactionRef = "MOCK-TXN-202605-001", PaidAt = PaidAt, CreatedAt = SeededAt },
+            new Payment { Id = Payments.One, PaymentCode = "PAY-2026-05-001", StudentId = Students.One, InvoiceId = Invoices.One, Amount = 950000m, Method = PaymentMethod.QrBanking, Status = PaymentStatus.Success, TransactionRef = "QR-TXN-202605-001", PaidAt = PaidAt, CreatedAt = SeededAt },
             new Payment { Id = Payments.Two, PaymentCode = "PAY-2026-05-002", StudentId = Students.Two, InvoiceId = Invoices.Two, Amount = 900000m, Method = PaymentMethod.QrBanking, Status = PaymentStatus.Success, TransactionRef = "BANK-TXN-202605-002", PaidAt = PaidAt, CreatedAt = SeededAt });
     }
 

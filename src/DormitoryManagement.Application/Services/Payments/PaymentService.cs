@@ -79,7 +79,7 @@ public sealed class PaymentService : IPaymentService
         return MapPayments(payments);
     }
 
-    public async Task<PaymentDto> CreateMockPaymentAsync(CreatePaymentRequest request, CancellationToken ct = default)
+    public async Task<PaymentDto> CreatePaymentAsync(CreatePaymentRequest request, CancellationToken ct = default)
     {
         await _permissions.EnsurePermissionAsync(PermissionNames.PaymentsCreate, ct);
         RequestValidator.ValidateAndThrow(request);
@@ -305,7 +305,7 @@ public sealed class PaymentService : IPaymentService
 
             payment.Status = PaymentStatus.Success;
             payment.TransactionRef = string.IsNullOrWhiteSpace(request.TransactionRef)
-                ? $"MOCK-TXN-{DateTime.UtcNow:yyyyMMddHHmmss}"
+                ? $"MANUAL-TXN-{DateTime.UtcNow:yyyyMMddHHmmss}"
                 : request.TransactionRef.Trim();
             payment.PaidAt = paidAt;
             _unitOfWork.Repository<Payment>().Update(payment);
