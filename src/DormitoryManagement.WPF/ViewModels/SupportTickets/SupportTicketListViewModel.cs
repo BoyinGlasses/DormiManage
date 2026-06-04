@@ -15,6 +15,8 @@ public sealed class SupportTicketListViewModel : ViewModelBase
     private readonly ICurrentUserService _currentUser;
     private readonly List<SupportTicketDto> _allTickets = new();
     private bool _hasLoaded;
+    private bool _isCreateFormOpen;
+    private bool _areFiltersOpen;
     private SupportTicketDto? _selectedTicket;
     private string _title = string.Empty;
     private string _description = string.Empty;
@@ -38,6 +40,16 @@ public sealed class SupportTicketListViewModel : ViewModelBase
         UpdateStatusCommand = new AsyncRelayCommand(UpdateStatusAsync);
         ApplyFiltersCommand = new RelayCommand(ApplyFilters);
         ClearFiltersCommand = new RelayCommand(ClearFilters);
+        ToggleCreateFormCommand = new RelayCommand(() => IsCreateFormOpen = !IsCreateFormOpen);
+        ToggleFiltersCommand = new RelayCommand(() => AreFiltersOpen = !AreFiltersOpen);
+        SelectTicketCommand = new RelayCommand(parameter =>
+        {
+            if (parameter is SupportTicketDto ticket)
+            {
+                SelectedTicket = ticket;
+            }
+        });
+        SecondaryTicketActionCommand = new RelayCommand(_ => { });
 
         StatusFilters.Add("All statuses");
         foreach (var value in Enum.GetNames<SupportTicketStatus>()) StatusFilters.Add(value);
@@ -59,10 +71,38 @@ public sealed class SupportTicketListViewModel : ViewModelBase
     public ICommand UpdateStatusCommand { get; }
     public ICommand ApplyFiltersCommand { get; }
     public ICommand ClearFiltersCommand { get; }
+    public ICommand ToggleCreateFormCommand { get; }
+    public ICommand ToggleFiltersCommand { get; }
+    public ICommand SelectTicketCommand { get; }
+    public ICommand SecondaryTicketActionCommand { get; }
     public bool IsStaffUser => _currentUser.IsInRole(RoleNames.Admin)
         || _currentUser.IsInRole(RoleNames.Manager);
     public bool HasTickets => Tickets.Count > 0;
     public bool IsTicketsEmpty => _hasLoaded && !IsBusy && Tickets.Count == 0;
+    public int TotalTicketCount => _allTickets.Count;
+    public int OpenTicketCount => _allTickets.Count(ticket => ticket.Status is SupportTicketStatus.New or SupportTicketStatus.Assigned or SupportTicketStatus.InProgress);
+    public int ResolvedTicketCount => _allTickets.Count(ticket => ticket.Status is SupportTicketStatus.Resolved or SupportTicketStatus.Closed);
+    public string TotalTicketCountText => TotalTicketCount.ToString();
+    public string OpenTicketCountText => OpenTicketCount.ToString();
+    public string ResolvedTicketCountText => ResolvedTicketCount.ToString();
+    public string RecentTicketSummaryText => TotalTicketCount == 0
+        ? "Chưa có yêu cầu hỗ trợ nào được tạo."
+        : $"Hiển thị {Tickets.Count} trên {TotalTicketCount} yêu cầu gần đây.";
+    public string TicketFooterSummaryText => TotalTicketCount == 0
+        ? "Hiển thị 0-0 trên 0 yêu cầu"
+        : $"Hiển thị 1-{Tickets.Count} trên {TotalTicketCount} yêu cầu";
+
+    public bool IsCreateFormOpen
+    {
+        get => _isCreateFormOpen;
+        set => SetProperty(ref _isCreateFormOpen, value);
+    }
+
+    public bool AreFiltersOpen
+    {
+        get => _areFiltersOpen;
+        set => SetProperty(ref _areFiltersOpen, value);
+    }
 
     public string Title
     {
@@ -153,7 +193,7 @@ public sealed class SupportTicketListViewModel : ViewModelBase
             _allTickets.Clear();
             _allTickets.AddRange(tickets);
             ApplyFilters();
-            SelectedTicket = Tickets.FirstOrDefault();
+            SelectedTicket = IsStaffUser ? Tickets.FirstOrDefault() : null;
             _hasLoaded = true;
         }
         catch (Exception ex)
@@ -173,6 +213,7 @@ public sealed class SupportTicketListViewModel : ViewModelBase
         SuccessMessage = null;
         TitleError = null;
         DescriptionError = null;
+        IsCreateFormOpen = true;
         if (string.IsNullOrWhiteSpace(Title))
         {
             TitleError = "Enter a ticket title.";
@@ -205,6 +246,7 @@ public sealed class SupportTicketListViewModel : ViewModelBase
             Title = string.Empty;
             Description = string.Empty;
             SuccessMessage = "Support ticket created.";
+            IsCreateFormOpen = false;
         }
         catch (Exception ex)
         {
@@ -213,6 +255,7 @@ public sealed class SupportTicketListViewModel : ViewModelBase
         finally
         {
             IsBusy = false;
+            NotifyUiState();
         }
     }
 
@@ -275,6 +318,13 @@ public sealed class SupportTicketListViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasTickets));
         OnPropertyChanged(nameof(IsTicketsEmpty));
         OnPropertyChanged(nameof(IsStaffUser));
+        OnPropertyChanged(nameof(TotalTicketCount));
+        OnPropertyChanged(nameof(OpenTicketCount));
+        OnPropertyChanged(nameof(ResolvedTicketCount));
+        OnPropertyChanged(nameof(TotalTicketCountText));
+        OnPropertyChanged(nameof(OpenTicketCountText));
+        OnPropertyChanged(nameof(ResolvedTicketCountText));
+        OnPropertyChanged(nameof(RecentTicketSummaryText));
+        OnPropertyChanged(nameof(TicketFooterSummaryText));
     }
 }
-

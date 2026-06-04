@@ -3,6 +3,7 @@ using DormitoryManagement.Application.Abstractions.Data;
 using DormitoryManagement.Application.Abstractions.Services;
 using DormitoryManagement.Application.DTOs.Audit;
 using DormitoryManagement.Application.DTOs.Auth;
+using DormitoryManagement.Application.DTOs.Notifications;
 using DormitoryManagement.Application.Security;
 using DormitoryManagement.Domain.Common;
 using DormitoryManagement.Application.Abstractions.Repositories;
@@ -104,6 +105,33 @@ internal sealed class RecordingAuditLogService : IAuditLogService
 
     public Task<IReadOnlyList<AuditLogDto>> GetRecentAsync(string? searchText = null, int take = 100, CancellationToken ct = default) =>
         Task.FromResult<IReadOnlyList<AuditLogDto>>(Array.Empty<AuditLogDto>());
+}
+
+internal sealed class RecordingNotificationService : INotificationService
+{
+    public List<(Guid UserId, string Title, string Message)> UserNotifications { get; } = new();
+    public List<(string RoleName, string Title, string Message)> RoleNotifications { get; } = new();
+
+    public Task NotifyUserAsync(Guid userId, string title, string message, CancellationToken ct = default)
+    {
+        UserNotifications.Add((userId, title, message));
+        return Task.CompletedTask;
+    }
+
+    public Task NotifyRoleAsync(string roleName, string title, string message, CancellationToken ct = default)
+    {
+        RoleNotifications.Add((roleName, title, message));
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyList<NotificationDto>> GetCurrentUserNotificationsAsync(int take = 20, CancellationToken ct = default) =>
+        Task.FromResult<IReadOnlyList<NotificationDto>>(Array.Empty<NotificationDto>());
+
+    public Task<int> GetCurrentUserUnreadCountAsync(CancellationToken ct = default) => Task.FromResult(0);
+
+    public Task MarkAsReadAsync(Guid userNotificationId, CancellationToken ct = default) => Task.CompletedTask;
+
+    public Task MarkAllCurrentUserNotificationsAsReadAsync(CancellationToken ct = default) => Task.CompletedTask;
 }
 
 internal sealed class TestCurrentUser : ICurrentUserService

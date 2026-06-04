@@ -35,6 +35,7 @@ public sealed class DormitoryDbContext : DbContext
     public DbSet<ForumPostTag> ForumPostTags => Set<ForumPostTag>();
     public DbSet<ForumComment> ForumComments => Set<ForumComment>();
     public DbSet<ForumReaction> ForumReactions => Set<ForumReaction>();
+    public DbSet<ForumReport> ForumReports => Set<ForumReport>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<UserNotification> UserNotifications => Set<UserNotification>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
