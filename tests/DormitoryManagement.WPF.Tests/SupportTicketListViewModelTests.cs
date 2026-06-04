@@ -53,6 +53,42 @@ public sealed class SupportTicketListViewModelTests
         Assert.Equal("Need desk repair", service.CreatedTickets[0].Title);
     }
 
+    [Fact]
+    public async Task Ticket_screen_button_commands_toggle_select_and_update_expected_state()
+    {
+        var service = new StubSupportTicketService();
+        var viewModel = new SupportTicketListViewModel(service, new StubCurrentUser(RoleNames.Manager));
+
+        viewModel.LoadCommand.Execute(null);
+        await WaitUntilAsync(() => viewModel.HasTickets);
+
+        Assert.False(viewModel.IsCreateFormOpen);
+        viewModel.ToggleCreateFormCommand.Execute(null);
+        Assert.True(viewModel.IsCreateFormOpen);
+
+        Assert.False(viewModel.AreFiltersOpen);
+        viewModel.ToggleFiltersCommand.Execute(null);
+        Assert.True(viewModel.AreFiltersOpen);
+
+        var selectedTicket = viewModel.Tickets[1];
+        viewModel.SelectTicketCommand.Execute(selectedTicket);
+        Assert.Same(selectedTicket, viewModel.SelectedTicket);
+
+        viewModel.StatusToApply = SupportTicketStatus.Resolved;
+        viewModel.StatusNote = "Done";
+        viewModel.UpdateStatusCommand.Execute(null);
+        await WaitUntilAsync(() => service.UpdatedStatuses.Count > 0);
+
+        Assert.Equal(selectedTicket.Id, service.UpdatedStatuses[0].TicketId);
+        Assert.Equal(SupportTicketStatus.Resolved, service.UpdatedStatuses[0].Status);
+        Assert.Equal("Done", service.UpdatedStatuses[0].Note);
+        Assert.Equal("Ticket status updated.", viewModel.SuccessMessage);
+
+        var beforeSecondaryAction = viewModel.SelectedTicket;
+        viewModel.SecondaryTicketActionCommand.Execute(selectedTicket);
+        Assert.Same(beforeSecondaryAction, viewModel.SelectedTicket);
+    }
+
     private static async Task WaitUntilAsync(Func<bool> condition)
     {
         var deadline = DateTime.UtcNow.AddSeconds(5);
@@ -106,6 +142,7 @@ public sealed class SupportTicketListViewModelTests
         ];
 
         public List<SupportTicketDto> CreatedTickets { get; } = new();
+        public List<UpdateSupportTicketStatusRequest> UpdatedStatuses { get; } = new();
 
         public Task<IReadOnlyList<SupportTicketDto>> GetTicketsAsync(CancellationToken ct = default) =>
             Task.FromResult<IReadOnlyList<SupportTicketDto>>(_tickets.ToArray());
@@ -133,7 +170,11 @@ public sealed class SupportTicketListViewModelTests
 
         public Task AssignTicketAsync(Guid ticketId, Guid managerId, CancellationToken ct = default) => Task.CompletedTask;
         public Task AddResponseAsync(Guid ticketId, string message, CancellationToken ct = default) => Task.CompletedTask;
-        public Task UpdateStatusAsync(UpdateSupportTicketStatusRequest request, CancellationToken ct = default) => Task.CompletedTask;
+        public Task UpdateStatusAsync(UpdateSupportTicketStatusRequest request, CancellationToken ct = default)
+        {
+            UpdatedStatuses.Add(request);
+            return Task.CompletedTask;
+        }
         public Task CloseTicketAsync(Guid ticketId, CancellationToken ct = default) => Task.CompletedTask;
     }
 }

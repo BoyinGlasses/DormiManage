@@ -59,6 +59,11 @@
     <system:Double x:Key="SupportTicketsSummaryIconSize">40</system:Double>
     <system:Double x:Key="SupportTicketsPrimaryButtonHeight">40</system:Double>
     <system:Double x:Key="SupportTicketsPrimaryButtonMinWidth">140</system:Double>
+    <system:Double x:Key="SupportTicketsBadgeMinHeight">24</system:Double>
+    <system:Double x:Key="SupportTicketsActionButtonSize">32</system:Double>
+    <system:Double x:Key="SupportTicketsActionIconSize">18</system:Double>
+    <system:Double x:Key="SupportTicketsDataGridHeaderHeight">44</system:Double>
+    <system:Double x:Key="SupportTicketsDataGridRowMinHeight">48</system:Double>
     <system:Double x:Key="SupportTicketsFormWidth">420</system:Double>
     <system:Double x:Key="SupportTicketsCardShadowBlur">20</system:Double>
     <system:Double x:Key="SupportTicketsCardShadowDepth">2</system:Double>
@@ -75,6 +80,8 @@
     <Thickness x:Key="SupportTicketsCardPaddingThickness">24</Thickness>
     <Thickness x:Key="SupportTicketsPrimaryButtonPadding">18,0</Thickness>
     <Thickness x:Key="SupportTicketsSummaryCardPadding">18</Thickness>
+    <Thickness x:Key="SupportTicketsDataGridHeaderPadding">20,12</Thickness>
+    <Thickness x:Key="SupportTicketsDataGridCellPadding">20,13</Thickness>
     <Thickness x:Key="SupportTicketsInlineIconMargin">0,0,8,0</Thickness>
 
     <DropShadowEffect x:Key="SupportTicketsCardShadowEffect"

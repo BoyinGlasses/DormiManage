@@ -1,4 +1,5 @@
 using System.IO;
+using System.Globalization;
 using System.Resources;
 using System.Runtime.ExceptionServices;
 using System.Windows;
@@ -51,8 +52,12 @@ public sealed class SupportTicketViewTests
         AssertResourceValue(document, "Double", "SupportTicketsPageTitleSize", "32");
         AssertResourceValue(document, "Double", "SupportTicketsSectionTitleSize", "18");
         AssertResourceValue(document, "Double", "SupportTicketsMetricSize", "24");
+        AssertResourceValue(document, "Double", "SupportTicketsBadgeMinHeight", "24");
+        AssertResourceValue(document, "Double", "SupportTicketsActionButtonSize", "32");
+        AssertResourceValue(document, "Double", "SupportTicketsDataGridRowMinHeight", "48");
         AssertResourceValue(document, "CornerRadius", "SupportTicketsCardCornerRadius", "16");
         AssertResourceValue(document, "Thickness", "SupportTicketsCardPaddingThickness", "24");
+        AssertResourceValue(document, "Thickness", "SupportTicketsDataGridCellPadding", "20,13");
     }
 
     [Fact]
@@ -61,9 +66,17 @@ public sealed class SupportTicketViewTests
         var xaml = LoadSupportTicketViewDocument().ToString(SaveOptions.DisableFormatting);
 
         Assert.Contains("Text=\"Yêu cầu hỗ trợ\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Text=\"Quản lý và theo dõi các yêu cầu dịch vụ kỹ thuật của bạn.\"", xaml, StringComparison.Ordinal);
         Assert.Contains("Text=\"Danh sách yêu cầu gần đây\"", xaml, StringComparison.Ordinal);
         Assert.Contains("Text=\"Gửi yêu cầu mới\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Text=\"Tổng số yêu cầu\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Text=\"Đang xử lý\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Text=\"Đã hoàn thành\"", xaml, StringComparison.Ordinal);
         Assert.Contains("Header=\"Mã đơn\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Header=\"Chủ đề\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Header=\"Loại vấn đề\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Header=\"Ngày gửi\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Header=\"Trạng thái\"", xaml, StringComparison.Ordinal);
         Assert.Contains("Header=\"Hành động\"", xaml, StringComparison.Ordinal);
         Assert.Contains("Text=\"{Binding TicketFooterSummaryText}\"", xaml, StringComparison.Ordinal);
         Assert.Contains("ConverterParameter=\"TicketReference\"", xaml, StringComparison.Ordinal);
@@ -75,8 +88,40 @@ public sealed class SupportTicketViewTests
         Assert.Contains("Command=\"{Binding ToggleFiltersCommand}\"", xaml, StringComparison.Ordinal);
         Assert.Contains("SupportTicketValueConverter", xaml, StringComparison.Ordinal);
         Assert.Contains("SupportTicketsBadgeBorderStyle", xaml, StringComparison.Ordinal);
+        Assert.Contains("SupportTicketsActionButtonSize", xaml, StringComparison.Ordinal);
+        Assert.Contains("SupportTicketsActionIconSize", xaml, StringComparison.Ordinal);
+        Assert.Contains("AutomationProperties.Name=\"Xem yêu cầu\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("AutomationProperties.Name=\"Xóa yêu cầu\"", xaml, StringComparison.Ordinal);
         Assert.DoesNotContain("<controls:StatusBadge", xaml, StringComparison.Ordinal);
         Assert.Contains("Command=\"{Binding DataContext.SelectTicketCommand, RelativeSource={RelativeSource AncestorType=UserControl}}\"", xaml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Support_ticket_default_student_review_state_keeps_optional_surfaces_closed()
+    {
+        var viewModel = new SupportTicketListViewModel(new StubSupportTicketService(), new StubCurrentUser(RoleNames.Student));
+
+        Assert.False(viewModel.AreFiltersOpen);
+        Assert.False(viewModel.IsCreateFormOpen);
+        Assert.False(viewModel.IsStaffUser);
+
+        var xaml = LoadSupportTicketViewDocument().ToString(SaveOptions.DisableFormatting);
+        Assert.Contains("Visibility=\"Collapsed\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Visibility=\"{Binding AreFiltersOpen, Converter={StaticResource BoolToVisibility}}\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Visibility=\"{Binding IsCreateFormOpen, Converter={StaticResource BoolToVisibility}}\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Visibility=\"{Binding IsStaffUser, Converter={StaticResource BoolToVisibility}}\"", xaml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Support_ticket_status_labels_match_approved_meanings()
+    {
+        var converter = new DormitoryManagement.WPF.Converters.SupportTicketValueConverter();
+
+        Assert.Equal("Chờ xử lý", converter.Convert(SupportTicketStatus.New, typeof(string), null!, CultureInfo.InvariantCulture));
+        Assert.Equal("Đang thực hiện", converter.Convert(SupportTicketStatus.Assigned, typeof(string), null!, CultureInfo.InvariantCulture));
+        Assert.Equal("Đang thực hiện", converter.Convert(SupportTicketStatus.InProgress, typeof(string), null!, CultureInfo.InvariantCulture));
+        Assert.Equal("Đã giải quyết", converter.Convert(SupportTicketStatus.Resolved, typeof(string), null!, CultureInfo.InvariantCulture));
+        Assert.Equal("Đã giải quyết", converter.Convert(SupportTicketStatus.Closed, typeof(string), null!, CultureInfo.InvariantCulture));
     }
 
     [Fact]
@@ -86,7 +131,7 @@ public sealed class SupportTicketViewTests
         {
             EnsureApplicationResources();
             var repoRoot = FindRepositoryRoot();
-            var artifactPath = Path.Combine(repoRoot, ".ai", "artifacts", "support-tickets-wpf.png");
+            var artifactPath = Path.Combine(repoRoot, ".ai", "artifacts", "support-tickets-wpf-recovered.png");
             Directory.CreateDirectory(Path.GetDirectoryName(artifactPath)!);
 
             var viewModel = new SupportTicketListViewModel(new StubSupportTicketService(), new StubCurrentUser(RoleNames.Student));
@@ -122,6 +167,7 @@ public sealed class SupportTicketViewTests
 
             Assert.True(File.Exists(artifactPath));
             Assert.True(new FileInfo(artifactPath).Length > 0);
+            Assert.True(File.Exists(Path.Combine(repoRoot, ".ai", "artifacts", "support-tickets-wpf.png")));
         });
     }
 

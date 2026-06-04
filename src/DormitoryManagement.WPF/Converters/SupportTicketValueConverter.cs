@@ -19,11 +19,11 @@ public sealed class SupportTicketValueConverter : IValueConverter
         return value switch
         {
             SupportTicketStatus.New => "Chờ xử lý",
-            SupportTicketStatus.Assigned => "Đang tiếp nhận",
+            SupportTicketStatus.Assigned => "Đang thực hiện",
             SupportTicketStatus.InProgress => "Đang thực hiện",
             SupportTicketStatus.Resolved => "Đã giải quyết",
             SupportTicketStatus.Rejected => "Từ chối",
-            SupportTicketStatus.Closed => "Đã đóng",
+            SupportTicketStatus.Closed => "Đã giải quyết",
             SupportTicketCategory.Complaint => "Khiếu nại",
             SupportTicketCategory.Maintenance => "Cơ sở vật chất",
             SupportTicketCategory.Billing => "Thanh toán",

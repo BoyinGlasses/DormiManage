@@ -27,6 +27,7 @@
         <Style x:Key="SupportTicketsBadgeBorderStyle" TargetType="Border">
             <Setter Property="CornerRadius" Value="999" />
             <Setter Property="Padding" Value="8,3" />
+            <Setter Property="MinHeight" Value="{StaticResource SupportTicketsBadgeMinHeight}" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
         <Style x:Key="SupportTicketsBadgeTextStyle" TargetType="TextBlock">
@@ -37,8 +38,8 @@
         </Style>
         <Style x:Key="SupportTicketsActionButtonStyle" TargetType="Button" BasedOn="{StaticResource TextButtonStyle}">
             <Setter Property="Padding" Value="8" />
-            <Setter Property="Width" Value="32" />
-            <Setter Property="Height" Value="32" />
+            <Setter Property="Width" Value="{StaticResource SupportTicketsActionButtonSize}" />
+            <Setter Property="Height" Value="{StaticResource SupportTicketsActionButtonSize}" />
             <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
             <Setter Property="Background" Value="Transparent" />
         </Style>
@@ -64,8 +65,8 @@
             <Setter Property="Background" Value="{StaticResource SupportTicketsSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{StaticResource SupportTicketsSurfaceHighBrush}" />
             <Setter Property="BorderThickness" Value="0,0,0,1" />
-            <Setter Property="Padding" Value="20,12" />
-            <Setter Property="Height" Value="44" />
+            <Setter Property="Padding" Value="{StaticResource SupportTicketsDataGridHeaderPadding}" />
+            <Setter Property="Height" Value="{StaticResource SupportTicketsDataGridHeaderHeight}" />
             <Setter Property="HorizontalContentAlignment" Value="Left" />
             <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
             <Setter Property="FontSize" Value="11.5" />
@@ -74,13 +75,13 @@
         </Style>
         <Style x:Key="SupportTicketsDataGridCellStyle" TargetType="DataGridCell">
             <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="Padding" Value="20,13" />
+            <Setter Property="Padding" Value="{StaticResource SupportTicketsDataGridCellPadding}" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="TextBlock.TextTrimming" Value="CharacterEllipsis" />
         </Style>
         <Style x:Key="SupportTicketsDataGridRowStyle" TargetType="DataGridRow">
-            <Setter Property="MinHeight" Value="48" />
+            <Setter Property="MinHeight" Value="{StaticResource SupportTicketsDataGridRowMinHeight}" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderBrush" Value="Transparent" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
@@ -134,7 +135,7 @@
                                 <iconPacks:PackIconMaterial Kind="ReceiptTextOutline" Width="18" Height="18" Foreground="{StaticResource SupportTicketsPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="TỔNG SỐ YÊU CẦU" Style="{StaticResource SupportTicketsSummaryLabelTextStyle}" />
+                                <TextBlock Text="Tổng số yêu cầu" Style="{StaticResource SupportTicketsSummaryLabelTextStyle}" />
                                 <TextBlock Text="{Binding TotalTicketCountText}" Style="{StaticResource SupportTicketsSummaryValueTextStyle}" />
                             </StackPanel>
                         </DockPanel>
@@ -145,7 +146,7 @@
                                 <iconPacks:PackIconMaterial Kind="HammerWrench" Width="18" Height="18" Foreground="{StaticResource SupportTicketsPrimaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="ĐANG XỬ LÝ" Style="{StaticResource SupportTicketsSummaryLabelTextStyle}" />
+                                <TextBlock Text="Đang xử lý" Style="{StaticResource SupportTicketsSummaryLabelTextStyle}" />
                                 <TextBlock Text="{Binding OpenTicketCountText}" Style="{StaticResource SupportTicketsSummaryValueTextStyle}" />
                             </StackPanel>
                         </DockPanel>
@@ -156,7 +157,7 @@
                                 <iconPacks:PackIconMaterial Kind="CheckCircle" Width="18" Height="18" Foreground="#FF003A25" HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="ĐÃ HOÀN THÀNH" Style="{StaticResource SupportTicketsSummaryLabelTextStyle}" />
+                                <TextBlock Text="Đã hoàn thành" Style="{StaticResource SupportTicketsSummaryLabelTextStyle}" />
                                 <TextBlock Text="{Binding ResolvedTicketCountText}" Style="{StaticResource SupportTicketsSummaryValueTextStyle}" />
                             </StackPanel>
                         </DockPanel>
@@ -169,7 +170,7 @@
                             <TextBlock Text="Danh sách yêu cầu gần đây" Style="{StaticResource SupportTicketsSectionTitleTextStyle}" />
                         </Border>
 
-                        <StackPanel Margin="24,16,24,0">
+                        <StackPanel Margin="24,16,24,0" Visibility="Collapsed">
                             <Button Command="{Binding ToggleFiltersCommand}" Style="{StaticResource SupportTicketsSecondaryButtonStyle}" HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal">
                                     <iconPacks:PackIconMaterial Kind="FilterVariant" Width="14" Height="14" Margin="{StaticResource SupportTicketsInlineIconMargin}" VerticalAlignment="Center" />
@@ -260,11 +261,11 @@
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                                <Button Command="{Binding DataContext.SelectTicketCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource SupportTicketsActionButtonStyle}" Margin="0,0,4,0">
-                                                    <iconPacks:PackIconMaterial Kind="EyeOutline" Width="18" Height="18" />
+                                                <Button Command="{Binding DataContext.SelectTicketCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource SupportTicketsActionButtonStyle}" Margin="0,0,4,0" AutomationProperties.Name="Xem yêu cầu">
+                                                    <iconPacks:PackIconMaterial Kind="EyeOutline" Width="{StaticResource SupportTicketsActionIconSize}" Height="{StaticResource SupportTicketsActionIconSize}" />
                                                 </Button>
-                                                <Button Command="{Binding DataContext.SecondaryTicketActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource SupportTicketsActionButtonStyle}">
-                                                    <iconPacks:PackIconMaterial Kind="DeleteOutline" Width="18" Height="18" Foreground="#FFBA1A1A" />
+                                                <Button Command="{Binding DataContext.SecondaryTicketActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource SupportTicketsActionButtonStyle}" AutomationProperties.Name="Xóa yêu cầu">
+                                                    <iconPacks:PackIconMaterial Kind="DeleteOutline" Width="{StaticResource SupportTicketsActionIconSize}" Height="{StaticResource SupportTicketsActionIconSize}" Foreground="#FFBA1A1A" />
                                                 </Button>
                                             </StackPanel>
                                         </DataTemplate>

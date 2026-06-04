@@ -14,20 +14,65 @@
             <Style x:Key="LoginPageTextBoxStyle"
                    TargetType="TextBox"
                    BasedOn="{StaticResource RegisterPagePlainTextBoxStyle}">
+                <Setter Property="Padding" Value="{StaticResource LoginPageInputPadding}" />
                 <Setter Property="Height" Value="48" />
                 <Setter Property="FontFamily" Value="{StaticResource LoginPageBodyFontFamily}" />
                 <Setter Property="FontSize" Value="{StaticResource LoginPageBodyMediumSize}" />
                 <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
                 <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border x:Name="Border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="{StaticResource LoginPageControlCornerRadius}">
+                                <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource LoginPagePrimaryContainerBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource LoginPagePrimaryBrush}" />
+                                    <Setter TargetName="Border" Property="BorderThickness" Value="2" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
 
             <Style x:Key="LoginPagePasswordBoxStyle"
                    TargetType="PasswordBox"
                    BasedOn="{StaticResource RegisterPagePasswordBoxStyle}">
-                <Setter Property="Padding" Value="{StaticResource RegisterPagePlainInputPadding}" />
+                <Setter Property="Padding" Value="{StaticResource LoginPagePasswordInputPadding}" />
                 <Setter Property="Height" Value="48" />
                 <Setter Property="FontFamily" Value="{StaticResource LoginPageBodyFontFamily}" />
                 <Setter Property="FontSize" Value="{StaticResource LoginPageBodyMediumSize}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="PasswordBox">
+                            <Border x:Name="Border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="{StaticResource LoginPageControlCornerRadius}">
+                                <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource LoginPagePrimaryContainerBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource LoginPagePrimaryBrush}" />
+                                    <Setter TargetName="Border" Property="BorderThickness" Value="2" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
 
             <Style x:Key="LoginPagePrimaryButtonStyle" TargetType="Button">
@@ -247,11 +292,16 @@
 
                                 <TextBlock Text="Mã sinh viên"
                                            Style="{StaticResource LoginPageLabelTextStyle}" />
-                                <TextBox x:Name="StudentIdInput"
-                                         Margin="0,8,0,0"
-                                         Text="{Binding EmailOrStudentCode, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource LoginPageTextBoxStyle}"
-                                         AutomationProperties.Name="Mã sinh viên" />
+                                <Grid Margin="0,8,0,0">
+                                    <TextBox x:Name="StudentIdInput"
+                                             Text="{Binding EmailOrStudentCode, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource LoginPageTextBoxStyle}"
+                                             AutomationProperties.Name="Mã sinh viên" />
+                                    <TextBlock Text="VD: 20248901"
+                                               Style="{StaticResource LoginPagePlaceholderTextStyle}"
+                                               Margin="40,0,0,0"
+                                               Visibility="{Binding EmailOrStudentCode, Converter={StaticResource EmptyStringToVisibility}}" />
+                                </Grid>
                                 <TextBlock Text="{Binding AccountError}"
                                            Style="{StaticResource LoginPageInlineErrorTextStyle}" />
 
@@ -281,6 +331,11 @@
                                              Style="{StaticResource LoginPageTextBoxStyle}"
                                              Visibility="Collapsed"
                                              AutomationProperties.Name="Mật khẩu hiển thị" />
+                                    <TextBlock Grid.Column="0"
+                                               Text="••••••••"
+                                               Style="{StaticResource LoginPagePlaceholderTextStyle}"
+                                               Margin="40,0,0,0"
+                                               Visibility="{Binding Password, Converter={StaticResource EmptyStringToVisibility}}" />
                                     <Button x:Name="PasswordVisibilityToggleButton"
                                             Grid.Column="1"
                                             Content=""

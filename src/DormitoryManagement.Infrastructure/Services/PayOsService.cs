@@ -175,7 +175,7 @@ public sealed class PayOsService : IPayOsService
             Amount = data.Amount,
             Description = data.Description ?? string.Empty,
             Reference = data.Reference ?? string.Empty,
-            TransactionDateTime = data.TransactionDateTime,
+            TransactionDateTime = ParseWebhookTransactionDateTime(data.TransactionDateTime),
             Status = data.Code ?? string.Empty
         };
     }
@@ -234,6 +234,42 @@ public sealed class PayOsService : IPayOsService
     {
         var value = string.IsNullOrWhiteSpace(baseUrl) ? "https://api-merchant.payos.vn" : baseUrl.Trim();
         return value.EndsWith('/') ? value[..^1] : value;
+    }
+
+    private static DateTime ParseWebhookTransactionDateTime(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return default;
+        }
+
+        var trimmed = value.Trim();
+        string[] supportedFormats =
+        [
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-ddTHH:mm:ss",
+            "yyyy-MM-ddTHH:mm:ss.FFFFFFFK"
+        ];
+        if (DateTime.TryParseExact(
+            trimmed,
+            supportedFormats,
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.AllowWhiteSpaces,
+            out var exactDateTime))
+        {
+            return exactDateTime;
+        }
+
+        if (DateTime.TryParse(
+            trimmed,
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.AllowWhiteSpaces,
+            out var parsedDateTime))
+        {
+            return parsedDateTime;
+        }
+
+        throw new InvalidOperationException("PayOS webhook transaction date is invalid.");
     }
 
     private static T EnsureSuccess<T>(ApiEnvelope<T> envelope, string responseBody)
@@ -404,7 +440,7 @@ public sealed class PayOsService : IPayOsService
         public string? Reference { get; set; }
 
         [JsonPropertyName("transactionDateTime")]
-        public DateTime TransactionDateTime { get; set; }
+        public string? TransactionDateTime { get; set; }
 
         [JsonPropertyName("code")]
         public string? Code { get; set; }
