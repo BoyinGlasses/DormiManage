@@ -1,0 +1,229 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+    <Color x:Key="SupportTicketsColorCanvas">#F8F9FF</Color>
+    <Color x:Key="SupportTicketsColorSurface">#FFFFFF</Color>
+    <Color x:Key="SupportTicketsColorSurfaceLow">#EFF4FF</Color>
+    <Color x:Key="SupportTicketsColorSurfaceContainer">#E5EEFF</Color>
+    <Color x:Key="SupportTicketsColorSurfaceHigh">#DCE9FF</Color>
+    <Color x:Key="SupportTicketsColorSurfaceHighest">#D3E4FE</Color>
+    <Color x:Key="SupportTicketsColorTextPrimary">#0B1C30</Color>
+    <Color x:Key="SupportTicketsColorTextSecondary">#594139</Color>
+    <Color x:Key="SupportTicketsColorPrimary">#AB3500</Color>
+    <Color x:Key="SupportTicketsColorPrimaryContainer">#FF6B35</Color>
+    <Color x:Key="SupportTicketsColorSecondary">#4648D4</Color>
+    <Color x:Key="SupportTicketsColorSecondaryContainer">#6063EE</Color>
+    <Color x:Key="SupportTicketsColorTertiary">#006C49</Color>
+    <Color x:Key="SupportTicketsColorTertiaryContainer">#00AF79</Color>
+    <Color x:Key="SupportTicketsColorOutline">#8D7168</Color>
+    <Color x:Key="SupportTicketsColorOutlineVariant">#E1BFB5</Color>
+    <Color x:Key="SupportTicketsColorShadow">#14000000</Color>
+
+    <SolidColorBrush x:Key="SupportTicketsCanvasBrush" Color="{StaticResource SupportTicketsColorCanvas}" />
+    <SolidColorBrush x:Key="SupportTicketsSurfaceBrush" Color="{StaticResource SupportTicketsColorSurface}" />
+    <SolidColorBrush x:Key="SupportTicketsSurfaceLowBrush" Color="{StaticResource SupportTicketsColorSurfaceLow}" />
+    <SolidColorBrush x:Key="SupportTicketsSurfaceContainerBrush" Color="{StaticResource SupportTicketsColorSurfaceContainer}" />
+    <SolidColorBrush x:Key="SupportTicketsSurfaceHighBrush" Color="{StaticResource SupportTicketsColorSurfaceHigh}" />
+    <SolidColorBrush x:Key="SupportTicketsSurfaceHighestBrush" Color="{StaticResource SupportTicketsColorSurfaceHighest}" />
+    <SolidColorBrush x:Key="SupportTicketsTextPrimaryBrush" Color="{StaticResource SupportTicketsColorTextPrimary}" />
+    <SolidColorBrush x:Key="SupportTicketsTextSecondaryBrush" Color="{StaticResource SupportTicketsColorTextSecondary}" />
+    <SolidColorBrush x:Key="SupportTicketsPrimaryBrush" Color="{StaticResource SupportTicketsColorPrimary}" />
+    <SolidColorBrush x:Key="SupportTicketsPrimaryContainerBrush" Color="{StaticResource SupportTicketsColorPrimaryContainer}" />
+    <SolidColorBrush x:Key="SupportTicketsSecondaryBrush" Color="{StaticResource SupportTicketsColorSecondary}" />
+    <SolidColorBrush x:Key="SupportTicketsSecondaryContainerBrush" Color="{StaticResource SupportTicketsColorSecondaryContainer}" />
+    <SolidColorBrush x:Key="SupportTicketsTertiaryBrush" Color="{StaticResource SupportTicketsColorTertiary}" />
+    <SolidColorBrush x:Key="SupportTicketsTertiaryContainerBrush" Color="{StaticResource SupportTicketsColorTertiaryContainer}" />
+    <SolidColorBrush x:Key="SupportTicketsOutlineBrush" Color="{StaticResource SupportTicketsColorOutline}" />
+    <SolidColorBrush x:Key="SupportTicketsOutlineVariantBrush" Color="{StaticResource SupportTicketsColorOutlineVariant}" />
+    <SolidColorBrush x:Key="SupportTicketsPrimaryTintBrush" Color="#1AFF6B35" />
+    <SolidColorBrush x:Key="SupportTicketsSecondaryTintBrush" Color="#1A6063EE" />
+    <SolidColorBrush x:Key="SupportTicketsTertiaryTintBrush" Color="#1A00AF79" />
+
+    <FontFamily x:Key="SupportTicketsHeadlineFontFamily">pack://application:,,,/DormitoryManagement.WPF;component/Assets/Fonts/PlusJakartaSans/#Plus Jakarta Sans</FontFamily>
+    <FontFamily x:Key="SupportTicketsBodyFontFamily">pack://application:,,,/DormitoryManagement.WPF;component/Assets/Fonts/Inter/#Inter</FontFamily>
+
+    <system:Double x:Key="SupportTicketsPageMaxWidth">1440</system:Double>
+    <system:Double x:Key="SupportTicketsPageTitleSize">32</system:Double>
+    <system:Double x:Key="SupportTicketsPageTitleLineHeight">40</system:Double>
+    <system:Double x:Key="SupportTicketsSectionTitleSize">18</system:Double>
+    <system:Double x:Key="SupportTicketsSectionTitleLineHeight">24</system:Double>
+    <system:Double x:Key="SupportTicketsBodySize">14</system:Double>
+    <system:Double x:Key="SupportTicketsBodyLineHeight">22</system:Double>
+    <system:Double x:Key="SupportTicketsMetaSize">12</system:Double>
+    <system:Double x:Key="SupportTicketsMetricSize">24</system:Double>
+    <system:Double x:Key="SupportTicketsMetricLineHeight">32</system:Double>
+    <system:Double x:Key="SupportTicketsPagePadding">32</system:Double>
+    <system:Double x:Key="SupportTicketsSectionGap">24</system:Double>
+    <system:Double x:Key="SupportTicketsCardPadding">24</system:Double>
+    <system:Double x:Key="SupportTicketsSummaryCardMinHeight">72</system:Double>
+    <system:Double x:Key="SupportTicketsSummaryIconSize">40</system:Double>
+    <system:Double x:Key="SupportTicketsPrimaryButtonHeight">40</system:Double>
+    <system:Double x:Key="SupportTicketsPrimaryButtonMinWidth">140</system:Double>
+    <system:Double x:Key="SupportTicketsFormWidth">420</system:Double>
+    <system:Double x:Key="SupportTicketsCardShadowBlur">20</system:Double>
+    <system:Double x:Key="SupportTicketsCardShadowDepth">2</system:Double>
+    <system:Double x:Key="SupportTicketsCardShadowOpacity">0.05</system:Double>
+
+    <CornerRadius x:Key="SupportTicketsCardCornerRadius">16</CornerRadius>
+    <CornerRadius x:Key="SupportTicketsControlCornerRadius">8</CornerRadius>
+    <CornerRadius x:Key="SupportTicketsPillCornerRadius">999</CornerRadius>
+
+    <Thickness x:Key="SupportTicketsPageOuterMargin">32</Thickness>
+    <Thickness x:Key="SupportTicketsTitleMargin">0,0,0,24</Thickness>
+    <Thickness x:Key="SupportTicketsFeedbackMargin">0,0,0,20</Thickness>
+    <Thickness x:Key="SupportTicketsSummaryMargin">0,0,0,24</Thickness>
+    <Thickness x:Key="SupportTicketsCardPaddingThickness">24</Thickness>
+    <Thickness x:Key="SupportTicketsPrimaryButtonPadding">18,0</Thickness>
+    <Thickness x:Key="SupportTicketsSummaryCardPadding">18</Thickness>
+    <Thickness x:Key="SupportTicketsInlineIconMargin">0,0,8,0</Thickness>
+
+    <DropShadowEffect x:Key="SupportTicketsCardShadowEffect"
+                      BlurRadius="{StaticResource SupportTicketsCardShadowBlur}"
+                      ShadowDepth="{StaticResource SupportTicketsCardShadowDepth}"
+                      Opacity="{StaticResource SupportTicketsCardShadowOpacity}"
+                      Color="{StaticResource SupportTicketsColorShadow}" />
+
+    <Style x:Key="SupportTicketsPageTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SupportTicketsHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource SupportTicketsPageTitleSize}" />
+        <Setter Property="LineHeight" Value="{StaticResource SupportTicketsPageTitleLineHeight}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextPrimaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="SupportTicketsBodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource SupportTicketsBodySize}" />
+        <Setter Property="LineHeight" Value="{StaticResource SupportTicketsBodyLineHeight}" />
+        <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="SupportTicketsSectionTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SupportTicketsHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource SupportTicketsSectionTitleSize}" />
+        <Setter Property="LineHeight" Value="{StaticResource SupportTicketsSectionTitleLineHeight}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextPrimaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="SupportTicketsSummaryLabelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource SupportTicketsMetaSize}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="SupportTicketsSummaryValueTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SupportTicketsHeadlineFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource SupportTicketsMetricSize}" />
+        <Setter Property="LineHeight" Value="{StaticResource SupportTicketsMetricLineHeight}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextPrimaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="SupportTicketsTableHeaderTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="SupportTicketsTableCellTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="LineHeight" Value="20" />
+        <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextPrimaryBrush}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="SupportTicketsCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource SupportTicketsSurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource SupportTicketsSurfaceContainerBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource SupportTicketsCardCornerRadius}" />
+        <Setter Property="Padding" Value="{StaticResource SupportTicketsCardPaddingThickness}" />
+        <Setter Property="Effect" Value="{StaticResource SupportTicketsCardShadowEffect}" />
+    </Style>
+
+    <Style x:Key="SupportTicketsPrimaryButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource SupportTicketsPrimaryBrush}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderBrush" Value="{StaticResource SupportTicketsPrimaryBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Height" Value="{StaticResource SupportTicketsPrimaryButtonHeight}" />
+        <Setter Property="MinWidth" Value="{StaticResource SupportTicketsPrimaryButtonMinWidth}" />
+        <Setter Property="Padding" Value="{StaticResource SupportTicketsPrimaryButtonPadding}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{StaticResource SupportTicketsControlCornerRadius}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource SupportTicketsPrimaryContainerBrush}" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource SupportTicketsPrimaryContainerBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SupportTicketsSecondaryButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource SupportTicketsSurfaceBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource SupportTicketsSurfaceContainerBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="14,8" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{StaticResource SupportTicketsPillCornerRadius}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource SupportTicketsSurfaceLowBrush}" />
+                            <Setter Property="Foreground" Value="{StaticResource SupportTicketsPrimaryBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
+
