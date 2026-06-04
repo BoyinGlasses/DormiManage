@@ -1460,6 +1460,52 @@ public sealed class WpfResourceTests
     }
 
     [Fact]
+    public void Student_dashboard_view_renders_visible_refresh_button()
+    {
+        RunOnStaThread(() =>
+        {
+            EnsureApplicationResources();
+            var viewModel = CreateStudentDashboardViewModel();
+            var view = new StudentDashboardView
+            {
+                DataContext = viewModel,
+                Width = 1440,
+                Height = 900
+            };
+            var window = new Window
+            {
+                Width = 1440,
+                Height = 900,
+                Content = view,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = -10000,
+                Top = -10000,
+                ShowInTaskbar = false
+            };
+
+            try
+            {
+                window.Show();
+                WaitForLayout();
+                WaitUntil(() => viewModel.CurrentRoom == "A-101");
+
+                var refreshButton = Assert.Single(
+                    FindDescendants<Button>(view),
+                    candidate => candidate.IsVisible && Equals(candidate.Command, viewModel.RefreshCommand));
+                var refreshLabel = FindVisibleTextBlock(refreshButton, "Làm mới");
+
+                Assert.True(refreshButton.ActualWidth > 0, "Expected refresh button to render with measurable width.");
+                Assert.True(refreshButton.ActualHeight > 0, "Expected refresh button to render with measurable height.");
+                Assert.True(refreshLabel.IsVisible, "Expected refresh button label to stay visible.");
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
+
+    [Fact]
     public void Student_dashboard_shell_keeps_sidebar_available_on_student_route()
     {
         var document = LoadShellViewDocument();
@@ -2266,6 +2312,16 @@ public sealed class WpfResourceTests
     }
 
     [Fact]
+    public void Login_view_templates_apply_padding_to_content_host_to_keep_text_clear_of_icons()
+    {
+        var xaml = LoadLoginViewDocument().ToString(SaveOptions.DisableFormatting);
+
+        var contentHostPattern = "<ScrollViewer x:Name=\"PART_ContentHost\" Margin=\"{TemplateBinding Padding}\" />";
+
+        Assert.Equal(2, CountOccurrences(xaml, contentHostPattern));
+    }
+
+    [Fact]
     public void Login_view_renders_modules_in_expected_sequence()
     {
         RunOnStaThread(() =>
@@ -2393,6 +2449,59 @@ public sealed class WpfResourceTests
         });
     }
 
+
+    [Fact]
+    public void Login_view_keeps_password_editable_after_revealing_password()
+    {
+        RunOnStaThread(() =>
+        {
+            EnsureApplicationResources();
+            var view = CreateLoginView();
+            var viewModel = Assert.IsType<LoginViewModel>(view.DataContext);
+            var window = new Window
+            {
+                Width = 1440,
+                Height = 900,
+                Content = view,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = -10000,
+                Top = -10000,
+                ShowInTaskbar = false,
+                Background = Brushes.White
+            };
+
+            try
+            {
+                window.Show();
+                WaitForLayout();
+
+                var passwordBox = Assert.IsType<PasswordBox>(view.FindName("PasswordInput"));
+                var visiblePasswordInput = Assert.IsType<TextBox>(view.FindName("VisiblePasswordInput"));
+                var visibilityToggle = Assert.IsType<Button>(view.FindName("PasswordVisibilityToggleButton"));
+
+                passwordBox.Password = "abc";
+                WaitForLayout();
+
+                visibilityToggle.RaiseEvent(new RoutedEventArgs(Button.ClickEvent, visibilityToggle));
+                WaitForLayout();
+
+                Assert.Equal(Visibility.Visible, visiblePasswordInput.Visibility);
+                Assert.Equal("abc", visiblePasswordInput.Text);
+
+                visiblePasswordInput.Text = "abcdef";
+                WaitForLayout();
+
+                Assert.Equal("abcdef", visiblePasswordInput.Text);
+                Assert.Equal("abcdef", passwordBox.Password);
+                Assert.Equal("abcdef", viewModel.Password);
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
+
     private static XDocument LoadLoginPageResourceDocument()
     {
         var repoRoot = FindRepositoryRoot();
@@ -2400,6 +2509,16 @@ public sealed class WpfResourceTests
 
         Assert.True(File.Exists(resourcePath), $"Expected login-page resource dictionary '{resourcePath}' to exist.");
         return XDocument.Load(resourcePath);
+    }
+
+
+    private static XDocument LoadLoginViewDocument()
+    {
+        var repoRoot = FindRepositoryRoot();
+        var viewPath = Path.Combine(repoRoot, "src", "DormitoryManagement.WPF", "Views", "Auth", "LoginView.xaml");
+
+        Assert.True(File.Exists(viewPath), $"Expected login view '{viewPath}' to exist.");
+        return XDocument.Load(viewPath);
     }
 
     private static LoginView CreateLoginView()
@@ -3214,9 +3333,25 @@ public sealed class WpfResourceTests
         }
     }
 
+
+    private static int CountOccurrences(string text, string value)
+    {
+        var count = 0;
+        var index = 0;
+
+        while ((index = text.IndexOf(value, index, StringComparison.Ordinal)) >= 0)
+        {
+            count++;
+            index += value.Length;
+        }
+
+        return count;
+    }
+
     private static readonly XNamespace WpfNamespace = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
     private static readonly XNamespace XamlNamespace = "http://schemas.microsoft.com/winfx/2006/xaml";
 }
+
 
 
 
