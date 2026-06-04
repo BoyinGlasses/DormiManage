@@ -19,7 +19,7 @@ public sealed class StatusToBrushConverter : IValueConverter
             "Chưathanhtoán" => "danger",
             "Hếthạn" => "neutral",
             "Active" or "Available" or "Paid" or "Success" or "Approved" or "Visible" or "Resolved" or "Completed" or "Staying" or "Nooutstandingbalance" or "Noopenticket" => "success",
-            "Pending" or "Partial" or "InProgress" or "Assigned" or "Draft" or "NotRegistered" or "Maintenance" or "Medium" or "Unpaid" or "Paymentdue" => "warning",
+            "Pending" or "InProgress" or "Assigned" or "Draft" or "NotRegistered" or "Maintenance" or "Medium" or "Unpaid" or "Paymentdue" => "warning",
             "Locked" or "Overdue" or "Rejected" or "Failed" or "Hidden" or "Urgent" or "Critical" or "High" or "Full" => "danger",
             "New" or "Open" or "Info" or "Low" => "info",
             "Closed" or "Cancelled" or "Inactive" or "Disabled" => "neutral",

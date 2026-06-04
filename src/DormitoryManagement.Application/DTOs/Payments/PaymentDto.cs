@@ -9,8 +9,8 @@ public sealed class PaymentDto
     public Guid StudentId { get; set; }
     public string StudentCode { get; set; } = string.Empty;
     public string StudentName { get; set; } = string.Empty;
-    public Guid? TargetInvoiceId { get; set; }
-    public string? TargetInvoiceNumber { get; set; }
+    public Guid InvoiceId { get; set; }
+    public string InvoiceNumber { get; set; } = string.Empty;
     public decimal Amount { get; set; }
     public PaymentMethod Method { get; set; }
     public PaymentStatus Status { get; set; }

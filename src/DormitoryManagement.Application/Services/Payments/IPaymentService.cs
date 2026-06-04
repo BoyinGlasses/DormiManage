@@ -12,6 +12,5 @@ public interface IPaymentService
     Task<InvoicePaymentQrDto> GetInvoicePaymentQrAsync(Guid invoiceId, CancellationToken ct = default);
     Task<BankTransferProcessResultDto> ProcessBankTransferAsync(BankTransferNotificationDto notification, CancellationToken ct = default);
     Task<PaymentDto> ConfirmPaymentAsync(ConfirmPaymentRequest request, CancellationToken ct = default);
-    Task AllocatePaymentAsync(Guid paymentId, Guid invoiceId, decimal amount, CancellationToken ct = default);
     Task CancelPaymentAsync(Guid paymentId, string reason, CancellationToken ct = default);
 }

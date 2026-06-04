@@ -1,3 +1,4 @@
+using DormitoryManagement.Application.Abstractions.Auth;
 using DormitoryManagement.Application.Abstractions.Repositories;
 using DormitoryManagement.Application.Common;
 using DormitoryManagement.Application.DTOs.Forum;
@@ -52,7 +53,7 @@ public sealed class ForumPostServiceTests
             Tags = ["maintenance"]
         });
 
-        Assert.True(result.Succeeded, result.ErrorMessage);
+        Assert.True(result.Succeeded, result.Error);
         Assert.Equal(ForumPostStatus.Published, Assert.Single(unitOfWork.Set<ForumPost>().Items).Status);
     }
 
@@ -196,7 +197,7 @@ public sealed class ForumPostServiceTests
             Tags = ["community"]
         });
 
-        Assert.True(result.Succeeded, result.ErrorMessage);
+        Assert.True(result.Succeeded, result.Error);
         Assert.Equal("Updated", post.Title);
     }
 
@@ -213,7 +214,7 @@ public sealed class ForumPostServiceTests
 
         var result = await service.ApproveAsync(post.Id);
 
-        Assert.True(result.Succeeded, result.ErrorMessage);
+        Assert.True(result.Succeeded, result.Error);
         Assert.Equal(ForumPostStatus.Published, post.Status);
         Assert.Equal(1, unitOfWork.SaveChangesCount);
     }

@@ -252,7 +252,7 @@ internal static class SeedData
     {
         modelBuilder.Entity<Invoice>().HasData(
             Invoice(Invoices.One, "INV-2026-05-001", Students.One, Rooms.A101, "2026-05", 950000m, 950000m, InvoiceStatus.Paid),
-            Invoice(Invoices.Two, "INV-2026-05-002", Students.Two, Rooms.A102, "2026-05", 900000m, 400000m, InvoiceStatus.Partial),
+            Invoice(Invoices.Two, "INV-2026-05-002", Students.Two, Rooms.A102, "2026-05", 900000m, 900000m, InvoiceStatus.Paid),
             Invoice(Invoices.Three, "INV-2026-05-003", Students.Three, Rooms.B101, "2026-05", 850000m, 0m, InvoiceStatus.Unpaid));
 
         modelBuilder.Entity<InvoiceItem>().HasData(
@@ -267,12 +267,8 @@ internal static class SeedData
             InvoiceItem(Guid.Parse("71000000-0000-0000-0000-000000000009"), Invoices.Three, FeeTypes.Parking, "Parking May 2026", 1m, 100000m));
 
         modelBuilder.Entity<Payment>().HasData(
-            new Payment { Id = Payments.One, PaymentCode = "PAY-2026-05-001", StudentId = Students.One, Amount = 950000m, Method = PaymentMethod.MockGateway, Status = PaymentStatus.Success, TransactionRef = "MOCK-TXN-202605-001", PaidAt = PaidAt, CreatedAt = SeededAt },
-            new Payment { Id = Payments.Two, PaymentCode = "PAY-2026-05-002", StudentId = Students.Two, Amount = 400000m, Method = PaymentMethod.BankTransfer, Status = PaymentStatus.Success, TransactionRef = "BANK-TXN-202605-002", PaidAt = PaidAt, CreatedAt = SeededAt });
-
-        modelBuilder.Entity<PaymentAllocation>().HasData(
-            new PaymentAllocation { Id = Guid.Parse("81000000-0000-0000-0000-000000000001"), PaymentId = Payments.One, InvoiceId = Invoices.One, Amount = 950000m, CreatedAt = SeededAt },
-            new PaymentAllocation { Id = Guid.Parse("81000000-0000-0000-0000-000000000002"), PaymentId = Payments.Two, InvoiceId = Invoices.Two, Amount = 400000m, CreatedAt = SeededAt });
+            new Payment { Id = Payments.One, PaymentCode = "PAY-2026-05-001", StudentId = Students.One, InvoiceId = Invoices.One, Amount = 950000m, Method = PaymentMethod.QrBanking, Status = PaymentStatus.Success, TransactionRef = "MOCK-TXN-202605-001", PaidAt = PaidAt, CreatedAt = SeededAt },
+            new Payment { Id = Payments.Two, PaymentCode = "PAY-2026-05-002", StudentId = Students.Two, InvoiceId = Invoices.Two, Amount = 900000m, Method = PaymentMethod.QrBanking, Status = PaymentStatus.Success, TransactionRef = "BANK-TXN-202605-002", PaidAt = PaidAt, CreatedAt = SeededAt });
     }
 
     private static Invoice Invoice(Guid id, string invoiceCode, Guid studentId, Guid roomId, string billingPeriod, decimal total, decimal paid, InvoiceStatus status) =>

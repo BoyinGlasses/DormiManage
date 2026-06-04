@@ -94,11 +94,7 @@ public sealed class PaymentServiceTests
         Assert.Equal(PaymentMethod.QrBanking, payment.Method);
         Assert.Equal(PaymentStatus.Success, payment.Status);
         Assert.Equal("BANK-100", payment.TransactionRef);
-        Assert.Equal(invoice.Id, payment.TargetInvoiceId);
-        var allocation = Assert.Single(unitOfWork.Set<PaymentAllocation>().Items);
-        Assert.Equal(invoice.Id, allocation.InvoiceId);
-        Assert.Equal(payment.Id, allocation.PaymentId);
-        Assert.Equal(500000m, allocation.Amount);
+        Assert.Equal(invoice.Id, payment.InvoiceId);
         Assert.True(unitOfWork.LastTransaction?.Committed);
         Assert.Contains(audit.Entries, entry => entry.Action == "Payment.BankTransferMatched");
     }
@@ -112,7 +108,7 @@ public sealed class PaymentServiceTests
         {
             Id = Guid.NewGuid(),
             StudentId = student.Id,
-            TargetInvoiceId = invoice.Id,
+            InvoiceId = invoice.Id,
             PaymentCode = "PAY-OLD",
             Amount = 500000m,
             Method = PaymentMethod.QrBanking,
@@ -195,12 +191,12 @@ public sealed class PaymentServiceTests
         {
             InvoiceId = invoice.Id,
             Amount = 4500000m,
-            Method = PaymentMethod.MockGateway
+            Method = PaymentMethod.QrBanking
         });
 
         var entity = Assert.Single(unitOfWork.Set<Payment>().Items);
         Assert.Equal(student.Id, entity.StudentId);
-        Assert.Equal(invoice.Id, entity.TargetInvoiceId);
+        Assert.Equal(invoice.Id, entity.InvoiceId);
         Assert.Equal(4500000m, entity.Amount);
         Assert.Equal(PaymentStatus.Pending, entity.Status);
         Assert.Equal(entity.Id, payment.Id);
@@ -226,7 +222,7 @@ public sealed class PaymentServiceTests
         {
             InvoiceId = invoice.Id,
             Amount = 1000000m,
-            Method = PaymentMethod.MockGateway
+            Method = PaymentMethod.QrBanking
         }));
 
         Assert.Empty(unitOfWork.Set<Payment>().Items);
@@ -263,7 +259,7 @@ public sealed class PaymentServiceTests
         {
             Id = Guid.NewGuid(),
             StudentId = student.Id,
-            TargetInvoiceId = invoice.Id,
+            InvoiceId = invoice.Id,
             PaymentCode = "PAY-PREPAY",
             Amount = 4500000m,
             Status = PaymentStatus.Pending,
@@ -300,24 +296,24 @@ public sealed class PaymentServiceTests
     }
 
     [Fact]
-    public async Task ConfirmPaymentAsync_allocates_to_oldest_outstanding_invoices()
+    public async Task ConfirmPaymentAsync_pays_target_invoice_in_full()
     {
         var student = new Student { Id = Guid.NewGuid(), StudentCode = "SV002", FullName = "Tran Thi Binh" };
+        var invoice = Invoice(student.Id, "INV-FULL", new DateTime(2026, 5, 10), 100000m, 0m, InvoiceStatus.Unpaid);
         var payment = new Payment
         {
             Id = Guid.NewGuid(),
             StudentId = student.Id,
+            InvoiceId = invoice.Id,
             PaymentCode = "PAY-DEMO",
-            Amount = 120000m,
+            Amount = 100000m,
             Status = PaymentStatus.Pending,
             CreatedAt = new DateTime(2026, 5, 1)
         };
-        var olderInvoice = Invoice(student.Id, "INV-OLD", new DateTime(2026, 5, 10), 100000m, 0m, InvoiceStatus.Unpaid);
-        var newerInvoice = Invoice(student.Id, "INV-NEW", new DateTime(2026, 5, 20), 50000m, 0m, InvoiceStatus.Unpaid);
         var unitOfWork = new InMemoryUnitOfWork();
         unitOfWork.Set<Student>().Items.Add(student);
         unitOfWork.Set<Payment>().Items.Add(payment);
-        unitOfWork.Set<Invoice>().Items.AddRange(new[] { newerInvoice, olderInvoice });
+        unitOfWork.Set<Invoice>().Items.Add(invoice);
         var audit = new RecordingAuditLogService();
         var service = new PaymentService(
             new AllowAllPermissionService(),
@@ -333,24 +329,11 @@ public sealed class PaymentServiceTests
 
         Assert.Equal(PaymentStatus.Success, payment.Status);
         Assert.Equal(PaymentStatus.Success, confirmed.Status);
+        Assert.Equal(invoice.Id, confirmed.InvoiceId);
         Assert.Equal("BANK-123", payment.TransactionRef);
         Assert.NotNull(payment.PaidAt);
-        Assert.Equal(InvoiceStatus.Paid, olderInvoice.Status);
-        Assert.Equal(100000m, olderInvoice.PaidAmount);
-        Assert.Equal(InvoiceStatus.Partial, newerInvoice.Status);
-        Assert.Equal(20000m, newerInvoice.PaidAmount);
-        Assert.Collection(
-            unitOfWork.Set<PaymentAllocation>().Items.OrderBy(allocation => allocation.Amount),
-            allocation =>
-            {
-                Assert.Equal(newerInvoice.Id, allocation.InvoiceId);
-                Assert.Equal(20000m, allocation.Amount);
-            },
-            allocation =>
-            {
-                Assert.Equal(olderInvoice.Id, allocation.InvoiceId);
-                Assert.Equal(100000m, allocation.Amount);
-            });
+        Assert.Equal(InvoiceStatus.Paid, invoice.Status);
+        Assert.Equal(100000m, invoice.PaidAmount);
         Assert.True(unitOfWork.LastTransaction?.Committed);
         Assert.Contains(audit.Entries, entry => entry.Action == "Payment.Confirmed");
     }
@@ -374,7 +357,7 @@ public sealed class PaymentServiceTests
         {
             Id = Guid.NewGuid(),
             StudentId = student.Id,
-            TargetInvoiceId = invoice.Id,
+            InvoiceId = invoice.Id,
             PaymentCode = "PAY-PARK",
             Amount = 40000m,
             Status = PaymentStatus.Pending
