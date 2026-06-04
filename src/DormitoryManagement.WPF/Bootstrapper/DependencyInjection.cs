@@ -63,6 +63,7 @@ public static class DependencyInjection
         services.AddScoped<ISupportTicketService, SupportTicketService>();
         services.AddScoped<IForumPostService, ForumPostService>();
         services.AddScoped<IForumCommentService, ForumCommentService>();
+        services.AddScoped<IForumModerationService, ForumModerationService>();
         services.AddScoped<IForumReactionService, ForumReactionService>();
         services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
