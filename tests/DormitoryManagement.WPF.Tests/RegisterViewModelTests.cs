@@ -91,8 +91,37 @@ public sealed class RegisterViewModelTests
         Assert.Equal(typeof(LoginViewModel), navigation.LastViewModelType);
     }
 
+    [Fact]
+    public void Date_of_birth_selection_exposes_preview_text()
+    {
+        var viewModel = CreateViewModel();
+
+        Assert.False(viewModel.HasDateOfBirthPreview);
+        Assert.Equal("Chưa chọn ngày sinh.", viewModel.DateOfBirthPreviewText);
+
+        viewModel.DateOfBirth = new DateTime(2004, 1, 1);
+
+        Assert.True(viewModel.HasDateOfBirthPreview);
+        Assert.Equal("Đã chọn: 01/01/2004", viewModel.DateOfBirthPreviewText);
+    }
+
+    [Fact]
+    public void Registration_failure_shows_friendly_error_without_internal_diagnostics()
+    {
+        var service = new FailingRegistrationService();
+        var viewModel = CreateViewModel(service: service);
+        PopulateValidForm(viewModel);
+        viewModel.AcceptsTerms = true;
+
+        viewModel.RegisterCommand.Execute(null);
+
+        WaitUntil(() => service.StartCalled);
+        Assert.Equal("Verification email could not be sent. Please check email settings and try again.", viewModel.ErrorMessage);
+        Assert.DoesNotContain("Email:SmtpPassword", viewModel.ErrorMessage, StringComparison.Ordinal);
+    }
+
     private static RegisterViewModel CreateViewModel(
-        RecordingRegistrationService? service = null,
+        IAccountRegistrationService? service = null,
         RecordingNavigationService? navigation = null,
         StubLoginPrefillState? prefill = null)
     {
@@ -151,6 +180,25 @@ public sealed class RegisterViewModelTests
         }
     }
 
+    private sealed class FailingRegistrationService : IAccountRegistrationService
+    {
+        public bool StartCalled { get; private set; }
+
+        public Task<StartAccountRegistrationResult> StartStudentAccountRegistrationAsync(RegisterAccountRequest request, CancellationToken ct = default)
+        {
+            StartCalled = true;
+            return Task.FromResult(StartAccountRegistrationResult.Failed(
+                "Verification email could not be sent. Please check email settings and try again.",
+                "InvalidOperationException: Email:SmtpPassword is missing."));
+        }
+
+        public Task<RegisterAccountResult> VerifyStudentAccountOtpAsync(Guid pendingRegistrationId, string otpCode, CancellationToken ct = default) =>
+            Task.FromResult(RegisterAccountResult.Failed("noop"));
+
+        public Task<StartAccountRegistrationResult> ResendStudentAccountOtpAsync(Guid pendingRegistrationId, CancellationToken ct = default) =>
+            Task.FromResult(StartAccountRegistrationResult.Failed("noop"));
+    }
+
     private sealed class RecordingNavigationService : INavigationService
     {
         public Type? LastViewModelType { get; private set; }
@@ -175,3 +223,4 @@ public sealed class RegisterViewModelTests
         }
     }
 }
+

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Windows.Input;
 using DormitoryManagement.Application.DTOs.Auth;
 using DormitoryManagement.Application.Services.Auth;
@@ -63,7 +64,18 @@ public sealed class RegisterViewModel : ViewModelBase
     public string StudentCode { get => _studentCode; set => SetProperty(ref _studentCode, value); }
     public string? PhoneNumber { get => _phoneNumber; set => SetProperty(ref _phoneNumber, value); }
     public string? SelectedGender { get => _selectedGender; set => SetProperty(ref _selectedGender, value); }
-    public DateTime? DateOfBirth { get => _dateOfBirth; set => SetProperty(ref _dateOfBirth, value); }
+    public DateTime? DateOfBirth
+    {
+        get => _dateOfBirth;
+        set
+        {
+            if (SetProperty(ref _dateOfBirth, value))
+            {
+                OnPropertyChanged(nameof(HasDateOfBirthPreview));
+                OnPropertyChanged(nameof(DateOfBirthPreviewText));
+            }
+        }
+    }
     public string Password { get => _password; set => SetProperty(ref _password, value); }
     public string ConfirmPassword { get => _confirmPassword; set => SetProperty(ref _confirmPassword, value); }
     public string OtpCode { get => _otpCode; set => SetProperty(ref _otpCode, value); }
@@ -85,6 +97,10 @@ public sealed class RegisterViewModel : ViewModelBase
     public string VerifyActionText => _busyAction == RegisterBusyAction.VerifyingOtp ? "Đang xác minh..." : "Xác minh";
     public string ResendActionText => _busyAction == RegisterBusyAction.ResendingOtp ? "Đang gửi lại..." : "Gửi lại";
     public string OtpSectionTitle => _busyAction == RegisterBusyAction.VerifyingOtp ? "Đang xác minh email" : "Xác minh email";
+    public bool HasDateOfBirthPreview => DateOfBirth.HasValue;
+    public string DateOfBirthPreviewText => DateOfBirth.HasValue
+        ? $"Đã chọn: {DateOfBirth.Value.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)}"
+        : "Chưa chọn ngày sinh.";
     public string OtpSectionDescription => _busyAction switch
     {
         RegisterBusyAction.VerifyingOtp => "Hệ thống đang xác minh mã của bạn trước khi hoàn tất tạo tài khoản.",
@@ -165,7 +181,7 @@ public sealed class RegisterViewModel : ViewModelBase
 
             if (!result.Succeeded)
             {
-                SetError(WithDiagnostic(result.ErrorMessage ?? "Đăng ký tài khoản thất bại.", result.DiagnosticMessage));
+                SetError(result.ErrorMessage ?? "Đăng ký tài khoản thất bại.");
                 return;
             }
 
@@ -257,7 +273,7 @@ public sealed class RegisterViewModel : ViewModelBase
             var result = await _registrationService.ResendStudentAccountOtpAsync(_pendingRegistrationId.Value);
             if (!result.Succeeded)
             {
-                SetError(WithDiagnostic(result.ErrorMessage ?? "Không thể gửi lại mã xác minh.", result.DiagnosticMessage));
+                SetError(result.ErrorMessage ?? "Không thể gửi lại mã xác minh.");
                 return;
             }
 
@@ -346,3 +362,5 @@ public sealed class RegisterViewModel : ViewModelBase
         ResendingOtp
     }
 }
+
+

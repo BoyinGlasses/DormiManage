@@ -2433,6 +2433,19 @@ public sealed class WpfResourceTests
         return XDocument.Load(resourcePath);
     }
     [Fact]
+    public void Register_view_xaml_uses_shared_brandmark_wpfui_inputs_and_library_checkbox()
+    {
+        var xaml = LoadRegisterViewDocument().ToString(SaveOptions.DisableFormatting);
+
+        Assert.Contains("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("<ui:ThemesDictionary Theme=\"Light\" />", xaml, StringComparison.Ordinal);
+        Assert.Contains("<ui:ControlsDictionary />", xaml, StringComparison.Ordinal);
+        Assert.Contains("<ui:CalendarDatePicker", xaml, StringComparison.Ordinal);
+        Assert.Contains("Kind=\"OfficeBuildingOutline\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Style=\"{StaticResource MaterialDesignCheckBox}\"", xaml, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Register_view_reflows_without_horizontal_overflow_at_narrower_desktop_width()
     {
         RunOnStaThread(() =>
@@ -2468,6 +2481,124 @@ public sealed class WpfResourceTests
                 var texts = GetVisibleStringValues(view);
                 Assert.Contains("Đăng ký tài khoản", texts);
                                 Assert.Contains("Đăng nhập", texts);
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
+
+    [Fact]
+    public void Register_view_keeps_login_handoff_text_baseline_aligned()
+    {
+        RunOnStaThread(() =>
+        {
+            EnsureApplicationResources();
+            var view = CreateRegisterView();
+            var window = new Window
+            {
+                Width = 1320,
+                Height = 960,
+                Content = view,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = -10000,
+                Top = -10000,
+                ShowInTaskbar = false,
+                Background = Brushes.White
+            };
+
+            try
+            {
+                window.Show();
+                WaitForLayout();
+
+                var existingAccountText = FindVisibleTextBlock(view, "Đã có tài khoản?");
+                var loginText = FindVisibleTextBlock(view, "Đăng nhập");
+                var existingBounds = GetBoundsRelativeToAncestor(existingAccountText, view);
+                var loginBounds = GetBoundsRelativeToAncestor(loginText, view);
+                var topDelta = Math.Abs(existingBounds.Top - loginBounds.Top);
+                var centerDelta = Math.Abs(existingBounds.Top + (existingBounds.Height / 2d) - (loginBounds.Top + (loginBounds.Height / 2d)));
+
+                Assert.True(topDelta <= 3, $"Expected login handoff text to share the same top alignment. Delta={topDelta}.");
+                Assert.True(centerDelta <= 3, $"Expected login handoff text to share the same visual center. Delta={centerDelta}.");
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
+
+    [Fact]
+    public void Register_view_keeps_terms_copy_aligned_with_checkbox()
+    {
+        RunOnStaThread(() =>
+        {
+            EnsureApplicationResources();
+            var view = CreateRegisterView();
+            var window = new Window
+            {
+                Width = 1320,
+                Height = 960,
+                Content = view,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = -10000,
+                Top = -10000,
+                ShowInTaskbar = false,
+                Background = Brushes.White
+            };
+
+            try
+            {
+                window.Show();
+                WaitForLayout();
+
+                var checkbox = FindDescendants<CheckBox>(view).Single(candidate => candidate.IsVisible);
+                var termsContainer = Assert.IsType<Grid>(checkbox.Parent);
+                var termsCopy = termsContainer.Children.OfType<TextBlock>().Single();
+                var checkboxBounds = GetBoundsRelativeToAncestor(checkbox, view);
+                var textBounds = GetBoundsRelativeToAncestor(termsCopy, view);
+                var centerDelta = Math.Abs(checkboxBounds.Top + (checkboxBounds.Height / 2d) - (textBounds.Top + (textBounds.Height / 2d)));
+
+                Assert.True(centerDelta <= 6, $"Expected terms copy to stay visually aligned with the checkbox. Delta={centerDelta}.");
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
+
+    [Fact]
+    public void Register_view_shows_selected_date_of_birth_preview()
+    {
+        RunOnStaThread(() =>
+        {
+            EnsureApplicationResources();
+            var viewModel = CreateRegisterViewModel();
+            viewModel.DateOfBirth = new DateTime(2004, 1, 1);
+            var view = CreateRegisterView(viewModel);
+            var window = new Window
+            {
+                Width = 1320,
+                Height = 960,
+                Content = view,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = -10000,
+                Top = -10000,
+                ShowInTaskbar = false,
+                Background = Brushes.White
+            };
+
+            try
+            {
+                window.Show();
+                WaitForLayout();
+
+                var previewText = FindVisibleTextBlock(view, "Đã chọn: 01/01/2004");
+
+                Assert.True(previewText.IsVisible);
             }
             finally
             {
@@ -2553,6 +2684,15 @@ public sealed class WpfResourceTests
         }
 
         throw new Xunit.Sdk.XunitException("Could not locate repository root from test output directory.");
+    }
+
+    private static XDocument LoadRegisterViewDocument()
+    {
+        var repoRoot = FindRepositoryRoot();
+        var viewPath = Path.Combine(repoRoot, "src", "DormitoryManagement.WPF", "Views", "Auth", "RegisterView.xaml");
+
+        Assert.True(File.Exists(viewPath), $"Expected register view '{viewPath}' to exist.");
+        return XDocument.Load(viewPath);
     }
 
     private static IEnumerable<T> FindDescendants<T>(DependencyObject root)
@@ -3077,6 +3217,8 @@ public sealed class WpfResourceTests
     private static readonly XNamespace WpfNamespace = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
     private static readonly XNamespace XamlNamespace = "http://schemas.microsoft.com/winfx/2006/xaml";
 }
+
+
 
 
 

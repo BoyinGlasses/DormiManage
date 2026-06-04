@@ -229,6 +229,60 @@ public sealed class AccountRegistrationServiceTests
     }
 
     [Fact]
+    public async Task StartStudentAccountRegistrationAsync_rejects_pending_username_from_another_email()
+    {
+        var fixture = AccountRegistrationFixture.Create();
+        await fixture.PendingRegistrations.AddAsync(new PendingAccountRegistration
+        {
+            Id = Guid.NewGuid(),
+            FullName = "Other Pending",
+            Email = "other.pending@ktx.local",
+            Username = "teststudent",
+            StudentCode = "PENDING001",
+            PasswordHash = fixture.Hasher.HashPassword("123456"),
+            OtpHash = fixture.Hasher.HashPassword("654321"),
+            LastSentAt = fixture.Clock.UtcNow,
+            ExpiresAt = fixture.Clock.UtcNow.AddMinutes(5),
+            AttemptCount = 0,
+            CreatedAt = fixture.Clock.UtcNow
+        });
+
+        var result = await fixture.Service.StartStudentAccountRegistrationAsync(ValidRequest());
+
+        Assert.False(result.Succeeded);
+        Assert.Equal("Username is already registered.", result.ErrorMessage);
+        Assert.Single(fixture.PendingRegistrations.Items);
+        Assert.Empty(fixture.Email.Messages);
+    }
+
+    [Fact]
+    public async Task StartStudentAccountRegistrationAsync_rejects_pending_student_code_from_another_email()
+    {
+        var fixture = AccountRegistrationFixture.Create();
+        await fixture.PendingRegistrations.AddAsync(new PendingAccountRegistration
+        {
+            Id = Guid.NewGuid(),
+            FullName = "Other Pending",
+            Email = "other.pending@ktx.local",
+            Username = "pending-user",
+            StudentCode = "TEST001",
+            PasswordHash = fixture.Hasher.HashPassword("123456"),
+            OtpHash = fixture.Hasher.HashPassword("654321"),
+            LastSentAt = fixture.Clock.UtcNow,
+            ExpiresAt = fixture.Clock.UtcNow.AddMinutes(5),
+            AttemptCount = 0,
+            CreatedAt = fixture.Clock.UtcNow
+        });
+
+        var result = await fixture.Service.StartStudentAccountRegistrationAsync(ValidRequest());
+
+        Assert.False(result.Succeeded);
+        Assert.Equal("Student code is already registered.", result.ErrorMessage);
+        Assert.Single(fixture.PendingRegistrations.Items);
+        Assert.Empty(fixture.Email.Messages);
+    }
+
+    [Fact]
     public async Task Newly_registered_student_can_login_with_email_username_or_student_code_after_otp_verification()
     {
         var fixture = AccountRegistrationFixture.Create();

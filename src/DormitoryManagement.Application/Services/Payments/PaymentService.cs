@@ -18,7 +18,7 @@ public sealed class PaymentService : IPaymentService
     private readonly IAuditLogService _auditLog;
     private readonly ICurrentUserService _currentUser;
     private readonly INotificationService? _notifications;
-    private readonly IVietQrService? _vietQrService;
+    private readonly IPayOsService? _payOsService;
     private static readonly InvoiceStatus[] PayableStatuses = [InvoiceStatus.Unpaid, InvoiceStatus.Partial, InvoiceStatus.Overdue];
 
     public PaymentService(
@@ -27,14 +27,14 @@ public sealed class PaymentService : IPaymentService
         IAuditLogService auditLog,
         ICurrentUserService currentUser,
         INotificationService? notifications = null,
-        IVietQrService? vietQrService = null)
+        IPayOsService? payOsService = null)
     {
         _permissions = permissions;
         _unitOfWork = unitOfWork;
         _auditLog = auditLog;
         _currentUser = currentUser;
         _notifications = notifications;
-        _vietQrService = vietQrService;
+        _payOsService = payOsService;
     }
 
     public async Task<IReadOnlyList<OutstandingInvoiceDto>> GetOutstandingInvoicesAsync(CancellationToken ct = default)
@@ -129,32 +129,38 @@ public sealed class PaymentService : IPaymentService
     {
         await _permissions.EnsurePermissionAsync(PermissionNames.BillingWrite, ct);
         var invoice = GetPayableInvoiceForQr(invoiceId);
-        if (!string.IsNullOrWhiteSpace(invoice.TransferContent) && !string.IsNullOrWhiteSpace(invoice.QrDataUrl))
+        if (HasActivePayOsQr(invoice))
         {
             return MapInvoicePaymentQr(invoice);
         }
 
-        if (_vietQrService is null)
+        if (_payOsService is null)
         {
-            throw new InvalidOperationException("QR banking service is not configured.");
+            throw new InvalidOperationException("PayOS service is not configured.");
         }
 
-        var transferContent = string.IsNullOrWhiteSpace(invoice.TransferContent)
-            ? GenerateTransferContent(invoice)
-            : invoice.TransferContent.Trim();
+        var transferContent = GenerateTransferContent(invoice);
         var amount = invoice.TotalAmount - invoice.PaidAmount;
-        var qrDataUrl = await _vietQrService.GenerateQrDataUrlAsync(amount, transferContent, ct);
-        if (string.IsNullOrWhiteSpace(qrDataUrl))
+        var student = GetStudent(invoice.StudentId);
+        var paymentLink = await _payOsService.CreatePaymentLinkAsync(new PayOsCreatePaymentRequest
         {
-            throw new InvalidOperationException("QR provider returned empty QR data.");
+            OrderCode = GeneratePayOsOrderCode(invoice.Id),
+            Amount = amount,
+            Description = transferContent,
+            ItemName = string.IsNullOrWhiteSpace(invoice.InvoiceNumber) ? "Dormitory invoice" : invoice.InvoiceNumber.Trim(),
+            BuyerName = student?.FullName ?? string.Empty
+        }, ct);
+        if (string.IsNullOrWhiteSpace(paymentLink.QrDataUrl))
+        {
+            throw new InvalidOperationException("PayOS did not return QR data.");
         }
 
         invoice.TransferContent = transferContent;
-        invoice.QrDataUrl = qrDataUrl.Trim();
+        invoice.QrDataUrl = paymentLink.QrDataUrl.Trim();
         _unitOfWork.Repository<Invoice>().Update(invoice);
         await _unitOfWork.SaveChangesAsync(ct);
         await _auditLog.WriteAsync("Payment.QrGenerated", "Invoice", invoice.Id, transferContent, ct);
-        return MapInvoicePaymentQr(invoice);
+        return MapInvoicePaymentQr(invoice, paymentLink);
     }
 
     public async Task<InvoicePaymentQrDto> GetInvoicePaymentQrAsync(Guid invoiceId, CancellationToken ct = default)
@@ -461,19 +467,37 @@ public sealed class PaymentService : IPaymentService
 
     private string GenerateTransferContent(Invoice invoice)
     {
-        var student = GetStudent(invoice.StudentId);
-        var studentCode = string.IsNullOrWhiteSpace(student?.StudentCode)
-            ? invoice.StudentId.ToString("N")[..8].ToUpperInvariant()
-            : student.StudentCode.Trim().ToUpperInvariant();
-        var invoicePart = string.IsNullOrWhiteSpace(invoice.InvoiceNumber)
-            ? invoice.Id.ToString("N")[..8].ToUpperInvariant()
-            : invoice.InvoiceNumber.Trim().ToUpperInvariant();
-        var content = $"KTX HD{invoicePart} SV{studentCode}";
+        var primary = "K" + invoice.Id.ToString("N")[..8].ToUpperInvariant();
         var duplicateExists = _unitOfWork.Repository<Invoice>().Query()
-            .Any(candidate => candidate.Id != invoice.Id && candidate.TransferContent == content);
-        return duplicateExists
-            ? $"{content} {invoice.Id.ToString("N")[..6].ToUpperInvariant()}"
-            : content;
+            .Any(candidate => candidate.Id != invoice.Id && candidate.TransferContent == primary);
+        if (!duplicateExists)
+        {
+            return primary;
+        }
+
+        return "P" + invoice.Id.ToString("N")[8..16].ToUpperInvariant();
+    }
+
+    private static long GeneratePayOsOrderCode(Guid invoiceId)
+    {
+        var raw = BitConverter.ToInt64(invoiceId.ToByteArray(), 0) & long.MaxValue;
+        var normalized = raw % 9000000000000000L;
+        return normalized == 0 ? 1 : normalized;
+    }
+
+    private static bool HasActivePayOsQr(Invoice invoice)
+    {
+        if (string.IsNullOrWhiteSpace(invoice.TransferContent) || string.IsNullOrWhiteSpace(invoice.QrDataUrl))
+        {
+            return false;
+        }
+
+        if (invoice.QrDataUrl.Contains("vietqr.io", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return invoice.TransferContent.Trim().Length <= 9;
     }
 
     private static bool IsPayableInvoice(Invoice invoice) =>
@@ -482,7 +506,7 @@ public sealed class PaymentService : IPaymentService
     private Student? GetStudent(Guid studentId) =>
         _unitOfWork.Repository<Student>().Query().FirstOrDefault(student => student.Id == studentId);
 
-    private InvoicePaymentQrDto MapInvoicePaymentQr(Invoice invoice)
+    private InvoicePaymentQrDto MapInvoicePaymentQr(Invoice invoice, PayOsPaymentLinkDto? paymentLink = null)
     {
         var paidAt = _unitOfWork.Repository<Payment>().Query()
             .Where(payment => payment.TargetInvoiceId == invoice.Id && payment.Status == PaymentStatus.Success)
@@ -496,7 +520,10 @@ public sealed class PaymentService : IPaymentService
             StudentId = invoice.StudentId,
             Amount = Math.Max(0m, invoice.TotalAmount - invoice.PaidAmount),
             TransferContent = invoice.TransferContent ?? string.Empty,
-            QrDataUrl = invoice.QrDataUrl ?? string.Empty,
+            QrDataUrl = paymentLink?.QrDataUrl ?? invoice.QrDataUrl ?? string.Empty,
+            CheckoutUrl = paymentLink?.CheckoutUrl ?? string.Empty,
+            PaymentLinkId = paymentLink?.PaymentLinkId ?? string.Empty,
+            ProviderOrderCode = paymentLink?.OrderCode,
             Status = invoice.Status.ToString(),
             DueDate = invoice.DueDate,
             PaidAt = paidAt
@@ -681,4 +708,11 @@ public sealed class PaymentService : IPaymentService
         }
     }
 }
+
+
+
+
+
+
+
 

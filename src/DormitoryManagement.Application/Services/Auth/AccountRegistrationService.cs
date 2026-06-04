@@ -77,10 +77,17 @@ public sealed class AccountRegistrationService : IAccountRegistrationService
         }
 
         var conflicts = FindPendingByIdentity(normalized.Email, normalized.Username, normalized.StudentCode);
-        if (conflicts.Count > 1 || conflicts.Any(pending => !IsSamePendingOwner(pending, normalized)))
+        var pendingDuplicate = FindPendingDuplicateMessage(conflicts, normalized);
+        if (pendingDuplicate is not null)
         {
-            return StartAccountRegistrationResult.Failed("A pending registration already exists for this username or student code. Please use another value or wait for it to expire.");
+            return StartAccountRegistrationResult.Failed(pendingDuplicate);
         }
+
+        if (conflicts.Count > 1)
+        {
+            return StartAccountRegistrationResult.Failed("A pending registration already exists for this email. Please use the latest verification code or wait for it to expire.");
+        }
+
 
         var otpCode = _otpGenerator.GenerateCode();
         var expiresAt = now.AddMinutes(OtpExpiryMinutes);
@@ -389,6 +396,20 @@ public sealed class AccountRegistrationService : IAccountRegistrationService
         }
 
         return false;
+    }
+    private static string? FindPendingDuplicateMessage(IReadOnlyList<PendingAccountRegistration> conflicts, NormalizedRegistration registration)
+    {
+        if (conflicts.Any(pending => pending.Username == registration.Username && !IsSamePendingOwner(pending, registration)))
+        {
+            return "Username is already registered.";
+        }
+
+        if (conflicts.Any(pending => pending.StudentCode == registration.StudentCode && !IsSamePendingOwner(pending, registration)))
+        {
+            return "Student code is already registered.";
+        }
+
+        return null;
     }
 
     private IReadOnlyList<PendingAccountRegistration> FindPendingByIdentity(string email, string username, string studentCode) =>

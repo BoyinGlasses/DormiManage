@@ -14,17 +14,31 @@ public partial class App : System.Windows.Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        _host = AppHost.Build();
-        await _host.StartAsync();
 
-        using (var scope = _host.Services.CreateScope())
+        try
         {
-            await scope.ServiceProvider.GetRequiredService<DbInitializer>().InitializeAsync();
-        }
+            _host = AppHost.Build();
+            await _host.StartAsync();
 
-        var mainWindow = _host.Services.GetRequiredService<MainWindow>();
-        MainWindow = mainWindow;
-        mainWindow.Show();
+            using (var scope = _host.Services.CreateScope())
+            {
+                await scope.ServiceProvider.GetRequiredService<DbInitializer>().InitializeAsync();
+            }
+
+            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+            MainWindow = mainWindow;
+            mainWindow.Show();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                ex.Message,
+                "Không thể khởi động ứng dụng",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+
+            Shutdown();
+        }
     }
 
     protected override async void OnExit(ExitEventArgs e)

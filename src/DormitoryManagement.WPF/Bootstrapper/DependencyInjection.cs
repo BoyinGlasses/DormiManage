@@ -16,6 +16,7 @@ using DormitoryManagement.Application.Services.Users;
 using DormitoryManagement.Application.Services.Vehicles;
 using DormitoryManagement.Infrastructure;
 using DormitoryManagement.WPF.Navigation;
+using DormitoryManagement.WPF.Services;
 using DormitoryManagement.WPF.ViewModels;
 using DormitoryManagement.WPF.ViewModels.Audit;
 using DormitoryManagement.WPF.ViewModels.Auth;
@@ -101,9 +102,8 @@ public static class DependencyInjection
 
         services.AddSingleton<ShellViewModel>();
         services.AddSingleton<MainWindow>();
+        services.AddHostedService<PayOsWebhookHostedService>();
 
         return services;
     }
 }
-
-

@@ -12,7 +12,7 @@ public static class AppHost
             .ConfigureAppConfiguration((context, builder) =>
             {
                 builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
-                builder.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
+                builder.AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true);
                 builder.AddEnvironmentVariables();
             })
             .ConfigureServices((context, services) => services.AddWpfServices(context.Configuration))

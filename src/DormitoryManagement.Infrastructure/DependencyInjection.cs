@@ -45,19 +45,12 @@ public static class DependencyInjection
         services.AddSingleton(EmailOptions.FromConfiguration(configuration));
         services.AddSingleton(_ =>
         {
-            var section = configuration.GetSection(QrBankingOptions.SectionName);
-            return new QrBankingOptions
-            {
-                BankAccountNo = section[nameof(QrBankingOptions.BankAccountNo)] ?? string.Empty,
-                BankAccountName = section[nameof(QrBankingOptions.BankAccountName)] ?? string.Empty,
-                BankAcqId = section[nameof(QrBankingOptions.BankAcqId)] ?? string.Empty,
-                VietQrClientId = section[nameof(QrBankingOptions.VietQrClientId)] ?? string.Empty,
-                VietQrApiKey = section[nameof(QrBankingOptions.VietQrApiKey)] ?? string.Empty,
-                WebhookSecret = section[nameof(QrBankingOptions.WebhookSecret)] ?? string.Empty
-            };
+            var options = new PayOsOptions();
+            configuration.GetSection(PayOsOptions.SectionName).Bind(options);
+            return options;
         });
         services.AddTransient<IEmailSender, MailKitEmailSender>();
-        services.AddScoped<IVietQrService, VietQrService>();
+        services.AddScoped<IPayOsService, PayOsService>();
         services.AddSingleton<MockPaymentGateway>();
 
         return services;

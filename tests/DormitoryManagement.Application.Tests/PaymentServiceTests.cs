@@ -18,21 +18,21 @@ public sealed class PaymentServiceTests
         unitOfWork.Set<Student>().Items.Add(student);
         unitOfWork.Set<Invoice>().Items.Add(invoice);
         var audit = new RecordingAuditLogService();
-        var qrService = new RecordingVietQrService("data:image/png;base64,AAAA");
+        var qrService = new RecordingPayOsService("data:image/png;base64,AAAA");
         var service = new PaymentService(
             new AllowAllPermissionService(),
             unitOfWork,
             audit,
             new TestCurrentUser(RoleNames.Manager),
-            vietQrService: qrService);
+            payOsService: qrService);
 
         var qr = await service.GenerateInvoiceQrAsync(invoice.Id);
         var again = await service.GenerateInvoiceQrAsync(invoice.Id);
 
         Assert.Equal(invoice.Id, qr.InvoiceId);
         Assert.Equal(500000m, qr.Amount);
-        Assert.Contains("INV-QR", qr.TransferContent);
-        Assert.Contains("SV001", qr.TransferContent);
+        Assert.Equal(9, qr.TransferContent.Length);
+        Assert.StartsWith("K", qr.TransferContent);
         Assert.Equal("data:image/png;base64,AAAA", qr.QrDataUrl);
         Assert.Equal(qr.TransferContent, invoice.TransferContent);
         Assert.Equal(qr.QrDataUrl, invoice.QrDataUrl);
@@ -54,7 +54,7 @@ public sealed class PaymentServiceTests
             unitOfWork,
             new RecordingAuditLogService(),
             new TestCurrentUser(RoleNames.Manager),
-            vietQrService: new RecordingVietQrService("data:image/png;base64,AAAA"));
+            payOsService: new RecordingPayOsService("data:image/png;base64,AAAA"));
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => service.GenerateInvoiceQrAsync(invoice.Id));
     }
@@ -64,7 +64,7 @@ public sealed class PaymentServiceTests
     {
         var student = new Student { Id = Guid.NewGuid(), StudentCode = "SV045", FullName = "Le Minh" };
         var invoice = Invoice(student.Id, "HD1024", new DateTime(2026, 6, 5), 500000m, 0m, InvoiceStatus.Unpaid);
-        invoice.TransferContent = "KTX HD1024 SV45";
+        invoice.TransferContent = "K1234ABC";
         invoice.QrDataUrl = "https://qr.local/hd1024";
         var unitOfWork = new InMemoryUnitOfWork();
         unitOfWork.Set<Student>().Items.Add(student);
@@ -80,7 +80,7 @@ public sealed class PaymentServiceTests
         {
             TransactionId = "BANK-100",
             Amount = 500000m,
-            Description = "Thanh toan KTX HD1024 SV45",
+            Description = "Thanh toan K1234ABC",
             TransactionDate = new DateTime(2026, 6, 2, 8, 30, 0)
         });
 
@@ -133,7 +133,7 @@ public sealed class PaymentServiceTests
         {
             TransactionId = "BANK-100",
             Amount = 500000m,
-            Description = "Thanh toan KTX HD1024 SV45",
+            Description = "Thanh toan K1234ABC",
             TransactionDate = new DateTime(2026, 6, 2, 8, 30, 0)
         });
 
@@ -148,7 +148,7 @@ public sealed class PaymentServiceTests
     {
         var student = new Student { Id = Guid.NewGuid(), StudentCode = "SV045", FullName = "Le Minh" };
         var invoice = Invoice(student.Id, "HD1024", new DateTime(2026, 6, 5), 500000m, 0m, InvoiceStatus.Unpaid);
-        invoice.TransferContent = "KTX HD1024 SV45";
+        invoice.TransferContent = "K1234ABC";
         var unitOfWork = new InMemoryUnitOfWork();
         unitOfWork.Set<Student>().Items.Add(student);
         unitOfWork.Set<Invoice>().Items.Add(invoice);
@@ -163,7 +163,7 @@ public sealed class PaymentServiceTests
         {
             TransactionId = "BANK-200",
             Amount = 400000m,
-            Description = "Thanh toan KTX HD1024 SV45",
+            Description = "Thanh toan K1234ABC",
             TransactionDate = new DateTime(2026, 6, 2, 8, 30, 0)
         });
 
@@ -412,21 +412,36 @@ public sealed class PaymentServiceTests
             Status = status
         };
 
-    private sealed class RecordingVietQrService : IVietQrService
+    private sealed class RecordingPayOsService : IPayOsService
     {
         private readonly string _qrDataUrl;
 
-        public RecordingVietQrService(string qrDataUrl)
+        public RecordingPayOsService(string qrDataUrl)
         {
             _qrDataUrl = qrDataUrl;
         }
 
         public int CallCount { get; private set; }
 
-        public Task<string> GenerateQrDataUrlAsync(decimal amount, string transferContent, CancellationToken ct = default)
+        public Task<PayOsPaymentLinkDto> CreatePaymentLinkAsync(PayOsCreatePaymentRequest request, CancellationToken ct = default)
         {
             CallCount++;
-            return Task.FromResult(_qrDataUrl);
+            return Task.FromResult(new PayOsPaymentLinkDto
+            {
+                OrderCode = request.OrderCode,
+                CheckoutUrl = "https://payos.local/checkout",
+                PaymentLinkId = "plink_123",
+                QrCode = "000201010212",
+                QrDataUrl = _qrDataUrl,
+                Status = "PENDING"
+            });
         }
+
+        public Task<PayOsPaymentStatusDto> GetPaymentLinkAsync(long orderCode, CancellationToken ct = default) =>
+            Task.FromResult(new PayOsPaymentStatusDto { OrderCode = orderCode, Status = "PENDING" });
+
+        public Task ConfirmWebhookAsync(string webhookUrl, CancellationToken ct = default) => Task.CompletedTask;
+
+        public PayOsWebhookEventDto ParseWebhook(string payload) => throw new NotSupportedException();
     }
 }

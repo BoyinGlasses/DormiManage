@@ -8,6 +8,9 @@ public sealed class InvoicePaymentQrDto
     public decimal Amount { get; set; }
     public string TransferContent { get; set; } = string.Empty;
     public string QrDataUrl { get; set; } = string.Empty;
+    public string CheckoutUrl { get; set; } = string.Empty;
+    public string PaymentLinkId { get; set; } = string.Empty;
+    public long? ProviderOrderCode { get; set; }
     public string Status { get; set; } = string.Empty;
     public DateTime DueDate { get; set; }
     public DateTime? PaidAt { get; set; }
