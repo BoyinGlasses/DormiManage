@@ -98,12 +98,21 @@ namespace DormitoryManagement.Infrastructure.Migrations
                 """);
 
             migrationBuilder.Sql("""
-                IF EXISTS (
-                    SELECT 1
-                    FROM payments
-                    WHERE InvoiceId IS NULL AND Status = 'Success'
-                )
-                THROW 51001, 'Cannot migrate successful payments without an invoice.', 1;
+                UPDATE p
+                SET InvoiceId = i.Id
+                FROM payments p
+                CROSS APPLY (
+                    SELECT TOP 1 Id
+                    FROM invoices i
+                    WHERE i.StudentId = p.StudentId
+                    ORDER BY i.IssueDate DESC, i.CreatedAt DESC, i.Id
+                ) i
+                WHERE p.InvoiceId IS NULL AND p.Status = 'Success';
+                """);
+
+            migrationBuilder.Sql("""
+                DELETE FROM payments
+                WHERE InvoiceId IS NULL;
                 """);
 
             migrationBuilder.AlterColumn<Guid>(
@@ -133,7 +142,7 @@ namespace DormitoryManagement.Infrastructure.Migrations
                 table: "payments",
                 keyColumn: "Id",
                 keyValue: new Guid("80000000-0000-0000-0000-000000000001"),
-                columns: new[] { "InvoiceId", "Method", "TransactionRef" },
+                columns: new[] { "InvoiceId", "Method", "transaction_ref" },
                 values: new object[] { new Guid("70000000-0000-0000-0000-000000000001"), "QrBanking", "QR-TXN-202605-001" });
 
             migrationBuilder.UpdateData(
