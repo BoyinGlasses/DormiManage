@@ -14,22 +14,49 @@ public sealed class ForumPostService : IForumPostService
     private readonly IForumPostRepository _posts;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUser;
+    private readonly IPermissionService _permissions;
 
-    public ForumPostService(IForumPostRepository posts, IUnitOfWork unitOfWork, ICurrentUserService currentUser)
+    public ForumPostService(
+        IForumPostRepository posts,
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUser,
+        IPermissionService permissions)
     {
         _posts = posts;
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
+        _permissions = permissions;
     }
 
     public async Task<PagedResult<ForumPostListItemDto>> GetFeedAsync(ForumPostFilterRequest request, CancellationToken ct = default)
     {
-        var feed = await _posts.GetFeedAsync(NormalizeFilter(request), ct);
+        if (!await _permissions.HasPermissionAsync(PermissionNames.ForumRead, ct) &&
+            !await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct))
+        {
+            return new PagedResult<ForumPostListItemDto>(Array.Empty<ForumPostListItemDto>(), 0, Math.Max(1, request.PageNumber), Math.Clamp(request.PageSize, 1, 50));
+        }
+
+        var feed = await _posts.GetFeedAsync(await NormalizeFilterAsync(request, ct), ct);
         return new PagedResult<ForumPostListItemDto>(
             feed.Items.Select(MapListItem).ToArray(),
             feed.TotalCount,
             feed.PageNumber,
             feed.PageSize);
+    }
+
+    public async Task<IReadOnlyList<ForumPostListItemDto>> GetPendingAsync(CancellationToken ct = default)
+    {
+        if (!await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct))
+        {
+            return Array.Empty<ForumPostListItemDto>();
+        }
+
+        return _posts.Query()
+            .Where(post => post.Status == ForumPostStatus.Pending)
+            .OrderBy(post => post.CreatedAt)
+            .ToArray()
+            .Select(MapListItem)
+            .ToArray();
     }
 
     public async Task<Result<ForumPostDto>> GetByIdAsync(Guid id, CancellationToken ct = default)
@@ -38,6 +65,11 @@ public sealed class ForumPostService : IForumPostService
         if (post is null || post.Status is ForumPostStatus.Deleted)
         {
             return Result<ForumPostDto>.Failure("Forum post was not found.");
+        }
+
+        if (!await CanViewPostAsync(post, ct))
+        {
+            return Result<ForumPostDto>.Failure("Forum post was not found or is not visible.");
         }
 
         if (post.Status is ForumPostStatus.Published)
@@ -57,7 +89,13 @@ public sealed class ForumPostService : IForumPostService
             return Result<ForumPostDto>.Failure(error);
         }
 
-        var validation = Validate(request.Title, request.Content, request.Category, request.Area);
+        if (!await _permissions.HasPermissionAsync(PermissionNames.ForumCreate, ct))
+        {
+            return Result<ForumPostDto>.Failure("You do not have permission to create forum posts.");
+        }
+
+        var validation = Validate(request.Title, request.Content, request.Category, request.Area, request.Tags)
+            ?? ValidateVisibility(request.VisibilityScope, request.VisibilityBuildingId, request.VisibilityRoomId, request.VisibilityRoleName);
         if (validation is not null)
         {
             return Result<ForumPostDto>.Failure(validation);
@@ -70,9 +108,15 @@ public sealed class ForumPostService : IForumPostService
             Title = request.Title.Trim(),
             Content = request.Content.Trim(),
             Excerpt = CreateExcerpt(request.Content, request.Excerpt),
-            Category = request.Category.Trim(),
+            Category = NormalizeCategory(request.Category),
             Area = NormalizeOptional(request.Area),
-            Status = ForumPostStatus.Published,
+            VisibilityScope = request.VisibilityScope,
+            VisibilityBuildingId = request.VisibilityScope == ForumVisibilityScope.Building ? request.VisibilityBuildingId : null,
+            VisibilityRoomId = request.VisibilityScope == ForumVisibilityScope.Room ? request.VisibilityRoomId : null,
+            VisibilityRoleName = request.VisibilityScope == ForumVisibilityScope.Role ? NormalizeRoleName(request.VisibilityRoleName) : null,
+            Status = await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct)
+                ? ForumPostStatus.Published
+                : ForumPostStatus.Pending,
             IsPinned = request.IsPinned,
             IsImportant = request.IsImportant,
             CreatedAt = DateTime.UtcNow,
@@ -98,12 +142,13 @@ public sealed class ForumPostService : IForumPostService
             return Result<ForumPostDto>.Failure("Deleted posts cannot be updated.");
         }
 
-        if (!CanManagePost(post))
+        if (!await CanManagePostAsync(post, ct))
         {
             return Result<ForumPostDto>.Failure("You do not have permission to update this post.");
         }
 
-        var validation = Validate(request.Title, request.Content, request.Category, request.Area);
+        var validation = Validate(request.Title, request.Content, request.Category, request.Area, request.Tags)
+            ?? ValidateVisibility(request.VisibilityScope, request.VisibilityBuildingId, request.VisibilityRoomId, request.VisibilityRoleName);
         if (validation is not null)
         {
             return Result<ForumPostDto>.Failure(validation);
@@ -112,8 +157,12 @@ public sealed class ForumPostService : IForumPostService
         post.Title = request.Title.Trim();
         post.Content = request.Content.Trim();
         post.Excerpt = CreateExcerpt(request.Content, request.Excerpt);
-        post.Category = request.Category.Trim();
+        post.Category = NormalizeCategory(request.Category);
         post.Area = NormalizeOptional(request.Area);
+        post.VisibilityScope = request.VisibilityScope;
+        post.VisibilityBuildingId = request.VisibilityScope == ForumVisibilityScope.Building ? request.VisibilityBuildingId : null;
+        post.VisibilityRoomId = request.VisibilityScope == ForumVisibilityScope.Room ? request.VisibilityRoomId : null;
+        post.VisibilityRoleName = request.VisibilityScope == ForumVisibilityScope.Role ? NormalizeRoleName(request.VisibilityRoleName) : null;
         post.IsPinned = request.IsPinned;
         post.IsImportant = request.IsImportant;
         post.UpdatedAt = DateTime.UtcNow;
@@ -125,6 +174,32 @@ public sealed class ForumPostService : IForumPostService
         return Result<ForumPostDto>.Success(MapDetail(post));
     }
 
+    public async Task<Result> ApproveAsync(Guid id, CancellationToken ct = default)
+    {
+        var post = await _posts.GetByIdWithDetailsAsync(id, ct);
+        if (post is null)
+        {
+            return Result.Failure("Forum post was not found.");
+        }
+
+        if (!await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct))
+        {
+            return Result.Failure("Only Admin or Manager can approve posts.");
+        }
+
+        if (post.Status != ForumPostStatus.Pending)
+        {
+            return Result.Failure("Only pending posts can be approved.");
+        }
+
+        post.Status = ForumPostStatus.Published;
+        post.UpdatedAt = DateTime.UtcNow;
+        post.UpdatedBy = _currentUser.UserName;
+        _posts.Update(post);
+        await _unitOfWork.SaveChangesAsync(ct);
+        return Result.Success();
+    }
+
     public async Task<Result> DeleteAsync(Guid id, CancellationToken ct = default)
     {
         var post = await _posts.GetByIdWithDetailsAsync(id, ct);
@@ -133,7 +208,7 @@ public sealed class ForumPostService : IForumPostService
             return Result.Failure("Forum post was not found.");
         }
 
-        if (!CanManagePost(post))
+        if (!await CanManagePostAsync(post, ct))
         {
             return Result.Failure("You do not have permission to delete this post.");
         }
@@ -154,7 +229,7 @@ public sealed class ForumPostService : IForumPostService
             return Result.Failure("Forum post was not found.");
         }
 
-        if (!IsAdminOrManager())
+        if (!await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct))
         {
             return Result.Failure("Only Admin or Manager can hide posts.");
         }
@@ -167,15 +242,19 @@ public sealed class ForumPostService : IForumPostService
         return Result.Success();
     }
 
-    private static ForumPostFilterRequest NormalizeFilter(ForumPostFilterRequest request) => new()
+    private async Task<ForumPostFilterRequest> NormalizeFilterAsync(ForumPostFilterRequest request, CancellationToken ct) => new()
     {
         SearchText = NormalizeOptional(request.SearchText),
-        Category = NormalizeOptional(request.Category),
+        Category = NormalizeCategoryFilter(request.Category),
         Tag = NormalizeTag(request.Tag),
         Area = NormalizeOptional(request.Area),
         SortBy = request.SortBy,
         PageNumber = Math.Max(1, request.PageNumber),
-        PageSize = Math.Clamp(request.PageSize, 1, 50)
+        PageSize = Math.Clamp(request.PageSize, 1, 50),
+        CurrentUserRoleName = _currentUser.CurrentUser?.RoleName,
+        CurrentUserBuildingId = _currentUser.CurrentUser?.BuildingId,
+        CurrentUserRoomId = _currentUser.CurrentUser?.CurrentRoomId,
+        CanViewAllScopes = await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct)
     };
 
     private bool EnsureAuthenticated(out Guid userId, out string error)
@@ -192,13 +271,36 @@ public sealed class ForumPostService : IForumPostService
         return false;
     }
 
-    private bool CanManagePost(ForumPost post) =>
-        _currentUser.UserId == post.AuthorUserId || IsAdminOrManager();
+    private async Task<bool> CanManagePostAsync(ForumPost post, CancellationToken ct) =>
+        (_currentUser.UserId == post.AuthorUserId && await _permissions.HasPermissionAsync(PermissionNames.ForumManageOwn, ct)) ||
+        await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct);
 
-    private bool IsAdminOrManager() =>
-        _currentUser.IsInRole(RoleNames.Admin) || _currentUser.IsInRole(RoleNames.Manager);
+    private async Task<bool> CanViewPostAsync(ForumPost post, CancellationToken ct)
+    {
+        if (await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct))
+        {
+            return true;
+        }
 
-    private static string? Validate(string title, string content, string category, string? area)
+        if (_currentUser.UserId == post.AuthorUserId && post.Status == ForumPostStatus.Pending)
+        {
+            return await _permissions.HasPermissionAsync(PermissionNames.ForumManageOwn, ct);
+        }
+
+        return post.Status == ForumPostStatus.Published && post.VisibilityScope switch
+        {
+            ForumVisibilityScope.Dormitory => await _permissions.HasPermissionAsync(PermissionNames.ForumRead, ct),
+            ForumVisibilityScope.Building => post.VisibilityBuildingId.HasValue &&
+                                             post.VisibilityBuildingId == _currentUser.CurrentUser?.BuildingId,
+            ForumVisibilityScope.Room => post.VisibilityRoomId.HasValue &&
+                                         post.VisibilityRoomId == _currentUser.CurrentUser?.CurrentRoomId,
+            ForumVisibilityScope.Role => !string.IsNullOrWhiteSpace(post.VisibilityRoleName) &&
+                                         _currentUser.IsInRole(post.VisibilityRoleName),
+            _ => false
+        };
+    }
+
+    private static string? Validate(string title, string content, string category, string? area, IEnumerable<string> tags)
     {
         if (string.IsNullOrWhiteSpace(title))
         {
@@ -225,9 +327,9 @@ public sealed class ForumPostService : IForumPostService
             return "Category is required.";
         }
 
-        if (category.Trim().Length > 100)
+        if (!ForumCatalog.Categories.Contains(category.Trim(), StringComparer.OrdinalIgnoreCase))
         {
-            return "Category must be 100 characters or fewer.";
+            return "Category is not supported.";
         }
 
         if (!string.IsNullOrWhiteSpace(area) && area.Trim().Length > 100)
@@ -235,7 +337,24 @@ public sealed class ForumPostService : IForumPostService
             return "Area must be 100 characters or fewer.";
         }
 
-        return null;
+        var unsupportedTag = NormalizeTags(tags).FirstOrDefault(tag => !ForumCatalog.Tags.Contains(tag, StringComparer.OrdinalIgnoreCase));
+        return unsupportedTag is null ? null : $"Tag '{unsupportedTag}' is not supported.";
+    }
+
+    private static string? ValidateVisibility(
+        ForumVisibilityScope scope,
+        Guid? buildingId,
+        Guid? roomId,
+        string? roleName)
+    {
+        return scope switch
+        {
+            ForumVisibilityScope.Building when !buildingId.HasValue => "Building visibility requires a building.",
+            ForumVisibilityScope.Room when !roomId.HasValue => "Room visibility requires a room.",
+            ForumVisibilityScope.Role when string.IsNullOrWhiteSpace(roleName) => "Role visibility requires a role.",
+            ForumVisibilityScope.Role when !KnownRoles.Contains(roleName.Trim(), StringComparer.OrdinalIgnoreCase) => "Role visibility is not supported.",
+            _ => null
+        };
     }
 
     private static void ReplaceTags(ForumPost post, IEnumerable<string> tags)
@@ -264,6 +383,17 @@ public sealed class ForumPostService : IForumPostService
         var normalized = NormalizeOptional(tag)?.TrimStart('#').Trim().ToLowerInvariant();
         return string.IsNullOrWhiteSpace(normalized) ? null : normalized;
     }
+
+    private static string NormalizeCategory(string category) =>
+        ForumCatalog.Categories.First(candidate => string.Equals(candidate, category.Trim(), StringComparison.OrdinalIgnoreCase));
+
+    private static string? NormalizeCategoryFilter(string? category) =>
+        string.IsNullOrWhiteSpace(category) ? null : NormalizeCategory(category);
+
+    private static string? NormalizeRoleName(string? roleName) =>
+        KnownRoles.FirstOrDefault(candidate => string.Equals(candidate, roleName?.Trim(), StringComparison.OrdinalIgnoreCase));
+
+    private static readonly string[] KnownRoles = [RoleNames.Admin, RoleNames.Manager, RoleNames.Student];
 
     private static string? NormalizeOptional(string? value)
     {
@@ -302,6 +432,11 @@ public sealed class ForumPostService : IForumPostService
         dto.Excerpt = post.Excerpt;
         dto.Category = post.Category;
         dto.Area = post.Area;
+        dto.Status = post.Status;
+        dto.VisibilityScope = post.VisibilityScope;
+        dto.VisibilityBuildingId = post.VisibilityBuildingId;
+        dto.VisibilityRoomId = post.VisibilityRoomId;
+        dto.VisibilityRoleName = post.VisibilityRoleName;
         dto.IsPinned = post.IsPinned;
         dto.IsImportant = post.IsImportant;
         dto.ViewCount = post.ViewCount;

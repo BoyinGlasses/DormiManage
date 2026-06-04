@@ -18,6 +18,7 @@ public sealed class UserRepository : IUserRepository
         _dbContext.Users
             .Include(x => x.Role)
             .Include(x => x.Student)
+            .ThenInclude(x => x!.CurrentRoom)
             .Include(x => x.Manager)
             .FirstOrDefaultAsync(x => x.Id == id, ct);
 
@@ -27,6 +28,7 @@ public sealed class UserRepository : IUserRepository
         return _dbContext.Users
             .Include(x => x.Role)
             .Include(x => x.Student)
+            .ThenInclude(x => x!.CurrentRoom)
             .Include(x => x.Manager)
             .FirstOrDefaultAsync(x => x.Username.ToLower() == normalized || x.Email.ToLower() == normalized, ct);
     }
@@ -49,6 +51,7 @@ public sealed class UserRepository : IUserRepository
         return _dbContext.Users
             .Include(x => x.Role)
             .Include(x => x.Student)
+            .ThenInclude(x => x!.CurrentRoom)
             .Include(x => x.Manager)
             .FirstOrDefaultAsync(x => x.Student != null && x.Student.StudentCode.ToLower() == normalized, ct);
     }

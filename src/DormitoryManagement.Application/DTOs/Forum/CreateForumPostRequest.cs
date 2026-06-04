@@ -1,3 +1,5 @@
+using DormitoryManagement.Domain.Enums;
+
 namespace DormitoryManagement.Application.DTOs.Forum;
 
 public sealed class CreateForumPostRequest
@@ -8,6 +10,10 @@ public sealed class CreateForumPostRequest
     public string Category { get; set; } = string.Empty;
     public string? Area { get; set; }
     public IReadOnlyCollection<string> Tags { get; set; } = Array.Empty<string>();
+    public ForumVisibilityScope VisibilityScope { get; set; } = ForumVisibilityScope.Dormitory;
+    public Guid? VisibilityBuildingId { get; set; }
+    public Guid? VisibilityRoomId { get; set; }
+    public string? VisibilityRoleName { get; set; }
     public bool IsPinned { get; set; }
     public bool IsImportant { get; set; }
 }

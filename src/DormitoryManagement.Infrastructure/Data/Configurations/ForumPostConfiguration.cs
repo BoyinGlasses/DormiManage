@@ -15,11 +15,14 @@ public sealed class ForumPostConfiguration : IEntityTypeConfiguration<ForumPost>
         builder.Property(x => x.Excerpt).HasMaxLength(500).IsRequired();
         builder.Property(x => x.Category).HasMaxLength(100).IsRequired();
         builder.Property(x => x.Area).HasMaxLength(100);
+        builder.Property(x => x.VisibilityScope).HasConversion<string>().HasMaxLength(30);
+        builder.Property(x => x.VisibilityRoleName).HasMaxLength(50);
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
         builder.HasOne(x => x.AuthorUser).WithMany().HasForeignKey(x => x.AuthorUserId).OnDelete(DeleteBehavior.Restrict);
         builder.HasMany(x => x.Tags).WithOne(x => x.ForumPost).HasForeignKey(x => x.ForumPostId).OnDelete(DeleteBehavior.Cascade);
         builder.HasIndex(x => new { x.Status, x.CreatedAt });
         builder.HasIndex(x => x.Category);
         builder.HasIndex(x => x.Area);
+        builder.HasIndex(x => new { x.VisibilityScope, x.VisibilityBuildingId, x.VisibilityRoomId });
     }
 }

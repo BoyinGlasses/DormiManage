@@ -10,4 +10,5 @@ public sealed class CurrentUserDto
     public Guid? StudentId { get; init; }
     public Guid? ManagerId { get; init; }
     public Guid? BuildingId { get; init; }
+    public Guid? CurrentRoomId { get; init; }
 }

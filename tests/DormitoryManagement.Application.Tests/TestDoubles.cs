@@ -108,7 +108,13 @@ internal sealed class RecordingAuditLogService : IAuditLogService
 
 internal sealed class TestCurrentUser : ICurrentUserService
 {
-    public TestCurrentUser(string roleName, Guid? userId = null, Guid? studentId = null, Guid? managerId = null, Guid? buildingId = null)
+    public TestCurrentUser(
+        string roleName,
+        Guid? userId = null,
+        Guid? studentId = null,
+        Guid? managerId = null,
+        Guid? buildingId = null,
+        Guid? currentRoomId = null)
     {
         CurrentUser = new CurrentUserDto
         {
@@ -119,7 +125,8 @@ internal sealed class TestCurrentUser : ICurrentUserService
             RoleName = roleName,
             StudentId = studentId,
             ManagerId = managerId,
-            BuildingId = buildingId
+            BuildingId = buildingId,
+            CurrentRoomId = currentRoomId
         };
     }
 

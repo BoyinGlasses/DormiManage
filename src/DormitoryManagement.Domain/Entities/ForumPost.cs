@@ -11,6 +11,10 @@ public class ForumPost : AuditableEntity
     public string Excerpt { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;
     public string? Area { get; set; }
+    public ForumVisibilityScope VisibilityScope { get; set; } = ForumVisibilityScope.Dormitory;
+    public Guid? VisibilityBuildingId { get; set; }
+    public Guid? VisibilityRoomId { get; set; }
+    public string? VisibilityRoleName { get; set; }
     public ForumPostStatus Status { get; set; } = ForumPostStatus.Published;
     public bool IsPinned { get; set; }
     public bool IsImportant { get; set; }
