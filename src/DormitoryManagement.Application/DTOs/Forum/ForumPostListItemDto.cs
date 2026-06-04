@@ -1,3 +1,5 @@
+using DormitoryManagement.Domain.Enums;
+
 namespace DormitoryManagement.Application.DTOs.Forum;
 
 public class ForumPostListItemDto
@@ -7,6 +9,10 @@ public class ForumPostListItemDto
     public string Excerpt { get; set; } = string.Empty;
     public string Category { get; set; } = string.Empty;
     public string? Area { get; set; }
+    public ForumVisibilityScope VisibilityScope { get; set; }
+    public Guid? VisibilityBuildingId { get; set; }
+    public Guid? VisibilityRoomId { get; set; }
+    public string? VisibilityRoleName { get; set; }
     public bool IsPinned { get; set; }
     public bool IsImportant { get; set; }
     public int ViewCount { get; set; }

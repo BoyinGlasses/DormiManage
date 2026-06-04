@@ -165,6 +165,7 @@ public sealed class AuthService : IAuthService
             RoleName = user.Role?.Name ?? string.Empty,
             StudentId = user.Student?.Id,
             ManagerId = user.Manager?.Id,
-            BuildingId = user.Manager?.BuildingId
+            BuildingId = user.Manager?.BuildingId ?? user.Student?.CurrentRoom?.BuildingId,
+            CurrentRoomId = user.Student?.CurrentRoomId
         };
 }

@@ -36,13 +36,20 @@ public sealed class PermissionService : IPermissionService
                 or PermissionNames.TicketsRead
                 or PermissionNames.TicketsCreate
                 or PermissionNames.TicketsAssign
-                or PermissionNames.TicketsUpdate when _currentUser.IsInRole(RoleNames.Manager) => true,
+                or PermissionNames.TicketsUpdate
+                or PermissionNames.ForumRead
+                or PermissionNames.ForumCreate
+                or PermissionNames.ForumManageOwn
+                or PermissionNames.ForumModerate when _currentUser.IsInRole(RoleNames.Manager) => true,
             PermissionNames.RoomsRead
                 or PermissionNames.RoomRegistrationCreate
                 or PermissionNames.BillingRead
                 or PermissionNames.PaymentsCreate
                 or PermissionNames.TicketsRead
-                or PermissionNames.TicketsCreate when _currentUser.IsInRole(RoleNames.Student) => true,
+                or PermissionNames.TicketsCreate
+                or PermissionNames.ForumRead
+                or PermissionNames.ForumCreate
+                or PermissionNames.ForumManageOwn when _currentUser.IsInRole(RoleNames.Student) => true,
             _ => false
         };
 

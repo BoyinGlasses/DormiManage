@@ -16,23 +16,32 @@ public sealed class ForumCommentService : IForumCommentService
     private readonly IForumReactionRepository _reactions;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUser;
+    private readonly IPermissionService _permissions;
 
     public ForumCommentService(
         IForumPostRepository posts,
         IForumCommentRepository comments,
         IForumReactionRepository reactions,
         IUnitOfWork unitOfWork,
-        ICurrentUserService currentUser)
+        ICurrentUserService currentUser,
+        IPermissionService permissions)
     {
         _posts = posts;
         _comments = comments;
         _reactions = reactions;
         _unitOfWork = unitOfWork;
         _currentUser = currentUser;
+        _permissions = permissions;
     }
 
     public async Task<IReadOnlyList<ForumCommentDto>> GetPostCommentsAsync(Guid postId, CancellationToken ct = default)
     {
+        var post = await _posts.GetByIdWithDetailsAsync(postId, ct);
+        if (post is null || !await CanViewPostAsync(post, ct))
+        {
+            return Array.Empty<ForumCommentDto>();
+        }
+
         var comments = await _comments.GetPostCommentsWithDetailsAsync(postId, ct);
 
         if (comments.Count == 0)
@@ -72,6 +81,11 @@ public sealed class ForumCommentService : IForumCommentService
             return Result<ForumCommentDto>.Failure(error);
         }
 
+        if (!await _permissions.HasPermissionAsync(PermissionNames.ForumCreate, ct))
+        {
+            return Result<ForumCommentDto>.Failure("You do not have permission to comment in the forum.");
+        }
+
         var validation = ValidateContent(request.Content);
         if (validation is not null)
         {
@@ -79,7 +93,7 @@ public sealed class ForumCommentService : IForumCommentService
         }
 
         var post = await _posts.GetByIdWithDetailsAsync(request.ForumPostId, ct);
-        if (post is null || post.Status != ForumPostStatus.Published)
+        if (post is null || post.Status != ForumPostStatus.Published || !await CanViewPostAsync(post, ct))
         {
             return Result<ForumCommentDto>.Failure("Forum post was not found or is not visible.");
         }
@@ -123,7 +137,7 @@ public sealed class ForumCommentService : IForumCommentService
             return Result<ForumCommentDto>.Failure("Deleted comments cannot be updated.");
         }
 
-        if (!CanManageComment(comment))
+        if (!await CanManageCommentAsync(comment, ct))
         {
             return Result<ForumCommentDto>.Failure("You do not have permission to update this comment.");
         }
@@ -150,7 +164,7 @@ public sealed class ForumCommentService : IForumCommentService
             return Result.Failure("Forum comment was not found.");
         }
 
-        if (!CanManageComment(comment))
+        if (!await CanManageCommentAsync(comment, ct))
         {
             return Result.Failure("You do not have permission to delete this comment.");
         }
@@ -185,11 +199,29 @@ public sealed class ForumCommentService : IForumCommentService
         return false;
     }
 
-    private bool CanManageComment(ForumComment comment) =>
-        _currentUser.UserId == comment.AuthorUserId || IsAdminOrManager();
+    private async Task<bool> CanManageCommentAsync(ForumComment comment, CancellationToken ct) =>
+        (_currentUser.UserId == comment.AuthorUserId && await _permissions.HasPermissionAsync(PermissionNames.ForumManageOwn, ct)) ||
+        await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct);
 
-    private bool IsAdminOrManager() =>
-        _currentUser.IsInRole(RoleNames.Admin) || _currentUser.IsInRole(RoleNames.Manager);
+    private async Task<bool> CanViewPostAsync(ForumPost post, CancellationToken ct)
+    {
+        if (await _permissions.HasPermissionAsync(PermissionNames.ForumModerate, ct))
+        {
+            return true;
+        }
+
+        return post.Status == ForumPostStatus.Published && post.VisibilityScope switch
+        {
+            ForumVisibilityScope.Dormitory => await _permissions.HasPermissionAsync(PermissionNames.ForumRead, ct),
+            ForumVisibilityScope.Building => post.VisibilityBuildingId.HasValue &&
+                                             post.VisibilityBuildingId == _currentUser.CurrentUser?.BuildingId,
+            ForumVisibilityScope.Room => post.VisibilityRoomId.HasValue &&
+                                         post.VisibilityRoomId == _currentUser.CurrentUser?.CurrentRoomId,
+            ForumVisibilityScope.Role => !string.IsNullOrWhiteSpace(post.VisibilityRoleName) &&
+                                         _currentUser.IsInRole(post.VisibilityRoleName),
+            _ => false
+        };
+    }
 
     private static string? ValidateContent(string content)
     {

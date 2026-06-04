@@ -70,6 +70,22 @@ public sealed class ForumPostRepository : IForumPostRepository
             query = query.Where(post => post.Area == area);
         }
 
+        if (!filter.CanViewAllScopes)
+        {
+            var roleName = filter.CurrentUserRoleName?.Trim();
+            query = query.Where(post =>
+                post.VisibilityScope == ForumVisibilityScope.Dormitory ||
+                (post.VisibilityScope == ForumVisibilityScope.Building &&
+                 filter.CurrentUserBuildingId.HasValue &&
+                 post.VisibilityBuildingId == filter.CurrentUserBuildingId.Value) ||
+                (post.VisibilityScope == ForumVisibilityScope.Room &&
+                 filter.CurrentUserRoomId.HasValue &&
+                 post.VisibilityRoomId == filter.CurrentUserRoomId.Value) ||
+                (post.VisibilityScope == ForumVisibilityScope.Role &&
+                 roleName != null &&
+                 post.VisibilityRoleName == roleName));
+        }
+
         query = filter.SortBy switch
         {
             ForumPostSortOption.MostViewed or ForumPostSortOption.Popular => query

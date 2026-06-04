@@ -18,6 +18,10 @@ public static class PermissionNames
     public const string TicketsCreate = "Tickets.Create";
     public const string TicketsAssign = "Tickets.Assign";
     public const string TicketsUpdate = "Tickets.Update";
+    public const string ForumRead = "Forum.Read";
+    public const string ForumCreate = "Forum.Create";
+    public const string ForumManageOwn = "Forum.ManageOwn";
+    public const string ForumModerate = "Forum.Moderate";
     public const string DashboardAdmin = "Dashboard.Admin";
     public const string UsersManage = "Users.Manage";
 }
