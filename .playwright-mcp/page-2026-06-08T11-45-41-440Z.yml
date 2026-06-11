@@ -1,0 +1,97 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e4]:
+      - button "notifications" [ref=e5] [cursor=pointer]:
+        - generic [ref=e6]: notifications
+      - button "account_circle" [ref=e7] [cursor=pointer]:
+        - generic [ref=e8]: account_circle
+  - main [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - heading "Yêu cầu hỗ trợ" [level=1] [ref=e12]
+        - paragraph [ref=e13]: Quản lý và theo dõi các yêu cầu dịch vụ kỹ thuật của bạn.
+      - button "add Gửi yêu cầu mới" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15]: add
+        - text: Gửi yêu cầu mới
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e19]: receipt_long
+        - generic [ref=e20]:
+          - paragraph [ref=e21]: Tổng số yêu cầu
+          - paragraph [ref=e22]: "12"
+      - generic [ref=e23]:
+        - generic [ref=e25]: engineering
+        - generic [ref=e26]:
+          - paragraph [ref=e27]: Đang xử lý
+          - paragraph [ref=e28]: "3"
+      - generic [ref=e29]:
+        - generic [ref=e31]: check_circle
+        - generic [ref=e32]:
+          - paragraph [ref=e33]: Đã hoàn thành
+          - paragraph [ref=e34]: "9"
+    - generic [ref=e35]:
+      - heading "Danh sách yêu cầu gần đây" [level=2] [ref=e37]
+      - table [ref=e39]:
+        - rowgroup [ref=e40]:
+          - row "Mã đơn Chủ đề Loại vấn đề Ngày gửi Trạng thái Hành động" [ref=e41]:
+            - columnheader "Mã đơn" [ref=e42]
+            - columnheader "Chủ đề" [ref=e43]
+            - columnheader "Loại vấn đề" [ref=e44]
+            - columnheader "Ngày gửi" [ref=e45]
+            - columnheader "Trạng thái" [ref=e46]
+            - columnheader "Hành động" [ref=e47]
+        - rowgroup [ref=e48]:
+          - row "#SP-2024-089 Sửa bóng đèn phòng tắm Cơ sở vật chất 24/10/2024 Chờ xử lý visibility delete" [ref=e49]:
+            - cell "#SP-2024-089" [ref=e50]
+            - cell "Sửa bóng đèn phòng tắm" [ref=e51]
+            - cell "Cơ sở vật chất" [ref=e52]
+            - cell "24/10/2024" [ref=e53]
+            - cell "Chờ xử lý" [ref=e54]:
+              - generic [ref=e55]: Chờ xử lý
+            - cell "visibility delete" [ref=e56]:
+              - button "visibility" [ref=e57] [cursor=pointer]:
+                - generic [ref=e58]: visibility
+              - button "delete" [ref=e59] [cursor=pointer]:
+                - generic [ref=e60]: delete
+          - row "#SP-2024-085 Wifi yếu khu vực giường tầng 2 Kỹ thuật 22/10/2024 Đang thực hiện visibility delete" [ref=e61]:
+            - cell "#SP-2024-085" [ref=e62]
+            - cell "Wifi yếu khu vực giường tầng 2" [ref=e63]
+            - cell "Kỹ thuật" [ref=e64]
+            - cell "22/10/2024" [ref=e65]
+            - cell "Đang thực hiện" [ref=e66]:
+              - generic [ref=e67]: Đang thực hiện
+            - cell "visibility delete" [ref=e68]:
+              - button "visibility" [ref=e69] [cursor=pointer]:
+                - generic [ref=e70]: visibility
+              - button "delete" [ref=e71] [cursor=pointer]:
+                - generic [ref=e72]: delete
+          - row "#SP-2024-072 Vòi nước bồn rửa mặt bị rỉ Cơ sở vật chất 15/10/2024 Đã giải quyết visibility delete" [ref=e73]:
+            - cell "#SP-2024-072" [ref=e74]
+            - cell "Vòi nước bồn rửa mặt bị rỉ" [ref=e75]
+            - cell "Cơ sở vật chất" [ref=e76]
+            - cell "15/10/2024" [ref=e77]
+            - cell "Đã giải quyết" [ref=e78]:
+              - generic [ref=e79]: Đã giải quyết
+            - cell "visibility delete" [ref=e80]:
+              - button "visibility" [ref=e81] [cursor=pointer]:
+                - generic [ref=e82]: visibility
+              - button "delete" [ref=e83] [cursor=pointer]:
+                - generic [ref=e84]: delete
+          - row "#SP-2024-068 Đăng ký thêm định mức nước Dịch vụ 10/10/2024 Đã giải quyết visibility delete" [ref=e85]:
+            - cell "#SP-2024-068" [ref=e86]
+            - cell "Đăng ký thêm định mức nước" [ref=e87]
+            - cell "Dịch vụ" [ref=e88]
+            - cell "10/10/2024" [ref=e89]
+            - cell "Đã giải quyết" [ref=e90]:
+              - generic [ref=e91]: Đã giải quyết
+            - cell "visibility delete" [ref=e92]:
+              - button "visibility" [ref=e93] [cursor=pointer]:
+                - generic [ref=e94]: visibility
+              - button "delete" [ref=e95] [cursor=pointer]:
+                - generic [ref=e96]: delete
+      - generic [ref=e97]:
+        - generic [ref=e98]: Hiển thị 1-4 trên 12 yêu cầu
+        - generic [ref=e99]:
+          - button "Trước" [disabled] [ref=e100]
+          - button "Sau" [ref=e101] [cursor=pointer]
+  - contentinfo

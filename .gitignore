@@ -13,9 +13,35 @@ src/DormitoryManagement.WPF/appsettings.Development.json
 
 # AI / agent tooling and generated workflow state outside src/
 .agents/
+!.agents/
+.agents/*
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/wpf-fullstack-orchestrator/
+!.agents/skills/wpf-fullstack-orchestrator/SKILL.md
+!.agents/skills/wpf-design-analyst/
+!.agents/skills/wpf-design-analyst/SKILL.md
+!.agents/skills/wpf-xaml-builder/
+!.agents/skills/wpf-xaml-builder/SKILL.md
+!.agents/skills/wpf-backend-builder/
+!.agents/skills/wpf-backend-builder/SKILL.md
+!.agents/skills/wpf-qa-release/
+!.agents/skills/wpf-qa-release/SKILL.md
+!.agents/skills/**
 .ai/
 .claude/
 .codex/
+!.codex/
+.codex/*
+!.codex/agents/
+.codex/agents/*
+!.codex/config.toml
+!.codex/agents/review-architecture.toml
+!.codex/agents/review-security.toml
+!.codex/agents/review-performance.toml
+!.codex/agents/review-style.toml
+!.codex/agents/review-synthesizer.toml
+!.codex/agents/review-orchestrator.toml
 .codex-temp/
 .codegraph/
 .specify/
@@ -23,12 +49,22 @@ src/DormitoryManagement.WPF/appsettings.Development.json
 graphify-out/
 playwright-mcp/
 reasonix/
-skills/
+/skills/
 specs/
 stitch-downloads/
 .graphify_uncached.txt
 AGENTS.md
 CLAUDE.md
+!.agents/skills/wpf-fullstack-orchestrator/
+!.agents/skills/wpf-fullstack-orchestrator/SKILL.md
+!.agents/skills/wpf-design-analyst/
+!.agents/skills/wpf-design-analyst/SKILL.md
+!.agents/skills/wpf-xaml-builder/
+!.agents/skills/wpf-xaml-builder/SKILL.md
+!.agents/skills/wpf-backend-builder/
+!.agents/skills/wpf-backend-builder/SKILL.md
+!.agents/skills/wpf-qa-release/
+!.agents/skills/wpf-qa-release/SKILL.md
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -381,5 +417,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-
-

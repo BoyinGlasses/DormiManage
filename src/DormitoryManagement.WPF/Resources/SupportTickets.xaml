@@ -43,6 +43,7 @@
     <FontFamily x:Key="SupportTicketsBodyFontFamily">pack://application:,,,/DormitoryManagement.WPF;component/Assets/Fonts/Inter/#Inter</FontFamily>
 
     <system:Double x:Key="SupportTicketsPageMaxWidth">1440</system:Double>
+    <system:Double x:Key="SupportTicketsContentMaxWidth">1376</system:Double>
     <system:Double x:Key="SupportTicketsPageTitleSize">32</system:Double>
     <system:Double x:Key="SupportTicketsPageTitleLineHeight">40</system:Double>
     <system:Double x:Key="SupportTicketsSectionTitleSize">18</system:Double>
@@ -56,14 +57,16 @@
     <system:Double x:Key="SupportTicketsSectionGap">24</system:Double>
     <system:Double x:Key="SupportTicketsCardPadding">24</system:Double>
     <system:Double x:Key="SupportTicketsSummaryCardMinHeight">72</system:Double>
-    <system:Double x:Key="SupportTicketsSummaryIconSize">40</system:Double>
+    <system:Double x:Key="SupportTicketsSummaryIconSize">48</system:Double>
     <system:Double x:Key="SupportTicketsPrimaryButtonHeight">40</system:Double>
     <system:Double x:Key="SupportTicketsPrimaryButtonMinWidth">140</system:Double>
     <system:Double x:Key="SupportTicketsBadgeMinHeight">24</system:Double>
     <system:Double x:Key="SupportTicketsActionButtonSize">32</system:Double>
     <system:Double x:Key="SupportTicketsActionIconSize">18</system:Double>
-    <system:Double x:Key="SupportTicketsDataGridHeaderHeight">44</system:Double>
-    <system:Double x:Key="SupportTicketsDataGridRowMinHeight">48</system:Double>
+    <system:Double x:Key="SupportTicketsTableHeaderHeight">48</system:Double>
+    <system:Double x:Key="SupportTicketsTableRowMinHeight">48</system:Double>
+    <system:Double x:Key="SupportTicketsTableMinHeight">240</system:Double>
+    <system:Double x:Key="SupportTicketsTableMaxHeight">440</system:Double>
     <system:Double x:Key="SupportTicketsFormWidth">420</system:Double>
     <system:Double x:Key="SupportTicketsCardShadowBlur">20</system:Double>
     <system:Double x:Key="SupportTicketsCardShadowDepth">2</system:Double>
@@ -79,9 +82,10 @@
     <Thickness x:Key="SupportTicketsSummaryMargin">0,0,0,24</Thickness>
     <Thickness x:Key="SupportTicketsCardPaddingThickness">24</Thickness>
     <Thickness x:Key="SupportTicketsPrimaryButtonPadding">18,0</Thickness>
-    <Thickness x:Key="SupportTicketsSummaryCardPadding">18</Thickness>
-    <Thickness x:Key="SupportTicketsDataGridHeaderPadding">20,12</Thickness>
-    <Thickness x:Key="SupportTicketsDataGridCellPadding">20,13</Thickness>
+    <Thickness x:Key="SupportTicketsSummaryCardPadding">24</Thickness>
+    <Thickness x:Key="SupportTicketsTableHeaderPadding">24,16</Thickness>
+    <Thickness x:Key="SupportTicketsTableCellPadding">24,16</Thickness>
+    <Thickness x:Key="SupportTicketsTableFooterPadding">16</Thickness>
     <Thickness x:Key="SupportTicketsInlineIconMargin">0,0,8,0</Thickness>
 
     <DropShadowEffect x:Key="SupportTicketsCardShadowEffect"
@@ -121,8 +125,9 @@
 
     <Style x:Key="SupportTicketsSummaryLabelTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
-        <Setter Property="FontSize" Value="{StaticResource SupportTicketsMetaSize}" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="LineHeight" Value="16" />
         <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
         <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
         <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
@@ -141,7 +146,8 @@
     <Style x:Key="SupportTicketsTableHeaderTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="LineHeight" Value="16" />
         <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
         <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
         <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
@@ -149,12 +155,20 @@
 
     <Style x:Key="SupportTicketsTableCellTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
-        <Setter Property="FontSize" Value="13" />
-        <Setter Property="LineHeight" Value="20" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="LineHeight" Value="22" />
         <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextPrimaryBrush}" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
         <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="SupportTicketsBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="LineHeight" Value="16" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
     <Style x:Key="SupportTicketsCardStyle" TargetType="Border">
@@ -233,4 +247,7 @@
         </Setter>
     </Style>
 </ResourceDictionary>
+
+
+
 

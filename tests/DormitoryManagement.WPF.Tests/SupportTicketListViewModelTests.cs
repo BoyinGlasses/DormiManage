@@ -40,8 +40,8 @@ public sealed class SupportTicketListViewModelTests
         await Task.Delay(50);
 
         Assert.True(viewModel.IsCreateFormOpen);
-        Assert.Equal("Enter a ticket title.", viewModel.TitleError);
-        Assert.Equal("Enter a ticket description.", viewModel.DescriptionError);
+        Assert.Equal("Vui lòng nhập chủ đề yêu cầu.", viewModel.TitleError);
+        Assert.Equal("Vui lòng nhập mô tả yêu cầu.", viewModel.DescriptionError);
 
         viewModel.Title = "Need desk repair";
         viewModel.Description = "The desk hinge is loose.";
@@ -49,8 +49,36 @@ public sealed class SupportTicketListViewModelTests
         await WaitUntilAsync(() => viewModel.HasSuccessMessage);
 
         Assert.False(viewModel.IsCreateFormOpen);
-        Assert.Equal("Support ticket created.", viewModel.SuccessMessage);
+        Assert.Equal("Đã tạo yêu cầu hỗ trợ.", viewModel.SuccessMessage);
         Assert.Equal("Need desk repair", service.CreatedTickets[0].Title);
+    }
+
+    [Fact]
+    public async Task Load_limits_recent_ticket_list_to_four_items_and_advances_pages_when_more_tickets_exist()
+    {
+        var service = new PagedSupportTicketService();
+        var viewModel = new SupportTicketListViewModel(service, new StubCurrentUser(RoleNames.Student));
+
+        viewModel.LoadCommand.Execute(null);
+        await WaitUntilAsync(() => viewModel.HasTickets);
+
+        Assert.Equal(12, viewModel.TotalTicketCount);
+        Assert.Equal(4, viewModel.Tickets.Count);
+        Assert.Equal("Hiển thị 1-4 trên 12 yêu cầu", viewModel.TicketFooterSummaryText);
+        Assert.False(viewModel.HasPreviousPage);
+        Assert.True(viewModel.HasNextPage);
+
+        viewModel.NextPageCommand.Execute(null);
+
+        Assert.Equal("Hiển thị 5-8 trên 12 yêu cầu", viewModel.TicketFooterSummaryText);
+        Assert.True(viewModel.HasPreviousPage);
+        Assert.True(viewModel.HasNextPage);
+
+        viewModel.NextPageCommand.Execute(null);
+
+        Assert.Equal("Hiển thị 9-12 trên 12 yêu cầu", viewModel.TicketFooterSummaryText);
+        Assert.True(viewModel.HasPreviousPage);
+        Assert.False(viewModel.HasNextPage);
     }
 
     [Fact]
@@ -82,7 +110,12 @@ public sealed class SupportTicketListViewModelTests
         Assert.Equal(selectedTicket.Id, service.UpdatedStatuses[0].TicketId);
         Assert.Equal(SupportTicketStatus.Resolved, service.UpdatedStatuses[0].Status);
         Assert.Equal("Done", service.UpdatedStatuses[0].Note);
-        Assert.Equal("Ticket status updated.", viewModel.SuccessMessage);
+        Assert.Equal("Đã cập nhật trạng thái yêu cầu.", viewModel.SuccessMessage);
+        Assert.Equal(1, service.GetTicketsAsyncCallCount);
+        Assert.NotSame(selectedTicket, viewModel.SelectedTicket);
+        Assert.Equal(SupportTicketStatus.Resolved, viewModel.SelectedTicket!.Status);
+        Assert.Equal(2, viewModel.OpenTicketCount);
+        Assert.Equal(2, viewModel.ResolvedTicketCount);
 
         var beforeSecondaryAction = viewModel.SelectedTicket;
         viewModel.SecondaryTicketActionCommand.Execute(selectedTicket);
@@ -143,9 +176,13 @@ public sealed class SupportTicketListViewModelTests
 
         public List<SupportTicketDto> CreatedTickets { get; } = new();
         public List<UpdateSupportTicketStatusRequest> UpdatedStatuses { get; } = new();
+        public int GetTicketsAsyncCallCount { get; private set; }
 
-        public Task<IReadOnlyList<SupportTicketDto>> GetTicketsAsync(CancellationToken ct = default) =>
-            Task.FromResult<IReadOnlyList<SupportTicketDto>>(_tickets.ToArray());
+        public Task<IReadOnlyList<SupportTicketDto>> GetTicketsAsync(CancellationToken ct = default)
+        {
+            GetTicketsAsyncCallCount++;
+            return Task.FromResult<IReadOnlyList<SupportTicketDto>>(_tickets.ToArray());
+        }
 
         public Task<SupportTicketDto?> GetTicketAsync(Guid ticketId, CancellationToken ct = default) =>
             Task.FromResult(_tickets.FirstOrDefault(ticket => ticket.Id == ticketId));
@@ -173,8 +210,44 @@ public sealed class SupportTicketListViewModelTests
         public Task UpdateStatusAsync(UpdateSupportTicketStatusRequest request, CancellationToken ct = default)
         {
             UpdatedStatuses.Add(request);
+            var ticket = _tickets.FirstOrDefault(candidate => candidate.Id == request.TicketId);
+            if (ticket is not null)
+            {
+                ticket.Status = request.Status;
+            }
+
             return Task.CompletedTask;
         }
+        public Task CloseTicketAsync(Guid ticketId, CancellationToken ct = default) => Task.CompletedTask;
+    }
+
+    private sealed class PagedSupportTicketService : ISupportTicketService
+    {
+        private readonly IReadOnlyList<SupportTicketDto> _tickets = Enumerable.Range(1, 12)
+            .Select(index => new SupportTicketDto
+            {
+                Id = Guid.NewGuid(),
+                Title = $"Ticket {index}",
+                Description = $"Description {index}",
+                Category = index % 3 == 0 ? SupportTicketCategory.Maintenance : SupportTicketCategory.Billing,
+                Priority = PriorityLevel.Medium,
+                Status = index % 4 == 0 ? SupportTicketStatus.Resolved : SupportTicketStatus.New,
+                CreatedAt = new DateTime(2026, 6, index)
+            })
+            .ToArray();
+
+        public Task<IReadOnlyList<SupportTicketDto>> GetTicketsAsync(CancellationToken ct = default) =>
+            Task.FromResult(_tickets);
+
+        public Task<SupportTicketDto?> GetTicketAsync(Guid ticketId, CancellationToken ct = default) =>
+            Task.FromResult(_tickets.FirstOrDefault(ticket => ticket.Id == ticketId));
+
+        public Task<SupportTicketDto> CreateTicketAsync(CreateSupportTicketRequest request, CancellationToken ct = default) =>
+            throw new NotSupportedException();
+
+        public Task AssignTicketAsync(Guid ticketId, Guid managerId, CancellationToken ct = default) => Task.CompletedTask;
+        public Task AddResponseAsync(Guid ticketId, string message, CancellationToken ct = default) => Task.CompletedTask;
+        public Task UpdateStatusAsync(UpdateSupportTicketStatusRequest request, CancellationToken ct = default) => Task.CompletedTask;
         public Task CloseTicketAsync(Guid ticketId, CancellationToken ct = default) => Task.CompletedTask;
     }
 }
