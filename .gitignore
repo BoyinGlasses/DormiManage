@@ -55,6 +55,16 @@ stitch-downloads/
 .graphify_uncached.txt
 AGENTS.md
 CLAUDE.md
+dashboard_stu/
+dmforum/
+forumpostdetail/
+.playwright-mcp/
+.reasonix/
+.serena/
+ref.html
+stitch-compose-popup-open.png
+stitch-compose-popup-render.png
+tests-output/
 !.agents/skills/wpf-fullstack-orchestrator/
 !.agents/skills/wpf-fullstack-orchestrator/SKILL.md
 !.agents/skills/wpf-design-analyst/
