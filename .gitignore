@@ -42,6 +42,8 @@ src/DormitoryManagement.WPF/appsettings.Development.json
 !.codex/agents/review-style.toml
 !.codex/agents/review-synthesizer.toml
 !.codex/agents/review-orchestrator.toml
+.agents/
+.codex/
 .codex-temp/
 .codegraph/
 .specify/
@@ -57,6 +59,7 @@ output.md
 child_smoke.txt
 Bao_cao_mau_DormitoryManagement.docx
 Nhom4_BaoCao.pdf
+subagent_result.txt
 .graphify_uncached.txt
 AGENTS.md
 CLAUDE.md
