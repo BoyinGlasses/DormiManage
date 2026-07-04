@@ -30,6 +30,15 @@ stitch-downloads/
 AGENTS.md
 CLAUDE.md
 
+# UI reference exports / screenshots
+dashboard_stu/
+dmforum/
+forumpostdetail/
+ref.html
+stitch-compose-popup-open.png
+stitch-compose-popup-render.png
+tests-output/
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -381,5 +390,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-
 
