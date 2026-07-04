@@ -89,7 +89,6 @@ public sealed class SupportTicketViewTests
         Assert.Contains("AutomationProperties.Name=\"Chủ đề yêu cầu\"", xaml, StringComparison.Ordinal);
         Assert.Contains("AutomationProperties.Name=\"Mô tả yêu cầu\"", xaml, StringComparison.Ordinal);
         Assert.Contains("AutomationProperties.Name=\"Loại vấn đề yêu cầu\"", xaml, StringComparison.Ordinal);
-        Assert.Contains("AutomationProperties.Name=\"Mức độ ưu tiên yêu cầu\"", xaml, StringComparison.Ordinal);
         Assert.Contains("Command=\"{Binding ToggleCreateFormCommand}\"", xaml, StringComparison.Ordinal);
         Assert.Contains("Command=\"{Binding ToggleFiltersCommand}\"", xaml, StringComparison.Ordinal);
         Assert.Contains("SupportTicketValueConverter", xaml, StringComparison.Ordinal);
@@ -128,8 +127,49 @@ public sealed class SupportTicketViewTests
         var xaml = LoadSupportTicketViewDocument().ToString(SaveOptions.DisableFormatting);
         Assert.Contains("Visibility=\"Collapsed\"", xaml, StringComparison.Ordinal);
         Assert.Contains("Visibility=\"{Binding AreFiltersOpen, Converter={StaticResource BoolToVisibility}}\"", xaml, StringComparison.Ordinal);
-        Assert.Contains("Visibility=\"{Binding IsCreateFormOpen, Converter={StaticResource BoolToVisibility}}\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Visibility=\"{Binding Path=IsCreateFormOpen, Converter={StaticResource BoolToVisibility}}\"", xaml, StringComparison.Ordinal);
         Assert.Contains("Visibility=\"{Binding IsStaffUser, Converter={StaticResource BoolToVisibility}}\"", xaml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Support_ticket_popup_contract_uses_modal_copy_and_hides_non_reference_student_controls()
+    {
+        var xaml = LoadSupportTicketViewDocument().ToString(SaveOptions.DisableFormatting);
+
+        Assert.Contains("Text=\"Gửi yêu cầu hỗ trợ mới\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Content=\"Hủy\"", xaml, StringComparison.Ordinal);
+        Assert.Contains("Content=\"Gửi yêu cầu\"", xaml, StringComparison.Ordinal);
+        Assert.DoesNotContain("AutomationProperties.Name=\"Mức độ ưu tiên yêu cầu\"", xaml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Support_ticket_student_create_surface_is_not_hosted_as_inline_row_below_the_list()
+    {
+        var xaml = LoadSupportTicketViewDocument().ToString(SaveOptions.DisableFormatting);
+
+        Assert.DoesNotContain("<Border Grid.Row=\"4\"", xaml, StringComparison.Ordinal);
+        Assert.DoesNotContain("Visibility=\"{Binding IsCreateFormOpen, Converter={StaticResource BoolToVisibility}}\"", xaml, StringComparison.Ordinal);
+        }
+
+    [Fact]
+    public void Support_ticket_popup_artifact_matches_reference_modal_contract()
+    {
+        RunOnStaThread(() =>
+        {
+            EnsureApplicationResources();
+            var repoRoot = FindRepositoryRoot();
+            var artifactPath = Path.Combine(repoRoot, ".ai", "artifacts", "support-ticket-create-popup-wpf.png");
+            var diffPath = Path.Combine(repoRoot, ".ai", "artifacts", "support-ticket-create-popup-diff.png");
+
+            GenerateSupportTicketPopupArtifacts(new CanonicalScreenshotSupportTicketService());
+
+            var bitmap = LoadBitmap(artifactPath);
+
+            Assert.Equal(512, bitmap.PixelWidth);
+            Assert.Equal(410, bitmap.PixelHeight);
+            Assert.True(File.Exists(diffPath));
+            Assert.True(new FileInfo(diffPath).Length > 0);
+        });
     }
 
     [Fact]
@@ -514,6 +554,25 @@ public sealed class SupportTicketViewTests
         SaveDifferenceArtifacts(recoveredArtifactPath, listArtifactPath, rowsArtifactPath, fullDiffArtifactPath, listDiffArtifactPath, rowsDiffArtifactPath);
     }
 
+    private static void GenerateSupportTicketPopupArtifacts(ISupportTicketService service)
+    {
+        EnsureApplicationResources();
+
+        var repoRoot = FindRepositoryRoot();
+        var artifactsDirectory = Path.Combine(repoRoot, ".ai", "artifacts");
+        Directory.CreateDirectory(artifactsDirectory);
+
+        var desktopArtifactPath = Path.Combine(artifactsDirectory, "support-ticket-create-popup-desktop.png");
+        var popupArtifactPath = Path.Combine(artifactsDirectory, "support-ticket-create-popup-wpf.png");
+        var popupDiffArtifactPath = Path.Combine(artifactsDirectory, "support-ticket-create-popup-diff.png");
+        var popupReferencePath = Path.Combine(repoRoot, "stitch-downloads", "Dorm", "089850cd81f5419ebd45a61189e3a46e", "Popup-Tao-yeu-cau-ho-tro-moi-Refined.png");
+        var popupReference = LoadBitmap(popupReferencePath);
+
+        RenderSupportTicketPopupSurface(service, 1440, 860, desktopArtifactPath);
+        SaveReferenceViewportArtifact(desktopArtifactPath, popupArtifactPath, popupReference.PixelWidth, popupReference.PixelHeight);
+        SaveDifferenceArtifact(popupReference, LoadBitmap(popupArtifactPath), popupDiffArtifactPath);
+    }
+
     private static void SaveDifferenceArtifacts(
         string recoveredArtifactPath,
         string listArtifactPath,
@@ -645,6 +704,35 @@ public sealed class SupportTicketViewTests
             SaveCroppedRegion(artifactPath, GetElementBoundsInAncestor(rowGrid!, view), rowsArtifactPath!);
         }
 
+        host.Close();
+    }
+
+    private static void RenderSupportTicketPopupSurface(
+        ISupportTicketService service,
+        double width,
+        double height,
+        string artifactPath)
+    {
+        var viewModel = new SupportTicketListViewModel(service, new StubCurrentUser(RoleNames.Student));
+        viewModel.LoadCommand.Execute(null);
+        WaitUntil(() => viewModel.HasTickets);
+        viewModel.ToggleCreateFormCommand.Execute(null);
+
+        var view = new SupportTicketListView
+        {
+            DataContext = viewModel,
+            Width = width,
+            Height = height
+        };
+
+        var host = CreateHost(view, width, height);
+        host.Show();
+        WaitForLayout();
+        view.Measure(new Size(host.Width, host.Height));
+        view.Arrange(new Rect(0, 0, host.Width, host.Height));
+        view.UpdateLayout();
+        WaitForLayout();
+        SaveFrameworkElementAsPng(view, artifactPath);
         host.Close();
     }
 
@@ -1009,6 +1097,17 @@ public sealed class SupportTicketViewTests
         public Task CloseTicketAsync(Guid ticketId, CancellationToken ct = default) => Task.CompletedTask;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -4,6 +4,7 @@
              xmlns:controls="clr-namespace:DormitoryManagement.WPF.Controls"
              xmlns:converters="clr-namespace:DormitoryManagement.WPF.Converters"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              Loaded="OnLoaded"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
@@ -89,7 +90,6 @@
         <ScrollViewer x:Name="SupportTicketPageScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <Grid x:Name="ResponsiveContentRoot" HorizontalAlignment="Stretch" MaxWidth="{StaticResource SupportTicketsContentMaxWidth}" Margin="{StaticResource SupportTicketsPageOuterMargin}">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -228,7 +228,6 @@
                                 <TextBlock Grid.Column="4" Text="TRẠNG THÁI" Style="{StaticResource SupportTicketsTableHeaderTextStyle}" Padding="{StaticResource SupportTicketsTableHeaderPadding}" TextAlignment="Center" VerticalAlignment="Center" />
                                 <TextBlock Grid.Column="5" Text="HÀNH ĐỘNG" Style="{StaticResource SupportTicketsTableHeaderTextStyle}" Padding="{StaticResource SupportTicketsTableHeaderPadding}" TextAlignment="Center" VerticalAlignment="Center" />
                             </Grid>
-
                             <ItemsControl x:Name="SupportTicketsTableRows" Grid.Row="1" HorizontalAlignment="Stretch" ItemsSource="{Binding Tickets}">
                                 <ItemsControl.ItemContainerStyle>
                                     <Style TargetType="ContentPresenter">
@@ -341,25 +340,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Row="4" Style="{StaticResource SupportTicketsCardStyle}" Margin="0,24,0,0" HorizontalAlignment="Left" Width="{StaticResource SupportTicketsFormWidth}" Visibility="{Binding IsCreateFormOpen, Converter={StaticResource BoolToVisibility}}">
-                    <StackPanel>
-                        <TextBlock Text="Gửi yêu cầu mới" Style="{StaticResource SupportTicketsSectionTitleTextStyle}" />
-                        <TextBlock Text="Điền đầy đủ thông tin để bộ phận kỹ thuật tiếp nhận nhanh hơn." Style="{StaticResource SupportTicketsBodyTextStyle}" Margin="0,4,0,18" />
-                        <TextBlock Text="Chủ đề" Style="{StaticResource FieldLabelStyle}" />
-                        <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Chủ đề yêu cầu" />
-                        <TextBlock Text="{Binding TitleError}" Style="{StaticResource FieldErrorStyle}" Visibility="{Binding HasTitleError, Converter={StaticResource BoolToVisibility}}" />
-                        <TextBlock Text="Mô tả chi tiết" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6" />
-                        <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Mô tả yêu cầu" AcceptsReturn="True" Height="112" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
-                        <TextBlock Text="{Binding DescriptionError}" Style="{StaticResource FieldErrorStyle}" Visibility="{Binding HasDescriptionError, Converter={StaticResource BoolToVisibility}}" />
-                        <TextBlock Text="Loại vấn đề" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6" />
-                        <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}" AutomationProperties.Name="Loại vấn đề yêu cầu" />
-                        <TextBlock Text="Mức độ ưu tiên" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6" />
-                        <ComboBox ItemsSource="{Binding Priorities}" SelectedItem="{Binding Priority}" AutomationProperties.Name="Mức độ ưu tiên yêu cầu" />
-                        <Button Content="Tạo yêu cầu hỗ trợ" Command="{Binding CreateTicketCommand}" Style="{StaticResource SupportTicketsPrimaryButtonStyle}" HorizontalAlignment="Left" Margin="0,18,0,0" />
-                    </StackPanel>
-                </Border>
-
-                <StackPanel Grid.Row="5" Margin="0,24,0,0" Visibility="{Binding IsStaffUser, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel Grid.Row="4" Margin="0,24,0,0" Visibility="{Binding IsStaffUser, Converter={StaticResource BoolToVisibility}}">
                     <TextBlock Text="Cập nhật yêu cầu đã chọn" Style="{StaticResource SupportTicketsSectionTitleTextStyle}" />
                     <Border Style="{StaticResource SupportTicketsCardStyle}" Margin="0,12,0,0" HorizontalAlignment="Left" Width="{StaticResource SupportTicketsFormWidth}">
                         <StackPanel>
@@ -371,22 +352,59 @@
                 </StackPanel>
             </Grid>
         </ScrollViewer>
+        <Grid x:Name="CreateTicketModalOverlay" Visibility="{Binding Path=IsCreateFormOpen, Converter={StaticResource BoolToVisibility}}" Panel.ZIndex="20">
+            <Border Background="{StaticResource SupportTicketsModalBackdropBrush}" />
+            <Border Style="{StaticResource SupportTicketsModalShellStyle}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid KeyboardNavigation.TabNavigation="Cycle">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="{StaticResource SupportTicketsModalHeaderPadding}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Gửi yêu cầu hỗ trợ mới" FontFamily="{StaticResource SupportTicketsHeadlineFontFamily}" FontSize="20" FontWeight="Bold" Foreground="{StaticResource SupportTicketsTextPrimaryBrush}" VerticalAlignment="Center" />
+                        <Button Grid.Column="1" Command="{Binding CloseCreateFormCommand}" Style="{StaticResource SupportTicketsModalCloseButtonStyle}" AutomationProperties.Name="Đóng popup tạo yêu cầu">
+                            <iconPacks:PackIconMaterial Kind="Close" Width="18" Height="18" />
+                        </Button>
+                    </Grid>
+
+                    <Border Grid.Row="1" BorderBrush="{StaticResource SupportTicketsSurfaceContainerBrush}" BorderThickness="0,1,0,0">
+                        <StackPanel Margin="{StaticResource SupportTicketsModalBodyPadding}">
+                            <StackPanel Margin="{StaticResource SupportTicketsModalFieldMargin}">
+                                <TextBlock Text="Chủ đề" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,6" />
+                                <ui:TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Nhập tiêu đề ngắn gọn cho vấn đề của bạn" Height="{StaticResource SupportTicketsModalInputHeight}" Padding="16,10" FontFamily="{StaticResource SupportTicketsBodyFontFamily}" FontSize="14" AutomationProperties.Name="Chủ đề yêu cầu" />
+                                <TextBlock Text="{Binding TitleError}" Style="{StaticResource FieldErrorStyle}" Visibility="{Binding HasTitleError, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+
+                            <StackPanel Margin="{StaticResource SupportTicketsModalFieldMargin}">
+                                <TextBlock Text="Loại vấn đề" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,6" />
+                                <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}" Height="{StaticResource SupportTicketsModalInputHeight}" Padding="12,0" FontFamily="{StaticResource SupportTicketsBodyFontFamily}" FontSize="14" AutomationProperties.Name="Loại vấn đề yêu cầu" Tag="Chọn loại vấn đề" />
+                            </StackPanel>
+
+                            <StackPanel>
+                                <TextBlock Text="Mô tả chi tiết" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,6" />
+                                <ui:TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Hãy mô tả cụ thể vấn đề bạn đang gặp phải để chúng tôi hỗ trợ tốt nhất" MinHeight="{StaticResource SupportTicketsModalDescriptionMinHeight}" Padding="16,12" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontFamily="{StaticResource SupportTicketsBodyFontFamily}" FontSize="14" AutomationProperties.Name="Mô tả yêu cầu" />
+                                <TextBlock Text="{Binding DescriptionError}" Style="{StaticResource FieldErrorStyle}" Visibility="{Binding HasDescriptionError, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="2" BorderBrush="{StaticResource SupportTicketsSurfaceContainerBrush}" BorderThickness="0,1,0,0" Padding="24,16">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="{StaticResource SupportTicketsModalFooterMargin}">
+                            <Button Content="Hủy" Command="{Binding CloseCreateFormCommand}" Style="{StaticResource SupportTicketsModalSecondaryButtonStyle}" Margin="0,0,12,0" />
+                            <Button Content="Gửi yêu cầu" Command="{Binding CreateTicketCommand}" Style="{StaticResource SupportTicketsModalPrimaryButtonStyle}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
         <controls:LoadingOverlay Message="Saving ticket..." Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
     </Grid>
 </UserControl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -80,6 +80,48 @@ public sealed class SupportTicketListViewModelTests
         Assert.True(viewModel.HasPreviousPage);
         Assert.False(viewModel.HasNextPage);
     }
+    [Fact]
+    public async Task Create_ticket_command_does_not_force_popup_open_when_popup_is_closed()
+    {
+        var service = new StubSupportTicketService();
+        var viewModel = new SupportTicketListViewModel(service, new StubCurrentUser(RoleNames.Student));
+
+        Assert.False(viewModel.IsCreateFormOpen);
+
+        viewModel.CreateTicketCommand.Execute(null);
+        await Task.Delay(50);
+
+        Assert.False(viewModel.IsCreateFormOpen);
+        Assert.False(viewModel.HasSuccessMessage);
+        Assert.Empty(service.CreatedTickets);
+    }
+
+    [Fact]
+    public async Task Closing_and_reopening_create_popup_resets_draft_and_validation_state()
+    {
+        var service = new StubSupportTicketService();
+        var viewModel = new SupportTicketListViewModel(service, new StubCurrentUser(RoleNames.Student));
+
+        viewModel.ToggleCreateFormCommand.Execute(null);
+        viewModel.Title = "Bóng đèn hỏng";
+        viewModel.CreateTicketCommand.Execute(null);
+        await Task.Delay(50);
+
+        Assert.True(viewModel.IsCreateFormOpen);
+        Assert.True(viewModel.HasTitleError || viewModel.HasDescriptionError);
+
+        viewModel.ToggleCreateFormCommand.Execute(null);
+        Assert.False(viewModel.IsCreateFormOpen);
+
+        viewModel.ToggleCreateFormCommand.Execute(null);
+
+        Assert.True(viewModel.IsCreateFormOpen);
+        Assert.Equal(string.Empty, viewModel.Title);
+        Assert.Equal(string.Empty, viewModel.Description);
+        Assert.Null(viewModel.TitleError);
+        Assert.Null(viewModel.DescriptionError);
+    }
+
 
     [Fact]
     public async Task Ticket_screen_button_commands_toggle_select_and_update_expected_state()
@@ -251,4 +293,8 @@ public sealed class SupportTicketListViewModelTests
         public Task CloseTicketAsync(Guid ticketId, CancellationToken ct = default) => Task.CompletedTask;
     }
 }
+
+
+
+
 
