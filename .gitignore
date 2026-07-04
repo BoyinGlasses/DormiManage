@@ -21,8 +21,9 @@ src/DormitoryManagement.WPF/appsettings.Development.json
 .specify/
 .graphify_vendor/
 graphify-out/
-playwright-mcp/
-reasonix/
+.playwright-mcp/
+.reasonix/
+.serena/
 skills/
 specs/
 stitch-downloads/
@@ -390,4 +391,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-
