@@ -1,0 +1,91 @@
+# Project-local Codex baseline for Dormitory.
+# Global marketplace installs still provide these plugin packages.
+persistent_instructions = "Follow AGENTS.md. Use caveman ultra style, project-local skills/, Superpowers, agentmemory, and ECC when available."
+
+sandbox_mode = "danger-full-access"
+[plugins."superpowers@openai-curated"]
+enabled = true
+
+[plugins."agentmemory@agentmemory"]
+enabled = true
+
+[plugins."ecc@ecc"]
+enabled = true
+
+[features]
+multi_agent = true
+
+[agents]
+max_threads = 6
+max_depth = 1
+
+[agents.spec_reader]
+description = "Read-only reader for .ai task prep and codebase evidence."
+config_file = "agents/spec-reader.toml"
+
+[agents.task_worker]
+description = "Writable worker for one isolated .ai/TASKS.md item."
+config_file = "agents/task-worker.toml"
+
+[agents.wpf_reviewer]
+description = "Read-only reviewer for WPF correctness, fidelity, and test gaps."
+config_file = "agents/wpf-reviewer.toml"
+
+[agents.wpf_design_analyst]
+description = "Design/wireframe analyst for WPF feature contracts and UI state mapping."
+config_file = "agents/wpf-design-analyst.toml"
+
+[agents.wpf_xaml_builder]
+description = "Writable WPF/XAML builder for views, resources, bindings, and presentation ViewModels."
+config_file = "agents/wpf-xaml-builder.toml"
+
+[agents.wpf_backend_builder]
+description = "Writable backend builder for Application and Infrastructure changes behind WPF features."
+config_file = "agents/wpf-backend-builder.toml"
+
+[agents.wpf_qa_release]
+description = "Read-only QA/release verifier for cross-layer coherence and deployability."
+config_file = "agents/wpf-qa-release.toml"
+
+[agents.wpf_fullstack_orchestrator]
+description = "Coordinator for wireframe-to-deployment WPF feature delivery using the repo-local fullstack harness."
+config_file = "agents/wpf-fullstack-orchestrator.toml"
+
+[agents.review_architecture]
+description = "Read-only architecture review specialist for parallel code review."
+config_file = "agents/review-architecture.toml"
+
+[agents.review_security]
+description = "Read-only security review specialist for parallel code review."
+config_file = "agents/review-security.toml"
+
+[agents.review_performance]
+description = "Read-only performance review specialist for parallel code review."
+config_file = "agents/review-performance.toml"
+
+[agents.review_style]
+description = "Read-only style review specialist for parallel code review."
+config_file = "agents/review-style.toml"
+
+[agents.review_synthesizer]
+description = "Writable findings synthesizer for merged code review reports."
+config_file = "agents/review-synthesizer.toml"
+
+[agents.review_orchestrator]
+description = "Coordinator for fan-out/fan-in comprehensive code review."
+config_file = "agents/review-orchestrator.toml"
+
+[mcp_servers.agentmemory]
+command = "npx"
+args = ["-y", "@agentmemory/mcp"]
+
+[mcp_servers.agentmemory.env]
+AGENTMEMORY_URL = "http://localhost:3111"
+CONSOLIDATION_ENABLED = "true"
+
+[sandbox_workspace_write]
+network_access = true
+
+[agents.echo]
+description = "Minimal echo subagent for spawn/send_input/wait smoke tests."
+config_file = "agents/echo.toml"

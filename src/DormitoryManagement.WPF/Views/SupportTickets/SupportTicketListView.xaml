@@ -4,6 +4,7 @@
              xmlns:controls="clr-namespace:DormitoryManagement.WPF.Controls"
              xmlns:converters="clr-namespace:DormitoryManagement.WPF.Converters"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              Loaded="OnLoaded"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
@@ -26,71 +27,69 @@
         <SolidColorBrush x:Key="SupportTicketsBadgeDangerBorderBrush" Color="#F3B8B2" />
         <Style x:Key="SupportTicketsBadgeBorderStyle" TargetType="Border">
             <Setter Property="CornerRadius" Value="999" />
-            <Setter Property="Padding" Value="8,3" />
+            <Setter Property="Padding" Value="10,4" />
+            <Setter Property="MinHeight" Value="{StaticResource SupportTicketsBadgeMinHeight}" />
             <Setter Property="BorderThickness" Value="1" />
         </Style>
-        <Style x:Key="SupportTicketsBadgeTextStyle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
-            <Setter Property="FontSize" Value="11.5" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
         <Style x:Key="SupportTicketsActionButtonStyle" TargetType="Button" BasedOn="{StaticResource TextButtonStyle}">
-            <Setter Property="Padding" Value="8" />
-            <Setter Property="Width" Value="32" />
-            <Setter Property="Height" Value="32" />
+            <Setter Property="Padding" Value="6" />
+            <Setter Property="Width" Value="{StaticResource SupportTicketsActionButtonSize}" />
+            <Setter Property="Height" Value="{StaticResource SupportTicketsActionButtonSize}" />
             <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
             <Setter Property="Background" Value="Transparent" />
         </Style>
-        <Style x:Key="SupportTicketsDataGridStyle" TargetType="DataGrid">
-            <Setter Property="AutoGenerateColumns" Value="False" />
-            <Setter Property="CanUserAddRows" Value="False" />
-            <Setter Property="CanUserDeleteRows" Value="False" />
-            <Setter Property="CanUserReorderColumns" Value="False" />
-            <Setter Property="CanUserResizeRows" Value="False" />
-            <Setter Property="HeadersVisibility" Value="Column" />
-            <Setter Property="GridLinesVisibility" Value="Horizontal" />
-            <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource SupportTicketsSurfaceContainerBrush}" />
-            <Setter Property="VerticalGridLinesBrush" Value="Transparent" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="RowHeaderWidth" Value="0" />
-            <Setter Property="AlternatingRowBackground" Value="Transparent" />
+        <Style x:Key="SupportTicketsDestructiveActionButtonStyle" TargetType="Button" BasedOn="{StaticResource SupportTicketsActionButtonStyle}">
+            <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource SupportTicketsBadgeDangerForegroundBrush}" />
+                    <Setter Property="Background" Value="#1AFFDAD6" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SupportTicketsPaginationButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource SupportTicketsSurfaceBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource SupportTicketsSurfaceContainerBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="12,4" />
+            <Setter Property="MinWidth" Value="52" />
+            <Setter Property="Height" Value="32" />
             <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
             <Setter Property="FontSize" Value="13" />
-            <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextPrimaryBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Border" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Border" Property="Opacity" Value="0.5" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource SupportTicketsSurfaceLowBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
-        <Style x:Key="SupportTicketsDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
-            <Setter Property="Background" Value="{StaticResource SupportTicketsSurfaceBrush}" />
-            <Setter Property="BorderBrush" Value="{StaticResource SupportTicketsSurfaceHighBrush}" />
-            <Setter Property="BorderThickness" Value="0,0,0,1" />
-            <Setter Property="Padding" Value="20,12" />
-            <Setter Property="Height" Value="44" />
-            <Setter Property="HorizontalContentAlignment" Value="Left" />
-            <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
-            <Setter Property="FontSize" Value="11.5" />
+        <Style x:Key="SupportTicketsDataGridTextElementStyle" TargetType="TextBlock" BasedOn="{StaticResource SupportTicketsTableCellTextStyle}">
+            <Setter Property="Margin" Value="24,16" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Setter Property="TextWrapping" Value="NoWrap" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="SupportTicketsDataGridReferenceTextElementStyle" TargetType="TextBlock" BasedOn="{StaticResource SupportTicketsDataGridTextElementStyle}">
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
-        </Style>
-        <Style x:Key="SupportTicketsDataGridCellStyle" TargetType="DataGridCell">
-            <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="Padding" Value="20,13" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="TextBlock.TextTrimming" Value="CharacterEllipsis" />
-        </Style>
-        <Style x:Key="SupportTicketsDataGridRowStyle" TargetType="DataGridRow">
-            <Setter Property="MinHeight" Value="48" />
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
         </Style>
     </UserControl.Resources>
     <Grid Background="{StaticResource SupportTicketsCanvasBrush}">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <Grid HorizontalAlignment="Center" MaxWidth="{StaticResource SupportTicketsPageMaxWidth}" Margin="{StaticResource SupportTicketsPageOuterMargin}">
+        <ScrollViewer x:Name="SupportTicketPageScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid x:Name="ResponsiveContentRoot" HorizontalAlignment="Stretch" MaxWidth="{StaticResource SupportTicketsContentMaxWidth}" Margin="{StaticResource SupportTicketsPageOuterMargin}">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
@@ -115,7 +114,7 @@
                     </Button>
                 </Grid>
 
-                <controls:ErrorState Grid.Row="1" Title="Ticket action failed" Message="{Binding ErrorMessage}" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}" Margin="{StaticResource SupportTicketsFeedbackMargin}" />
+                <controls:ErrorState Grid.Row="1" Title="Không thể xử lý yêu cầu" Message="{Binding ErrorMessage}" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}" Margin="{StaticResource SupportTicketsFeedbackMargin}" />
                 <Border Grid.Row="1" Background="#FFF3E8" BorderBrush="{StaticResource SupportTicketsPrimaryContainerBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Margin="{StaticResource SupportTicketsFeedbackMargin}" Visibility="{Binding HasSuccessMessage, Converter={StaticResource BoolToVisibility}}">
                     <TextBlock Text="{Binding SuccessMessage}" Foreground="{StaticResource SupportTicketsPrimaryBrush}" FontFamily="{StaticResource SupportTicketsBodyFontFamily}" FontSize="13" FontWeight="SemiBold" />
                 </Border>
@@ -163,13 +162,13 @@
                     </Border>
                 </Grid>
 
-                <Border Grid.Row="3" Style="{StaticResource SupportTicketsCardStyle}" Padding="0">
+                <Border x:Name="SupportTicketsListCard" Grid.Row="3" Style="{StaticResource SupportTicketsCardStyle}" Padding="0">
                     <StackPanel>
-                        <Border Background="{StaticResource SupportTicketsSurfaceBrush}" BorderBrush="{StaticResource SupportTicketsSurfaceContainerBrush}" BorderThickness="0,0,0,1" Padding="24,20">
+                        <Border Background="{StaticResource SupportTicketsSurfaceBrush}" BorderBrush="{StaticResource SupportTicketsSurfaceContainerBrush}" BorderThickness="0,0,0,1" Padding="24">
                             <TextBlock Text="Danh sách yêu cầu gần đây" Style="{StaticResource SupportTicketsSectionTitleTextStyle}" />
                         </Border>
 
-                        <StackPanel Margin="24,16,24,0">
+                        <StackPanel Margin="24,16,24,0" Visibility="Collapsed">
                             <Button Command="{Binding ToggleFiltersCommand}" Style="{StaticResource SupportTicketsSecondaryButtonStyle}" HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal">
                                     <iconPacks:PackIconMaterial Kind="FilterVariant" Width="14" Height="14" Margin="{StaticResource SupportTicketsInlineIconMargin}" VerticalAlignment="Center" />
@@ -187,93 +186,141 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Status" Style="{StaticResource FieldLabelStyle}" />
-                                        <ComboBox ItemsSource="{Binding StatusFilters}" SelectedItem="{Binding SelectedStatusFilter}" AutomationProperties.Name="Ticket status filter" />
+                                        <TextBlock Text="Trạng thái" Style="{StaticResource FieldLabelStyle}" />
+                                        <ComboBox ItemsSource="{Binding StatusFilters}" SelectedItem="{Binding SelectedStatusFilter}" AutomationProperties.Name="Bộ lọc trạng thái yêu cầu" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Category" Style="{StaticResource FieldLabelStyle}" />
-                                        <ComboBox ItemsSource="{Binding CategoryFilters}" SelectedItem="{Binding SelectedCategoryFilter}" AutomationProperties.Name="Ticket category filter" />
+                                        <TextBlock Text="Loại vấn đề" Style="{StaticResource FieldLabelStyle}" />
+                                        <ComboBox ItemsSource="{Binding CategoryFilters}" SelectedItem="{Binding SelectedCategoryFilter}" AutomationProperties.Name="Bộ lọc loại vấn đề" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="4">
-                                        <TextBlock Text="Priority" Style="{StaticResource FieldLabelStyle}" />
-                                        <ComboBox ItemsSource="{Binding PriorityFilters}" SelectedItem="{Binding SelectedPriorityFilter}" AutomationProperties.Name="Ticket priority filter" />
+                                        <TextBlock Text="Mức độ ưu tiên" Style="{StaticResource FieldLabelStyle}" />
+                                        <ComboBox ItemsSource="{Binding PriorityFilters}" SelectedItem="{Binding SelectedPriorityFilter}" AutomationProperties.Name="Bộ lọc mức độ ưu tiên" />
                                     </StackPanel>
                                     <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="12,0,0,0">
-                                        <Button Content="Apply" Command="{Binding ApplyFiltersCommand}" Style="{StaticResource SupportTicketsPrimaryButtonStyle}" MinWidth="96" Margin="0,0,8,0" />
-                                        <Button Content="Clear" Command="{Binding ClearFiltersCommand}" Style="{StaticResource SupportTicketsSecondaryButtonStyle}" />
+                                        <Button Content="Áp dụng" Command="{Binding ApplyFiltersCommand}" Style="{StaticResource SupportTicketsPrimaryButtonStyle}" MinWidth="96" Margin="0,0,8,0" />
+                                        <Button Content="Xóa lọc" Command="{Binding ClearFiltersCommand}" Style="{StaticResource SupportTicketsSecondaryButtonStyle}" />
                                     </StackPanel>
                                 </Grid>
                             </Border>
                         </StackPanel>
 
-                        <DataGrid ItemsSource="{Binding Tickets}" SelectedItem="{Binding SelectedTicket}" Visibility="{Binding HasTickets, Converter={StaticResource BoolToVisibility}}" Style="{StaticResource SupportTicketsDataGridStyle}" ColumnHeaderStyle="{StaticResource SupportTicketsDataGridColumnHeaderStyle}" CellStyle="{StaticResource SupportTicketsDataGridCellStyle}" RowStyle="{StaticResource SupportTicketsDataGridRowStyle}" Margin="0,16,0,0">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Mã đơn" Width="1.25*" ElementStyle="{StaticResource SupportTicketsTableCellTextStyle}">
-                                    <DataGridTextColumn.Binding>
-                                        <Binding Path="Id" Converter="{StaticResource SupportTicketValueConverter}" ConverterParameter="TicketReference" />
-                                    </DataGridTextColumn.Binding>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Chủ đề" Binding="{Binding Title}" Width="2.25*" ElementStyle="{StaticResource SupportTicketsTableCellTextStyle}" />
-                                <DataGridTextColumn Header="Loại vấn đề" Width="1.45*" ElementStyle="{StaticResource SupportTicketsTableCellTextStyle}">
-                                    <DataGridTextColumn.Binding>
-                                        <Binding Path="Category" Converter="{StaticResource SupportTicketValueConverter}" />
-                                    </DataGridTextColumn.Binding>
-                                </DataGridTextColumn>
-                                <DataGridTextColumn Header="Ngày gửi" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy}" Width="1.1*" ElementStyle="{StaticResource SupportTicketsTableCellTextStyle}" />
-                                <DataGridTemplateColumn Header="Trạng thái" Width="1.35*">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Border x:Name="StatusBadgeBorder" Style="{StaticResource SupportTicketsBadgeBorderStyle}" HorizontalAlignment="Left" Background="{StaticResource SupportTicketsBadgeInfoBackgroundBrush}" BorderBrush="{StaticResource SupportTicketsBadgeInfoBorderBrush}">
-                                                <TextBlock x:Name="StatusBadgeText" Text="{Binding Status, Converter={StaticResource SupportTicketValueConverter}}" Style="{StaticResource SupportTicketsBadgeTextStyle}" Foreground="{StaticResource SupportTicketsBadgeInfoForegroundBrush}" />
-                                            </Border>
-                                            <DataTemplate.Triggers>
-                                                <DataTrigger Binding="{Binding Status}" Value="InProgress">
-                                                    <Setter TargetName="StatusBadgeBorder" Property="Background" Value="{StaticResource SupportTicketsBadgeWarningBackgroundBrush}" />
-                                                    <Setter TargetName="StatusBadgeBorder" Property="BorderBrush" Value="{StaticResource SupportTicketsBadgeWarningBorderBrush}" />
-                                                    <Setter TargetName="StatusBadgeText" Property="Foreground" Value="{StaticResource SupportTicketsBadgeWarningForegroundBrush}" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Status}" Value="Assigned">
-                                                    <Setter TargetName="StatusBadgeBorder" Property="Background" Value="{StaticResource SupportTicketsBadgeWarningBackgroundBrush}" />
-                                                    <Setter TargetName="StatusBadgeBorder" Property="BorderBrush" Value="{StaticResource SupportTicketsBadgeWarningBorderBrush}" />
-                                                    <Setter TargetName="StatusBadgeText" Property="Foreground" Value="{StaticResource SupportTicketsBadgeWarningForegroundBrush}" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Status}" Value="Resolved">
-                                                    <Setter TargetName="StatusBadgeBorder" Property="Background" Value="{StaticResource SupportTicketsBadgeSuccessBackgroundBrush}" />
-                                                    <Setter TargetName="StatusBadgeBorder" Property="BorderBrush" Value="{StaticResource SupportTicketsBadgeSuccessBorderBrush}" />
-                                                    <Setter TargetName="StatusBadgeText" Property="Foreground" Value="{StaticResource SupportTicketsBadgeSuccessForegroundBrush}" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Status}" Value="Closed">
-                                                    <Setter TargetName="StatusBadgeBorder" Property="Background" Value="{StaticResource SupportTicketsBadgeSuccessBackgroundBrush}" />
-                                                    <Setter TargetName="StatusBadgeBorder" Property="BorderBrush" Value="{StaticResource SupportTicketsBadgeSuccessBorderBrush}" />
-                                                    <Setter TargetName="StatusBadgeText" Property="Foreground" Value="{StaticResource SupportTicketsBadgeSuccessForegroundBrush}" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Status}" Value="Rejected">
-                                                    <Setter TargetName="StatusBadgeBorder" Property="Background" Value="{StaticResource SupportTicketsBadgeDangerBackgroundBrush}" />
-                                                    <Setter TargetName="StatusBadgeBorder" Property="BorderBrush" Value="{StaticResource SupportTicketsBadgeDangerBorderBrush}" />
-                                                    <Setter TargetName="StatusBadgeText" Property="Foreground" Value="{StaticResource SupportTicketsBadgeDangerForegroundBrush}" />
-                                                </DataTrigger>
-                                            </DataTemplate.Triggers>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                                <DataGridTemplateColumn Header="Hành động" Width="0.95*">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                                <Button Command="{Binding DataContext.SelectTicketCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource SupportTicketsActionButtonStyle}" Margin="0,0,4,0">
-                                                    <iconPacks:PackIconMaterial Kind="EyeOutline" Width="18" Height="18" />
-                                                </Button>
-                                                <Button Command="{Binding DataContext.SecondaryTicketActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource SupportTicketsActionButtonStyle}">
-                                                    <iconPacks:PackIconMaterial Kind="DeleteOutline" Width="18" Height="18" Foreground="#FFBA1A1A" />
-                                                </Button>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        <Grid MinHeight="{StaticResource SupportTicketsTableMinHeight}" HorizontalAlignment="Stretch" Visibility="{Binding HasTickets, Converter={StaticResource BoolToVisibility}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
 
-                        <Border Background="{StaticResource SupportTicketsSurfaceBrush}" BorderBrush="{StaticResource SupportTicketsSurfaceContainerBrush}" BorderThickness="0,1,0,0" Padding="14,12" Visibility="{Binding HasTickets, Converter={StaticResource BoolToVisibility}}">
+                            <Grid x:Name="SupportTicketsTableHeaderGrid" Grid.Row="0" HorizontalAlignment="Stretch" Background="{StaticResource SupportTicketsSurfaceBrush}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.1*" MinWidth="128" />
+                                    <ColumnDefinition Width="1.35*" MinWidth="168" />
+                                    <ColumnDefinition Width="1.0*" MinWidth="136" />
+                                    <ColumnDefinition Width="1.35*" MinWidth="140" />
+                                    <ColumnDefinition Width="1.65*" MinWidth="180" />
+                                    <ColumnDefinition Width="1.55*" MinWidth="160" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.ColumnSpan="6" BorderBrush="{StaticResource SupportTicketsSurfaceHighBrush}" BorderThickness="0,0,0,1" />
+                                <TextBlock Grid.Column="0" Text="MÃ ĐƠN" Style="{StaticResource SupportTicketsTableHeaderTextStyle}" Padding="{StaticResource SupportTicketsTableHeaderPadding}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Text="CHỦ ĐỀ" Style="{StaticResource SupportTicketsTableHeaderTextStyle}" Padding="{StaticResource SupportTicketsTableHeaderPadding}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="2" Text="LOẠI VẤN ĐỀ" Style="{StaticResource SupportTicketsTableHeaderTextStyle}" Padding="{StaticResource SupportTicketsTableHeaderPadding}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="3" Text="NGÀY GỬI" Style="{StaticResource SupportTicketsTableHeaderTextStyle}" Padding="{StaticResource SupportTicketsTableHeaderPadding}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="4" Text="TRẠNG THÁI" Style="{StaticResource SupportTicketsTableHeaderTextStyle}" Padding="{StaticResource SupportTicketsTableHeaderPadding}" TextAlignment="Center" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="5" Text="HÀNH ĐỘNG" Style="{StaticResource SupportTicketsTableHeaderTextStyle}" Padding="{StaticResource SupportTicketsTableHeaderPadding}" TextAlignment="Center" VerticalAlignment="Center" />
+                            </Grid>
+                            <ItemsControl x:Name="SupportTicketsTableRows" Grid.Row="1" HorizontalAlignment="Stretch" ItemsSource="{Binding Tickets}">
+                                <ItemsControl.ItemContainerStyle>
+                                    <Style TargetType="ContentPresenter">
+                                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                    </Style>
+                                </ItemsControl.ItemContainerStyle>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid MinHeight="{StaticResource SupportTicketsTableRowMinHeight}" HorizontalAlignment="Stretch" Background="{StaticResource SupportTicketsSurfaceBrush}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="1.1*" MinWidth="128" />
+                                                <ColumnDefinition Width="1.35*" MinWidth="168" />
+                                                <ColumnDefinition Width="1.0*" MinWidth="136" />
+                                                <ColumnDefinition Width="1.35*" MinWidth="140" />
+                                                <ColumnDefinition Width="1.65*" MinWidth="180" />
+                                                <ColumnDefinition Width="1.55*" MinWidth="160" />
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.ColumnSpan="6" BorderBrush="{StaticResource SupportTicketsSurfaceContainerBrush}" BorderThickness="0,0,0,1" />
+
+                                            <Border Grid.Column="0" Padding="{StaticResource SupportTicketsTableCellPadding}" Background="Transparent">
+                                                <TextBlock Style="{StaticResource SupportTicketsDataGridReferenceTextElementStyle}" Margin="0">
+                                                    <TextBlock.Text>
+                                                        <Binding Converter="{StaticResource SupportTicketValueConverter}" ConverterParameter="TicketReference" />
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </Border>
+
+                                            <Border Grid.Column="1" Padding="{StaticResource SupportTicketsTableCellPadding}" Background="Transparent">
+                                                <TextBlock Text="{Binding Title}" Style="{StaticResource SupportTicketsDataGridTextElementStyle}" Margin="0" />
+                                            </Border>
+
+                                            <Border Grid.Column="2" Padding="{StaticResource SupportTicketsTableCellPadding}" Background="Transparent">
+                                                <TextBlock Style="{StaticResource SupportTicketsDataGridTextElementStyle}" Margin="0">
+                                                    <TextBlock.Text>
+                                                        <Binding Path="Category" Converter="{StaticResource SupportTicketValueConverter}" />
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+                                            </Border>
+
+                                            <Border Grid.Column="3" Padding="{StaticResource SupportTicketsTableCellPadding}" Background="Transparent">
+                                                <TextBlock Text="{Binding CreatedAt, StringFormat=dd/MM/yyyy}" Style="{StaticResource SupportTicketsDataGridTextElementStyle}" Margin="0" Foreground="{StaticResource SupportTicketsTextSecondaryBrush}" />
+                                            </Border>
+
+                                            <Border Grid.Column="4" Padding="{StaticResource SupportTicketsTableCellPadding}" Background="Transparent">
+                                                <Border x:Name="StatusBadgeBorder" Style="{StaticResource SupportTicketsBadgeBorderStyle}" HorizontalAlignment="Center" Background="{StaticResource SupportTicketsBadgeInfoBackgroundBrush}" BorderBrush="{StaticResource SupportTicketsBadgeInfoBorderBrush}">
+                                                    <TextBlock x:Name="StatusBadgeText" Text="{Binding Status, Converter={StaticResource SupportTicketValueConverter}}" Style="{StaticResource SupportTicketsBadgeTextStyle}" Foreground="{StaticResource SupportTicketsBadgeInfoForegroundBrush}" />
+                                                </Border>
+                                            </Border>
+
+                                            <Border Grid.Column="5" Padding="{StaticResource SupportTicketsTableCellPadding}" Background="Transparent">
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <Button Command="{Binding DataContext.SelectTicketCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource SupportTicketsActionButtonStyle}" AutomationProperties.Name="Xem yêu cầu" Margin="0,0,4,0">
+                                                        <iconPacks:PackIconMaterial Kind="EyeOutline" Width="{StaticResource SupportTicketsActionIconSize}" Height="{StaticResource SupportTicketsActionIconSize}" />
+                                                    </Button>
+                                                    <Button Command="{Binding DataContext.SecondaryTicketActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Style="{StaticResource SupportTicketsDestructiveActionButtonStyle}" AutomationProperties.Name="Xóa yêu cầu">
+                                                        <iconPacks:PackIconMaterial Kind="DeleteOutline" Width="{StaticResource SupportTicketsActionIconSize}" Height="{StaticResource SupportTicketsActionIconSize}" />
+                                                    </Button>
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Status}" Value="InProgress">
+                                                <Setter TargetName="StatusBadgeBorder" Property="Background" Value="{StaticResource SupportTicketsBadgeWarningBackgroundBrush}" />
+                                                <Setter TargetName="StatusBadgeBorder" Property="BorderBrush" Value="{StaticResource SupportTicketsBadgeWarningBorderBrush}" />
+                                                <Setter TargetName="StatusBadgeText" Property="Foreground" Value="{StaticResource SupportTicketsBadgeWarningForegroundBrush}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Assigned">
+                                                <Setter TargetName="StatusBadgeBorder" Property="Background" Value="{StaticResource SupportTicketsBadgeWarningBackgroundBrush}" />
+                                                <Setter TargetName="StatusBadgeBorder" Property="BorderBrush" Value="{StaticResource SupportTicketsBadgeWarningBorderBrush}" />
+                                                <Setter TargetName="StatusBadgeText" Property="Foreground" Value="{StaticResource SupportTicketsBadgeWarningForegroundBrush}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Resolved">
+                                                <Setter TargetName="StatusBadgeBorder" Property="Background" Value="{StaticResource SupportTicketsBadgeSuccessBackgroundBrush}" />
+                                                <Setter TargetName="StatusBadgeBorder" Property="BorderBrush" Value="{StaticResource SupportTicketsBadgeSuccessBorderBrush}" />
+                                                <Setter TargetName="StatusBadgeText" Property="Foreground" Value="{StaticResource SupportTicketsBadgeSuccessForegroundBrush}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Closed">
+                                                <Setter TargetName="StatusBadgeBorder" Property="Background" Value="{StaticResource SupportTicketsBadgeSuccessBackgroundBrush}" />
+                                                <Setter TargetName="StatusBadgeBorder" Property="BorderBrush" Value="{StaticResource SupportTicketsBadgeSuccessBorderBrush}" />
+                                                <Setter TargetName="StatusBadgeText" Property="Foreground" Value="{StaticResource SupportTicketsBadgeSuccessForegroundBrush}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Status}" Value="Rejected">
+                                                <Setter TargetName="StatusBadgeBorder" Property="Background" Value="{StaticResource SupportTicketsBadgeDangerBackgroundBrush}" />
+                                                <Setter TargetName="StatusBadgeBorder" Property="BorderBrush" Value="{StaticResource SupportTicketsBadgeDangerBorderBrush}" />
+                                                <Setter TargetName="StatusBadgeText" Property="Foreground" Value="{StaticResource SupportTicketsBadgeDangerForegroundBrush}" />
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+
+                        <Border Background="{StaticResource SupportTicketsSurfaceBrush}" BorderBrush="{StaticResource SupportTicketsSurfaceContainerBrush}" BorderThickness="0,1,0,0" Padding="{StaticResource SupportTicketsTableFooterPadding}" Visibility="{Binding HasTickets, Converter={StaticResource BoolToVisibility}}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -281,48 +328,82 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Text="{Binding TicketFooterSummaryText}" Style="{StaticResource SupportTicketsBodyTextStyle}" VerticalAlignment="Center" />
                                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                    <Button Content="Trước" Style="{StaticResource SupportTicketsSecondaryButtonStyle}" IsEnabled="False" Margin="0,0,8,0" />
-                                    <Button Content="Sau" Style="{StaticResource SupportTicketsSecondaryButtonStyle}" IsEnabled="False" />
+                                    <Button Content="Trước" Style="{StaticResource SupportTicketsPaginationButtonStyle}" Command="{Binding PreviousPageCommand}" IsEnabled="{Binding HasPreviousPage}" Margin="0,0,8,0" />
+                                    <Button Content="Sau" Style="{StaticResource SupportTicketsPaginationButtonStyle}" Command="{Binding NextPageCommand}" IsEnabled="{Binding HasNextPage}" />
                                 </StackPanel>
                             </Grid>
                         </Border>
 
                         <Border Margin="24,16,24,24" Background="Transparent" Visibility="{Binding IsTicketsEmpty, Converter={StaticResource BoolToVisibility}}">
-                            <controls:EmptyState Title="No support tickets" Message="Tickets you create or receive will appear here with status and priority." Icon="!" />
+                            <controls:EmptyState Title="Chưa có yêu cầu hỗ trợ" Message="Các yêu cầu bạn tạo hoặc được giao sẽ hiển thị tại đây cùng trạng thái xử lý." Icon="!" />
                         </Border>
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Row="4" Style="{StaticResource SupportTicketsCardStyle}" Margin="0,24,0,0" HorizontalAlignment="Left" Width="{StaticResource SupportTicketsFormWidth}" Visibility="{Binding IsCreateFormOpen, Converter={StaticResource BoolToVisibility}}">
-                    <StackPanel>
-                        <TextBlock Text="Gửi yêu cầu mới" Style="{StaticResource SupportTicketsSectionTitleTextStyle}" />
-                        <TextBlock Text="Điền đầy đủ thông tin để bộ phận kỹ thuật tiếp nhận nhanh hơn." Style="{StaticResource SupportTicketsBodyTextStyle}" Margin="0,4,0,18" />
-                        <TextBlock Text="Title" Style="{StaticResource FieldLabelStyle}" />
-                        <TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Ticket title" />
-                        <TextBlock Text="{Binding TitleError}" Style="{StaticResource FieldErrorStyle}" Visibility="{Binding HasTitleError, Converter={StaticResource BoolToVisibility}}" />
-                        <TextBlock Text="Description" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6" />
-                        <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Ticket description" AcceptsReturn="True" Height="112" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
-                        <TextBlock Text="{Binding DescriptionError}" Style="{StaticResource FieldErrorStyle}" Visibility="{Binding HasDescriptionError, Converter={StaticResource BoolToVisibility}}" />
-                        <TextBlock Text="Category" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6" />
-                        <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}" AutomationProperties.Name="Ticket category" />
-                        <TextBlock Text="Priority" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,6" />
-                        <ComboBox ItemsSource="{Binding Priorities}" SelectedItem="{Binding Priority}" AutomationProperties.Name="Ticket priority" />
-                        <Button Content="Create Support Ticket" Command="{Binding CreateTicketCommand}" Style="{StaticResource SupportTicketsPrimaryButtonStyle}" HorizontalAlignment="Left" Margin="0,18,0,0" />
-                    </StackPanel>
-                </Border>
-
-                <StackPanel Grid.Row="5" Margin="0,24,0,0" Visibility="{Binding IsStaffUser, Converter={StaticResource BoolToVisibility}}">
-                    <TextBlock Text="Update selected ticket" Style="{StaticResource SupportTicketsSectionTitleTextStyle}" />
+                <StackPanel Grid.Row="4" Margin="0,24,0,0" Visibility="{Binding IsStaffUser, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="Cập nhật yêu cầu đã chọn" Style="{StaticResource SupportTicketsSectionTitleTextStyle}" />
                     <Border Style="{StaticResource SupportTicketsCardStyle}" Margin="0,12,0,0" HorizontalAlignment="Left" Width="{StaticResource SupportTicketsFormWidth}">
                         <StackPanel>
-                            <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding StatusToApply}" AutomationProperties.Name="Ticket status update" />
-                            <TextBox Text="{Binding StatusNote, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Ticket status note" Margin="0,10,0,0" TextWrapping="Wrap" Height="90" AcceptsReturn="True" />
-                            <Button Content="Update Status" Command="{Binding UpdateStatusCommand}" Style="{StaticResource SupportTicketsPrimaryButtonStyle}" HorizontalAlignment="Left" Margin="0,12,0,0" />
+                            <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding StatusToApply}" AutomationProperties.Name="Cập nhật trạng thái yêu cầu" />
+                            <TextBox Text="{Binding StatusNote, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Ghi chú trạng thái yêu cầu" Margin="0,10,0,0" TextWrapping="Wrap" Height="90" AcceptsReturn="True" />
+                            <Button Content="Cập nhật trạng thái" Command="{Binding UpdateStatusCommand}" Style="{StaticResource SupportTicketsPrimaryButtonStyle}" HorizontalAlignment="Left" Margin="0,12,0,0" />
                         </StackPanel>
                     </Border>
                 </StackPanel>
             </Grid>
         </ScrollViewer>
+        <Grid x:Name="CreateTicketModalOverlay" Visibility="{Binding Path=IsCreateFormOpen, Converter={StaticResource BoolToVisibility}}" Panel.ZIndex="20">
+            <Border Background="{StaticResource SupportTicketsModalBackdropBrush}" />
+            <Border Style="{StaticResource SupportTicketsModalShellStyle}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid KeyboardNavigation.TabNavigation="Cycle">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="{StaticResource SupportTicketsModalHeaderPadding}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Gửi yêu cầu hỗ trợ mới" FontFamily="{StaticResource SupportTicketsHeadlineFontFamily}" FontSize="20" FontWeight="Bold" Foreground="{StaticResource SupportTicketsTextPrimaryBrush}" VerticalAlignment="Center" />
+                        <Button Grid.Column="1" Command="{Binding CloseCreateFormCommand}" Style="{StaticResource SupportTicketsModalCloseButtonStyle}" AutomationProperties.Name="Đóng popup tạo yêu cầu">
+                            <iconPacks:PackIconMaterial Kind="Close" Width="18" Height="18" />
+                        </Button>
+                    </Grid>
+
+                    <Border Grid.Row="1" BorderBrush="{StaticResource SupportTicketsSurfaceContainerBrush}" BorderThickness="0,1,0,0">
+                        <StackPanel Margin="{StaticResource SupportTicketsModalBodyPadding}">
+                            <StackPanel Margin="{StaticResource SupportTicketsModalFieldMargin}">
+                                <TextBlock Text="Chủ đề" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,6" />
+                                <ui:TextBox Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Nhập tiêu đề ngắn gọn cho vấn đề của bạn" Height="{StaticResource SupportTicketsModalInputHeight}" Padding="16,10" FontFamily="{StaticResource SupportTicketsBodyFontFamily}" FontSize="14" AutomationProperties.Name="Chủ đề yêu cầu" />
+                                <TextBlock Text="{Binding TitleError}" Style="{StaticResource FieldErrorStyle}" Visibility="{Binding HasTitleError, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+
+                            <StackPanel Margin="{StaticResource SupportTicketsModalFieldMargin}">
+                                <TextBlock Text="Loại vấn đề" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,6" />
+                                <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}" Height="{StaticResource SupportTicketsModalInputHeight}" Padding="12,0" FontFamily="{StaticResource SupportTicketsBodyFontFamily}" FontSize="14" AutomationProperties.Name="Loại vấn đề yêu cầu" Tag="Chọn loại vấn đề" />
+                            </StackPanel>
+
+                            <StackPanel>
+                                <TextBlock Text="Mô tả chi tiết" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,6" />
+                                <ui:TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Hãy mô tả cụ thể vấn đề bạn đang gặp phải để chúng tôi hỗ trợ tốt nhất" MinHeight="{StaticResource SupportTicketsModalDescriptionMinHeight}" Padding="16,12" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" FontFamily="{StaticResource SupportTicketsBodyFontFamily}" FontSize="14" AutomationProperties.Name="Mô tả yêu cầu" />
+                                <TextBlock Text="{Binding DescriptionError}" Style="{StaticResource FieldErrorStyle}" Visibility="{Binding HasDescriptionError, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="2" BorderBrush="{StaticResource SupportTicketsSurfaceContainerBrush}" BorderThickness="0,1,0,0" Padding="24,16">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="{StaticResource SupportTicketsModalFooterMargin}">
+                            <Button Content="Hủy" Command="{Binding CloseCreateFormCommand}" Style="{StaticResource SupportTicketsModalSecondaryButtonStyle}" Margin="0,0,12,0" />
+                            <Button Content="Gửi yêu cầu" Command="{Binding CreateTicketCommand}" Style="{StaticResource SupportTicketsModalPrimaryButtonStyle}" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
         <controls:LoadingOverlay Message="Saving ticket..." Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
     </Grid>
 </UserControl>

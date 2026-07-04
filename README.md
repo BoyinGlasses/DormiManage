@@ -19,6 +19,14 @@ WPF desktop application skeleton for student dormitory management, built with .N
 
 3. Update `ConnectionStrings:DormitoryDb` in `appsettings.Development.json`. Prefer Windows Authentication or a SQL user with limited permissions. Keep `Encrypt=True`.
 
+   Optional PayOS setup for QR payments:
+
+   ```powershell
+   pwsh ..\scripts\configure-payos.ps1
+   ```
+
+   This stores `PayOs__ClientId`, `PayOs__ApiKey`, and `PayOs__ChecksumKey` in environment variables instead of tracked JSON.
+
 4. Create migrations and database:
 
    ```powershell

@@ -18,6 +18,7 @@
     <Color x:Key="SupportTicketsColorOutline">#8D7168</Color>
     <Color x:Key="SupportTicketsColorOutlineVariant">#E1BFB5</Color>
     <Color x:Key="SupportTicketsColorShadow">#14000000</Color>
+    <Color x:Key="SupportTicketsColorModalBackdrop">#660B1C30</Color>
 
     <SolidColorBrush x:Key="SupportTicketsCanvasBrush" Color="{StaticResource SupportTicketsColorCanvas}" />
     <SolidColorBrush x:Key="SupportTicketsSurfaceBrush" Color="{StaticResource SupportTicketsColorSurface}" />
@@ -38,11 +39,13 @@
     <SolidColorBrush x:Key="SupportTicketsPrimaryTintBrush" Color="#1AFF6B35" />
     <SolidColorBrush x:Key="SupportTicketsSecondaryTintBrush" Color="#1A6063EE" />
     <SolidColorBrush x:Key="SupportTicketsTertiaryTintBrush" Color="#1A00AF79" />
+    <SolidColorBrush x:Key="SupportTicketsModalBackdropBrush" Color="{StaticResource SupportTicketsColorModalBackdrop}" />
 
     <FontFamily x:Key="SupportTicketsHeadlineFontFamily">pack://application:,,,/DormitoryManagement.WPF;component/Assets/Fonts/PlusJakartaSans/#Plus Jakarta Sans</FontFamily>
     <FontFamily x:Key="SupportTicketsBodyFontFamily">pack://application:,,,/DormitoryManagement.WPF;component/Assets/Fonts/Inter/#Inter</FontFamily>
 
     <system:Double x:Key="SupportTicketsPageMaxWidth">1440</system:Double>
+    <system:Double x:Key="SupportTicketsContentMaxWidth">1376</system:Double>
     <system:Double x:Key="SupportTicketsPageTitleSize">32</system:Double>
     <system:Double x:Key="SupportTicketsPageTitleLineHeight">40</system:Double>
     <system:Double x:Key="SupportTicketsSectionTitleSize">18</system:Double>
@@ -56,17 +59,31 @@
     <system:Double x:Key="SupportTicketsSectionGap">24</system:Double>
     <system:Double x:Key="SupportTicketsCardPadding">24</system:Double>
     <system:Double x:Key="SupportTicketsSummaryCardMinHeight">72</system:Double>
-    <system:Double x:Key="SupportTicketsSummaryIconSize">40</system:Double>
+    <system:Double x:Key="SupportTicketsSummaryIconSize">48</system:Double>
     <system:Double x:Key="SupportTicketsPrimaryButtonHeight">40</system:Double>
     <system:Double x:Key="SupportTicketsPrimaryButtonMinWidth">140</system:Double>
+    <system:Double x:Key="SupportTicketsBadgeMinHeight">24</system:Double>
+    <system:Double x:Key="SupportTicketsActionButtonSize">32</system:Double>
+    <system:Double x:Key="SupportTicketsActionIconSize">18</system:Double>
+    <system:Double x:Key="SupportTicketsTableHeaderHeight">48</system:Double>
+    <system:Double x:Key="SupportTicketsTableRowMinHeight">48</system:Double>
+    <system:Double x:Key="SupportTicketsTableMinHeight">240</system:Double>
+    <system:Double x:Key="SupportTicketsTableMaxHeight">440</system:Double>
     <system:Double x:Key="SupportTicketsFormWidth">420</system:Double>
     <system:Double x:Key="SupportTicketsCardShadowBlur">20</system:Double>
     <system:Double x:Key="SupportTicketsCardShadowDepth">2</system:Double>
     <system:Double x:Key="SupportTicketsCardShadowOpacity">0.05</system:Double>
+    <system:Double x:Key="SupportTicketsModalMaxWidth">512</system:Double>
+    <system:Double x:Key="SupportTicketsModalInputHeight">44</system:Double>
+    <system:Double x:Key="SupportTicketsModalDescriptionMinHeight">112</system:Double>
+    <system:Double x:Key="SupportTicketsModalButtonHeight">40</system:Double>
+    <system:Double x:Key="SupportTicketsModalButtonMinWidth">120</system:Double>
+    <system:Double x:Key="SupportTicketsModalCloseButtonSize">32</system:Double>
 
     <CornerRadius x:Key="SupportTicketsCardCornerRadius">16</CornerRadius>
     <CornerRadius x:Key="SupportTicketsControlCornerRadius">8</CornerRadius>
     <CornerRadius x:Key="SupportTicketsPillCornerRadius">999</CornerRadius>
+    <CornerRadius x:Key="SupportTicketsModalCornerRadius">8</CornerRadius>
 
     <Thickness x:Key="SupportTicketsPageOuterMargin">32</Thickness>
     <Thickness x:Key="SupportTicketsTitleMargin">0,0,0,24</Thickness>
@@ -74,8 +91,15 @@
     <Thickness x:Key="SupportTicketsSummaryMargin">0,0,0,24</Thickness>
     <Thickness x:Key="SupportTicketsCardPaddingThickness">24</Thickness>
     <Thickness x:Key="SupportTicketsPrimaryButtonPadding">18,0</Thickness>
-    <Thickness x:Key="SupportTicketsSummaryCardPadding">18</Thickness>
+    <Thickness x:Key="SupportTicketsSummaryCardPadding">24</Thickness>
+    <Thickness x:Key="SupportTicketsTableHeaderPadding">24,16</Thickness>
+    <Thickness x:Key="SupportTicketsTableCellPadding">24,16</Thickness>
+    <Thickness x:Key="SupportTicketsTableFooterPadding">16</Thickness>
     <Thickness x:Key="SupportTicketsInlineIconMargin">0,0,8,0</Thickness>
+    <Thickness x:Key="SupportTicketsModalHeaderPadding">24,16</Thickness>
+    <Thickness x:Key="SupportTicketsModalBodyPadding">24</Thickness>
+    <Thickness x:Key="SupportTicketsModalFieldMargin">0,0,0,20</Thickness>
+    <Thickness x:Key="SupportTicketsModalFooterMargin">0,8,0,0</Thickness>
 
     <DropShadowEffect x:Key="SupportTicketsCardShadowEffect"
                       BlurRadius="{StaticResource SupportTicketsCardShadowBlur}"
@@ -114,8 +138,9 @@
 
     <Style x:Key="SupportTicketsSummaryLabelTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
-        <Setter Property="FontSize" Value="{StaticResource SupportTicketsMetaSize}" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="LineHeight" Value="16" />
         <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
         <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
         <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
@@ -134,7 +159,8 @@
     <Style x:Key="SupportTicketsTableHeaderTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
         <Setter Property="FontSize" Value="12" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="LineHeight" Value="16" />
         <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
         <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
         <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
@@ -142,12 +168,20 @@
 
     <Style x:Key="SupportTicketsTableCellTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
-        <Setter Property="FontSize" Value="13" />
-        <Setter Property="LineHeight" Value="20" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="LineHeight" Value="22" />
         <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextPrimaryBrush}" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
         <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+    </Style>
+
+    <Style x:Key="SupportTicketsBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="LineHeight" Value="16" />
+        <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
 
     <Style x:Key="SupportTicketsCardStyle" TargetType="Border">
@@ -224,6 +258,63 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style x:Key="SupportTicketsModalShellStyle" TargetType="Border" BasedOn="{StaticResource SupportTicketsCardStyle}">
+        <Setter Property="Width" Value="{StaticResource SupportTicketsModalMaxWidth}" />
+        <Setter Property="MaxWidth" Value="{StaticResource SupportTicketsModalMaxWidth}" />
+        <Setter Property="CornerRadius" Value="{StaticResource SupportTicketsModalCornerRadius}" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style x:Key="SupportTicketsModalCloseButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="{StaticResource SupportTicketsModalCloseButtonSize}" />
+        <Setter Property="Height" Value="{StaticResource SupportTicketsModalCloseButtonSize}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style x:Key="SupportTicketsModalSecondaryButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource SupportTicketsSurfaceBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource SupportTicketsTextSecondaryBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource SupportTicketsOutlineBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Height" Value="{StaticResource SupportTicketsModalButtonHeight}" />
+        <Setter Property="MinWidth" Value="{StaticResource SupportTicketsModalButtonMinWidth}" />
+        <Setter Property="Padding" Value="24,0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FontFamily" Value="{StaticResource SupportTicketsBodyFontFamily}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{StaticResource SupportTicketsControlCornerRadius}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource SupportTicketsSurfaceLowBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SupportTicketsModalPrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource SupportTicketsPrimaryButtonStyle}">
+        <Setter Property="Height" Value="{StaticResource SupportTicketsModalButtonHeight}" />
+        <Setter Property="MinWidth" Value="{StaticResource SupportTicketsModalButtonMinWidth}" />
+        <Setter Property="Padding" Value="24,0" />
     </Style>
 </ResourceDictionary>
 

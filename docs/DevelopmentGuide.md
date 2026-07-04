@@ -10,6 +10,28 @@
 
 Copy `src/DormitoryManagement.WPF/appsettings.example.json` to `appsettings.Development.json` and edit the connection string. Do not commit personal connection strings.
 
+### PayOS
+
+PayOS credentials must be supplied through environment variables or another local secret store, not committed JSON files. The WPF host loads environment variables after `appsettings*.json`, so these values override the placeholder `PayOs` section:
+
+```powershell
+pwsh .\scripts\configure-payos.ps1
+```
+
+Equivalent manual variables:
+
+```powershell
+$env:PayOs__ClientId = "<payos-client-id>"
+$env:PayOs__ApiKey = "<payos-api-key>"
+$env:PayOs__ChecksumKey = "<payos-checksum-key>"
+$env:PayOs__BaseUrl = "https://api-merchant.payos.vn"
+$env:PayOs__ReturnUrl = "http://localhost/payos/return"
+$env:PayOs__CancelUrl = "http://localhost/payos/cancel"
+$env:PayOs__WebhookListenPrefix = "http://localhost:5126/payos/webhook/"
+```
+
+For automatic bank-transfer confirmation, expose the local listener with a public HTTPS tunnel, set `PayOs__WebhookUrl` to the public URL ending in `/payos/webhook/`, then set `PayOs__AutoConfirmWebhook=true`. Keep it `false` until the public URL is stable.
+
 ## Build
 
 ```powershell

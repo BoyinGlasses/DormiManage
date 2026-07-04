@@ -11,22 +11,25 @@ namespace DormitoryManagement.WPF.ViewModels.SupportTickets;
 
 public sealed class SupportTicketListViewModel : ViewModelBase
 {
+    private const int PageSize = 4;
     private readonly ISupportTicketService _service;
     private readonly ICurrentUserService _currentUser;
     private readonly List<SupportTicketDto> _allTickets = new();
+    private readonly List<SupportTicketDto> _filteredTickets = new();
     private bool _hasLoaded;
     private bool _isCreateFormOpen;
     private bool _areFiltersOpen;
+    private int _currentPage = 1;
     private SupportTicketDto? _selectedTicket;
     private string _title = string.Empty;
     private string _description = string.Empty;
-    private SupportTicketCategory _category = SupportTicketCategory.Other;
+    private SupportTicketCategory? _category;
     private PriorityLevel _priority = PriorityLevel.Medium;
     private SupportTicketStatus _statusToApply = SupportTicketStatus.InProgress;
     private string? _statusNote;
-    private string _selectedStatusFilter = "All statuses";
-    private string _selectedCategoryFilter = "All categories";
-    private string _selectedPriorityFilter = "All priorities";
+    private string _selectedStatusFilter = "Tất cả trạng thái";
+    private string _selectedCategoryFilter = "Tất cả loại vấn đề";
+    private string _selectedPriorityFilter = "Tất cả mức độ ưu tiên";
     private string? _successMessage;
     private string? _titleError;
     private string? _descriptionError;
@@ -40,7 +43,10 @@ public sealed class SupportTicketListViewModel : ViewModelBase
         UpdateStatusCommand = new AsyncRelayCommand(UpdateStatusAsync);
         ApplyFiltersCommand = new RelayCommand(ApplyFilters);
         ClearFiltersCommand = new RelayCommand(ClearFilters);
-        ToggleCreateFormCommand = new RelayCommand(() => IsCreateFormOpen = !IsCreateFormOpen);
+        PreviousPageCommand = new RelayCommand(_ => GoToPreviousPage());
+        NextPageCommand = new RelayCommand(_ => GoToNextPage());
+        ToggleCreateFormCommand = new RelayCommand(ToggleCreateForm);
+        CloseCreateFormCommand = new RelayCommand(CloseCreateForm);
         ToggleFiltersCommand = new RelayCommand(() => AreFiltersOpen = !AreFiltersOpen);
         SelectTicketCommand = new RelayCommand(parameter =>
         {
@@ -51,12 +57,23 @@ public sealed class SupportTicketListViewModel : ViewModelBase
         });
         SecondaryTicketActionCommand = new RelayCommand(_ => { });
 
-        StatusFilters.Add("All statuses");
-        foreach (var value in Enum.GetNames<SupportTicketStatus>()) StatusFilters.Add(value);
-        CategoryFilters.Add("All categories");
-        foreach (var value in Enum.GetNames<SupportTicketCategory>()) CategoryFilters.Add(value);
-        PriorityFilters.Add("All priorities");
-        foreach (var value in Enum.GetNames<PriorityLevel>()) PriorityFilters.Add(value);
+        StatusFilters.Add("Tất cả trạng thái");
+        foreach (var value in Enum.GetNames<SupportTicketStatus>())
+        {
+            StatusFilters.Add(value);
+        }
+
+        CategoryFilters.Add("Tất cả loại vấn đề");
+        foreach (var value in Enum.GetNames<SupportTicketCategory>())
+        {
+            CategoryFilters.Add(value);
+        }
+
+        PriorityFilters.Add("Tất cả mức độ ưu tiên");
+        foreach (var value in Enum.GetNames<PriorityLevel>())
+        {
+            PriorityFilters.Add(value);
+        }
     }
 
     public ObservableCollection<SupportTicketDto> Tickets { get; } = new();
@@ -71,7 +88,10 @@ public sealed class SupportTicketListViewModel : ViewModelBase
     public ICommand UpdateStatusCommand { get; }
     public ICommand ApplyFiltersCommand { get; }
     public ICommand ClearFiltersCommand { get; }
+    public ICommand PreviousPageCommand { get; }
+    public ICommand NextPageCommand { get; }
     public ICommand ToggleCreateFormCommand { get; }
+    public ICommand CloseCreateFormCommand { get; }
     public ICommand ToggleFiltersCommand { get; }
     public ICommand SelectTicketCommand { get; }
     public ICommand SecondaryTicketActionCommand { get; }
@@ -90,7 +110,14 @@ public sealed class SupportTicketListViewModel : ViewModelBase
         : $"Hiển thị {Tickets.Count} trên {TotalTicketCount} yêu cầu gần đây.";
     public string TicketFooterSummaryText => TotalTicketCount == 0
         ? "Hiển thị 0-0 trên 0 yêu cầu"
-        : $"Hiển thị 1-{Tickets.Count} trên {TotalTicketCount} yêu cầu";
+        : $"Hiển thị {CurrentRangeStart}-{CurrentRangeEnd} trên {TotalFilteredTicketCount} yêu cầu";
+    public int TotalFilteredTicketCount => _filteredTickets.Count;
+    public int CurrentPage => _currentPage;
+    public int TotalPages => Math.Max(1, (int)Math.Ceiling(TotalFilteredTicketCount / (double)PageSize));
+    public bool HasPreviousPage => CurrentPage > 1;
+    public bool HasNextPage => CurrentPage < TotalPages;
+    private int CurrentRangeStart => TotalFilteredTicketCount == 0 ? 0 : ((CurrentPage - 1) * PageSize) + 1;
+    private int CurrentRangeEnd => TotalFilteredTicketCount == 0 ? 0 : Math.Min(CurrentPage * PageSize, TotalFilteredTicketCount);
 
     public bool IsCreateFormOpen
     {
@@ -128,34 +155,69 @@ public sealed class SupportTicketListViewModel : ViewModelBase
         }
     }
 
-    public SupportTicketCategory Category { get => _category; set => SetProperty(ref _category, value); }
-    public PriorityLevel Priority { get => _priority; set => SetProperty(ref _priority, value); }
-    public SupportTicketStatus StatusToApply { get => _statusToApply; set => SetProperty(ref _statusToApply, value); }
-    public string? StatusNote { get => _statusNote; set => SetProperty(ref _statusNote, value); }
+    public SupportTicketCategory? Category
+    {
+        get => _category;
+        set => SetProperty(ref _category, value);
+    }
+
+    public PriorityLevel Priority
+    {
+        get => _priority;
+        set => SetProperty(ref _priority, value);
+    }
+
+    public SupportTicketStatus StatusToApply
+    {
+        get => _statusToApply;
+        set => SetProperty(ref _statusToApply, value);
+    }
+
+    public string? StatusNote
+    {
+        get => _statusNote;
+        set => SetProperty(ref _statusNote, value);
+    }
+
     public SupportTicketDto? SelectedTicket
     {
         get => _selectedTicket;
         set
         {
-            if (SetProperty(ref _selectedTicket, value))
+            if (SetProperty(ref _selectedTicket, value) && value is not null)
             {
-                if (value is not null)
-                {
-                    StatusToApply = value.Status;
-                }
+                StatusToApply = value.Status;
             }
         }
     }
-    public string SelectedStatusFilter { get => _selectedStatusFilter; set => SetProperty(ref _selectedStatusFilter, value); }
-    public string SelectedCategoryFilter { get => _selectedCategoryFilter; set => SetProperty(ref _selectedCategoryFilter, value); }
-    public string SelectedPriorityFilter { get => _selectedPriorityFilter; set => SetProperty(ref _selectedPriorityFilter, value); }
+
+    public string SelectedStatusFilter
+    {
+        get => _selectedStatusFilter;
+        set => SetProperty(ref _selectedStatusFilter, value);
+    }
+
+    public string SelectedCategoryFilter
+    {
+        get => _selectedCategoryFilter;
+        set => SetProperty(ref _selectedCategoryFilter, value);
+    }
+
+    public string SelectedPriorityFilter
+    {
+        get => _selectedPriorityFilter;
+        set => SetProperty(ref _selectedPriorityFilter, value);
+    }
 
     public string? SuccessMessage
     {
         get => _successMessage;
         private set
         {
-            if (SetProperty(ref _successMessage, value)) OnPropertyChanged(nameof(HasSuccessMessage));
+            if (SetProperty(ref _successMessage, value))
+            {
+                OnPropertyChanged(nameof(HasSuccessMessage));
+            }
         }
     }
 
@@ -166,7 +228,10 @@ public sealed class SupportTicketListViewModel : ViewModelBase
         get => _titleError;
         private set
         {
-            if (SetProperty(ref _titleError, value)) OnPropertyChanged(nameof(HasTitleError));
+            if (SetProperty(ref _titleError, value))
+            {
+                OnPropertyChanged(nameof(HasTitleError));
+            }
         }
     }
 
@@ -175,7 +240,10 @@ public sealed class SupportTicketListViewModel : ViewModelBase
         get => _descriptionError;
         private set
         {
-            if (SetProperty(ref _descriptionError, value)) OnPropertyChanged(nameof(HasDescriptionError));
+            if (SetProperty(ref _descriptionError, value))
+            {
+                OnPropertyChanged(nameof(HasDescriptionError));
+            }
         }
     }
 
@@ -209,19 +277,23 @@ public sealed class SupportTicketListViewModel : ViewModelBase
 
     private async Task CreateTicketAsync()
     {
+        if (!IsCreateFormOpen)
+        {
+            return;
+        }
+
         ClearError();
         SuccessMessage = null;
-        TitleError = null;
-        DescriptionError = null;
-        IsCreateFormOpen = true;
+        ClearCreateValidation();
+
         if (string.IsNullOrWhiteSpace(Title))
         {
-            TitleError = "Enter a ticket title.";
+            TitleError = "Vui lòng nhập chủ đề yêu cầu.";
         }
 
         if (string.IsNullOrWhiteSpace(Description))
         {
-            DescriptionError = "Enter a ticket description.";
+            DescriptionError = "Vui lòng nhập mô tả yêu cầu.";
         }
 
         if (HasTitleError || HasDescriptionError)
@@ -237,16 +309,17 @@ public sealed class SupportTicketListViewModel : ViewModelBase
                 StudentId = _currentUser.CurrentUser?.StudentId,
                 Title = Title.Trim(),
                 Description = Description.Trim(),
-                Category = Category,
-                Priority = Priority
+                Category = Category ?? SupportTicketCategory.Other,
+                Priority = PriorityLevel.Medium
             });
             _allTickets.Insert(0, ticket);
+            _currentPage = 1;
             ApplyFilters();
             SelectedTicket = ticket;
-            Title = string.Empty;
-            Description = string.Empty;
-            SuccessMessage = "Support ticket created.";
+            ResetCreateDraft();
+            ClearCreateValidation();
             IsCreateFormOpen = false;
+            SuccessMessage = "Đã tạo yêu cầu hỗ trợ.";
         }
         catch (Exception ex)
         {
@@ -265,7 +338,7 @@ public sealed class SupportTicketListViewModel : ViewModelBase
         SuccessMessage = null;
         if (SelectedTicket is null)
         {
-            SetError("Select a ticket before updating status.");
+            SetError("Vui lòng chọn yêu cầu trước khi cập nhật trạng thái.");
             return;
         }
 
@@ -278,9 +351,13 @@ public sealed class SupportTicketListViewModel : ViewModelBase
                 Status = StatusToApply,
                 Note = StatusNote
             });
+
+            var updatedTicket = CloneTicket(SelectedTicket, StatusToApply);
+            ReplaceTicket(updatedTicket);
+            ApplyFilters();
+            SelectedTicket = Tickets.FirstOrDefault(ticket => ticket.Id == updatedTicket.Id);
             StatusNote = null;
-            SuccessMessage = "Ticket status updated.";
-            await LoadAsync();
+            SuccessMessage = "Đã cập nhật trạng thái yêu cầu.";
         }
         catch (Exception ex)
         {
@@ -296,22 +373,144 @@ public sealed class SupportTicketListViewModel : ViewModelBase
     private void ApplyFilters()
     {
         IEnumerable<SupportTicketDto> tickets = _allTickets;
-        if (Enum.TryParse<SupportTicketStatus>(SelectedStatusFilter, out var status)) tickets = tickets.Where(ticket => ticket.Status == status);
-        if (Enum.TryParse<SupportTicketCategory>(SelectedCategoryFilter, out var category)) tickets = tickets.Where(ticket => ticket.Category == category);
-        if (Enum.TryParse<PriorityLevel>(SelectedPriorityFilter, out var priority)) tickets = tickets.Where(ticket => ticket.Priority == priority);
+        if (TryParseFilter(SelectedStatusFilter, out SupportTicketStatus status))
+        {
+            tickets = tickets.Where(ticket => ticket.Status == status);
+        }
+
+        if (TryParseFilter(SelectedCategoryFilter, out SupportTicketCategory category))
+        {
+            tickets = tickets.Where(ticket => ticket.Category == category);
+        }
+
+        if (TryParseFilter(SelectedPriorityFilter, out PriorityLevel priority))
+        {
+            tickets = tickets.Where(ticket => ticket.Priority == priority);
+        }
+
+        _filteredTickets.Clear();
+        _filteredTickets.AddRange(tickets);
+
+        if (_currentPage > TotalPages)
+        {
+            _currentPage = TotalPages;
+        }
 
         Tickets.Clear();
-        foreach (var ticket in tickets) Tickets.Add(ticket);
+        foreach (var ticket in _filteredTickets.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
+        {
+            Tickets.Add(ticket);
+        }
+
         NotifyUiState();
     }
 
     private void ClearFilters()
     {
-        SelectedStatusFilter = "All statuses";
-        SelectedCategoryFilter = "All categories";
-        SelectedPriorityFilter = "All priorities";
+        SelectedStatusFilter = "Tất cả trạng thái";
+        SelectedCategoryFilter = "Tất cả loại vấn đề";
+        SelectedPriorityFilter = "Tất cả mức độ ưu tiên";
+        _currentPage = 1;
         ApplyFilters();
     }
+
+    private void GoToPreviousPage()
+    {
+        if (!HasPreviousPage)
+        {
+            return;
+        }
+
+        _currentPage--;
+        ApplyFilters();
+    }
+
+    private void GoToNextPage()
+    {
+        if (!HasNextPage)
+        {
+            return;
+        }
+
+        _currentPage++;
+        ApplyFilters();
+    }
+
+    private void ToggleCreateForm()
+    {
+        if (IsCreateFormOpen)
+        {
+            CloseCreateForm();
+            return;
+        }
+
+        OpenCreateForm();
+    }
+
+    private void OpenCreateForm()
+    {
+        ResetCreateDraft();
+        ClearCreateValidation();
+        ClearError();
+        SuccessMessage = null;
+        IsCreateFormOpen = true;
+    }
+
+    private void CloseCreateForm()
+    {
+        IsCreateFormOpen = false;
+        ResetCreateDraft();
+        ClearCreateValidation();
+        ClearError();
+    }
+
+    private void ResetCreateDraft()
+    {
+        Title = string.Empty;
+        Description = string.Empty;
+        Category = null;
+        Priority = PriorityLevel.Medium;
+    }
+
+    private void ClearCreateValidation()
+    {
+        TitleError = null;
+        DescriptionError = null;
+    }
+
+    private void ReplaceTicket(SupportTicketDto updatedTicket)
+    {
+        var index = _allTickets.FindIndex(ticket => ticket.Id == updatedTicket.Id);
+        if (index >= 0)
+        {
+            _allTickets[index] = updatedTicket;
+        }
+    }
+
+    private static SupportTicketDto CloneTicket(SupportTicketDto ticket, SupportTicketStatus status) =>
+        new()
+        {
+            Id = ticket.Id,
+            StudentId = ticket.StudentId,
+            StudentCode = ticket.StudentCode,
+            StudentName = ticket.StudentName,
+            CreatedBy = ticket.CreatedBy,
+            AssignedTo = ticket.AssignedTo,
+            Title = ticket.Title,
+            Description = ticket.Description,
+            Category = ticket.Category,
+            Status = status,
+            Priority = ticket.Priority,
+            CreatedAt = ticket.CreatedAt,
+            ResolvedAt = status is SupportTicketStatus.Resolved or SupportTicketStatus.Closed
+                ? ticket.ResolvedAt ?? DateTime.UtcNow
+                : null,
+            Responses = ticket.Responses.ToArray()
+        };
+
+    private static bool TryParseFilter<TEnum>(string value, out TEnum result)
+        where TEnum : struct, Enum =>
+        Enum.TryParse(value, out result);
 
     private void NotifyUiState()
     {
@@ -326,5 +525,10 @@ public sealed class SupportTicketListViewModel : ViewModelBase
         OnPropertyChanged(nameof(ResolvedTicketCountText));
         OnPropertyChanged(nameof(RecentTicketSummaryText));
         OnPropertyChanged(nameof(TicketFooterSummaryText));
+        OnPropertyChanged(nameof(TotalFilteredTicketCount));
+        OnPropertyChanged(nameof(CurrentPage));
+        OnPropertyChanged(nameof(TotalPages));
+        OnPropertyChanged(nameof(HasPreviousPage));
+        OnPropertyChanged(nameof(HasNextPage));
     }
 }
